@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L&Qmercatone · 管理商品</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #f4f5f7; color: #1a1a2e; padding: 20px; }
+h1 { font-size: 24px; margin-bottom: 20px; }
+h2 { font-size: 18px; margin: 20px 0 10px; }
+.container { max-width: 900px; margin: 0 auto; }
+.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.product-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; }
+.product-item:hover { background: #f9fafb; }
+.product-emoji { font-size: 24px; width: 40px; text-align: center; }
+.product-info { flex: 1; }
+.product-name { font-weight: 600; font-size: 14px; }
+.product-meta { font-size: 12px; color: #6b7280; }
+.product-price { font-weight: 700; color: #e94560; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-primary { background: #e94560; color: white; }
+.btn-primary:hover { background: #d63851; }
+.btn-success { background: #16a34a; color: white; }
+.btn-success:hover { background: #15803d; }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+.btn-outline { background: white; border: 1.5px solid #e5e7eb; color: #1a1a2e; }
+.btn-outline:hover { border-color: #1a1a2e; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #e94560; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 100; }
+.modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.badge-sale { background: #fef3c7; color: #d97706; }
+.badge-hot { background: #fee2e2; color: #dc2626; }
+.badge-new { background: #dbeafe; color: #2563eb; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 200; }
+.code-box { background: #1e1e2e; color: #a6e3a1; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 12px; overflow-x: auto; white-space: pre; max-height: 300px; overflow-y: auto; }
+.tab { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab-btn { padding: 8px 16px; border: 1.5px solid #e5e7eb; border-radius: 8px; background: white; cursor: pointer; font-weight: 500; }
+.tab-btn.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🛍️ L&Qmercatone 商品管理</h1>
+
+  <div class="tab">
+    <button class="tab-btn active" onclick="showTab('products')">📦 商品列表</button>
+    <button class="tab-btn" onclick="showTab('add')">➕ 添加商品</button>
+    <button class="tab-btn" onclick="showTab('export')">📤 导出数据</button>
+    <button class="tab-btn" onclick="showTab('help')">❓ 帮助</button>
+  </div>
+
+  <!-- Products List -->
+  <div class="tab-content active" id="tab-products">
+    <div class="card">
+      <h2>当前商品 (<span id="productCount">0</span>)</h2>
+      <div id="productList"></div>
+    </div>
+  </div>
+
+  <!-- Add Product -->
+  <div class="tab-content" id="tab-add">
+    <div class="card">
+      <h2>添加新商品</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>商品名称 *</label>
+          <input type="text" id="pName" placeholder="如：Camicia di Seta">
+        </div>
+        <div class="form-group">
+          <label>品牌</label>
+          <input type="text" id="pBrand" placeholder="如：L&Q Collection">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>分类 *</label>
+          <select id="pCategory">
+            <option value="Abbigliamento">衣服 (Abbigliamento)</option>
+            <option value="Detersivi">洗洁剂 (Detersivi)</option>
+            <option value="Casa">家用品 (Casa)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>图标 (emoji)</label>
+          <input type="text" id="pEmoji" placeholder="如：👗" maxlength="4">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>售价 (€) *</label>
+          <input type="number" id="pPrice" step="0.01" placeholder="29.99">
+        </div>
+        <div class="form-group">
+          <label>原价 (€) — 留空表示不打折</label>
+          <input type="number" id="pOldPrice" step="0.01" placeholder="39.99">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>标签</label>
+          <select id="pTag">
+            <option value="">无</option>
+            <option value="hot">🔥 热卖 (hot)</option>
+            <option value="new">✨ 新品 (new)</option>
+            <option value="sale">💰 特惠 (sale)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>打折商品？</label>
+          <select id="pOnSale">
+            <option value="0">否</option>
+            <option value="1">是 — 会显示在"Offerte Speciali"</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addProduct()">➕ 添加商品</button>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="tab-content" id="tab-export">
+    <div class="card">
+      <h2>📤 导出数据</h2>
+      <p style="margin-bottom:12px; color:#6b7280;">复制下面的代码，替换 GitHub 仓库中 <code>public/index.html</code> 里的 <code>PRODUCTS = [...]</code> 部分，然后提交即可更新网站。</p>
+      <div class="code-box" id="exportCode"></div>
+      <button class="btn btn-success" onclick="copyCode()" style="margin-top:12px;">📋 复制代码</button>
+    </div>
+  </div>
+
+  <!-- Help -->
+  <div class="tab-content" id="tab-help">
+    <div class="card">
+      <h2>❓ 如何更新网站商品？</h2>
+      <ol style="margin-left:20px; line-height:2;">
+        <li>在"添加商品"页面添加你的商品</li>
+        <li>在"导出数据"页面复制生成的代码</li>
+        <li>打开 <a href="https://github.com/rin394232503-sketch/lqmercatone" target="_blank">GitHub 仓库</a></li>
+        <li>点击 <code>public/index.html</code> 文件</li>
+        <li>点编辑按钮（铅笔图标）</li>
+        <li>找到 <code>const PRODUCTS = [...]</code> 部分</li>
+        <li>用你复制的代码替换它</li>
+        <li>点"Commit changes"保存</li>
+        <li>Vercel 会在 1-2 分钟内自动更新网站！</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>💡 打折活动设置</h2>
+      <p>要设置打折商品：</p>
+      <ul style="margin-left:20px; line-height:2;">
+        <li><strong>原价</strong>：填写商品原价（如 €39.99）</li>
+        <li><strong>售价</strong>：填写打折后的价格（如 €29.99）</li>
+        <li><strong>打折商品</strong>：选"是"，商品会出现在首页"Offerte Speciali"区域</li>
+        <li><strong>标签</strong>：选"sale"显示💰特惠标签</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" style="display:none;"></div>
+
+<script>
+// Load products from localStorage or use default
+let products = JSON.parse(localStorage.getItem('lq_products') || 'null') || getDefaultProducts();
+
+function getDefaultProducts() {
+  return [
+    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:1},
+    {id:2,name:"Abito Floreale Francese",brand:"Maison Belle",category:"Abbigliamento",price:459,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"",tag:"sale",on_sale:1},
+    {id:4,name:"Camicia di Seta Bianca",brand:"Silk Touch",category:"Abbigliamento",price:599,old_price:null,emoji:"",tag:null,on_sale:0},
+    {id:5,name:"Set Sportivo Casual",brand:"Active Life",category:"Abbigliamento",price:389,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:6,name:"Maglione in Lana",brand:"L&Q Collection",category:"Abbigliamento",price:459,old_price:699,emoji:"",tag:"sale",on_sale:1},
+    {id:7,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:1},
+    {id:8,name:"Felpa con Cappuccio",brand:"Active Life",category:"Abbigliamento",price:259,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:9,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1},
+    {id:10,name:"Detersivo Piatti Limone",brand:"PulitoMax",category:"Detersivi",price:4.99,old_price:null,emoji:"🍋",tag:null,on_sale:0},
+    {id:11,name:"Ammorbidente Pavimenti",brand:"CasaPulita",category:"Detersivi",price:7.99,old_price:11.99,emoji:"",tag:"sale",on_sale:1},
+    {id:12,name:"Candeggina Classica 1.5L",brand:"PulitoMax",category:"Detersivi",price:3.49,old_price:null,emoji:"",tag:"hot",on_sale:1},
+    {id:13,name:"Detersivo Lavastoviglie 30pz",brand:"CasaPulita",category:"Detersivi",price:12.99,old_price:16.99,emoji:"✨",tag:"sale",on_sale:1},
+    {id:14,name:"Sgrassatore Universale",brand:"CasaPulita",category:"Detersivi",price:5.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:15,name:"Detersivo Vetri Spray",brand:"PulitoMax",category:"Detersivi",price:4.49,old_price:5.99,emoji:"🪟",tag:"sale",on_sale:1},
+    {id:16,name:"Sapone Marsiglia 2L",brand:"NaturaleBio",category:"Detersivi",price:9.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:17,name:"Set Asciugamani 6pz",brand:"CasaComfort",category:"Casa",price:39.99,old_price:59.99,emoji:"",tag:"sale",on_sale:1},
+    {id:18,name:"Lampada LED da Tavolo",brand:"BrightHome",category:"Casa",price:29.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:19,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1},
+    {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1},
+    {id:21,name:"Set Lenzuola Matrimoniale",brand:"CasaComfort",category:"Casa",price:59.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:22,name:"Organizer Cucina",brand:"CasaSmart",category:"Casa",price:19.99,old_price:29.99,emoji:"🗄️",tag:"sale",on_sale:1},
+    {id:23,name:"Diffusore Profumo Casa",brand:"AromaVivo",category:"Casa",price:24.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:24,name:"Set Tazze Ceramica 4pz",brand:"CasaComfort",category:"Casa",price:22.99,old_price:32.99,emoji:"☕",tag:"sale",on_sale:1}
+  ];
+}
+
+function saveProducts() {
+  localStorage.setItem('lq_products', JSON.stringify(products));
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'products') renderProducts();
+  if (name === 'export') updateExport();
+}
+
+function renderProducts() {
+  const list = document.getElementById('productList');
+  document.getElementById('productCount').textContent = products.length;
+
+  const categories = ['Abbigliamento', 'Detersivi', 'Casa'];
+  const catNames = {Abbigliamento:'衣服', Detersivi:'洗洁剂', Casa:'家用品'};
+
+  list.innerHTML = categories.map(cat => {
+    const catProducts = products.filter(p => p.category === cat);
+    if (catProducts.length === 0) return '';
+    return `<h3 style="margin:16px 0 8px; font-size:15px;">${catNames[cat]} (${cat}) — ${catProducts.length} 件</h3>` +
+      catProducts.map(p => {
+        const discount = p.old_price ? Math.round((1 - p.price/p.old_price)*100) : 0;
+        return `<div class="product-item">
+          <div class="product-emoji">${p.emoji || '📦'}</div>
+          <div class="product-info">
+            <div class="product-name">${p.name}</div>
+            <div class="product-meta">${p.brand} ${p.tag ? '<span class="badge badge-'+p.tag+'">'+{hot:'热卖',new:'新品',sale:'特惠'}[p.tag]+'</span>' : ''} ${p.on_sale ? '<span class="badge badge-sale">打折 -'+discount+'%</span>' : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="product-price">€${p.price}</div>
+            ${p.old_price ? '<div style="font-size:11px;color:#999;text-decoration:line-through;">€'+p.old_price+'</div>' : ''}
+          </div>
+          <button class="btn btn-danger" onclick="deleteProduct(${p.id})" style="margin-left:8px;">删除</button>
+        </div>`;
+      }).join('');
+  }).join('');
+}
+
+function addProduct() {
+  const name = document.getElementById('pName').value.trim();
+  const brand = document.getElementById('pBrand').value.trim();
+  const category = document.getElementById('pCategory').value;
+  const emoji = document.getElementById('pEmoji').value.trim();
+  const price = parseFloat(document.getElementById('pPrice').value);
+  const old_price = document.getElementById('pOldPrice').value ? parseFloat(document.getElementById('pOldPrice').value) : null;
+  const tag = document.getElementById('pTag').value || null;
+  const on_sale = parseInt(document.getElementById('pOnSale').value);
+
+  if (!name) { showToast('️ 请输入商品名称'); return; }
+  if (isNaN(price) || price <= 0) { showToast('⚠️ 请输入有效价格'); return; }
+
+  const maxId = products.reduce((max, p) => Math.max(max, p.id), 0);
+  products.push({id: maxId + 1, name, brand, category, emoji, price, old_price, tag, on_sale});
+  saveProducts();
+
+  // Clear form
+  document.getElementById('pName').value = '';
+  document.getElementById('pBrand').value = '';
+  document.getElementById('pEmoji').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pOldPrice').value = '';
+
+  showToast('✅ 商品已添加！');
+  showTab('products');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+}
+
+function deleteProduct(id) {
+  if (!confirm('确定删除这个商品？')) return;
+  products = products.filter(p => p.id !== id);
+  saveProducts();
+  renderProducts();
+  showToast('️ 商品已删除');
+}
+
+function updateExport() {
+  const code = 'const PRODUCTS = ' + JSON.stringify(products, null, 2) + ';';
+  document.getElementById('exportCode').textContent = code;
+}
+
+function copyCode() {
+  const code = document.getElementById('exportCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('📋 代码已复制！去 GitHub 粘贴吧');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// Init
+renderProducts();
+</script>
+</body>
+</html>
