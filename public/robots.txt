@@ -1,0 +1,26 @@
+# Robots.txt per L&Qmercatone
+# Ottimizzato per Google Italia (google.it)
+
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+
+# Non indicizzare le API e le risorse non pubbliche
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /data/
+
+# Google-specifico
+User-agent: Googlebot
+Allow: /
+Allow: /sitemap.xml
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.webp
+
+# Sitemap
+Sitemap: /sitemap.xml
