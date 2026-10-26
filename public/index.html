@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>L&Qmercatone - Abbigliamento, Elettronica, Trucco e Cura della Pelle | Offerte Speciali</title>
+<title>L&Qmercatone - Abbigliamento, Detersivi e Articoli per la Casa | Offerte Speciali</title>
 
 <!-- SEO Meta Tags per Google Italia -->
-<meta name="description" content="L&Qmercatone — il tuo negozio online di qualità. Scopri le migliori offerte su abbigliamento, elettronica, trucco e cura della pelle. Spedizione gratuita, reso in 7 giorni, prodotti originali garantiti.">
+<meta name="description" content="L&Qmercatone — il tuo negozio online di qualità. Scopri le migliori offerte su abbigliamento, detersivi, articoli per la casa. Spedizione gratuita, reso in 7 giorni, prodotti originali garantiti.">
 <meta name="keywords" content="L&Qmercatone, negozio online Italia, abbigliamento, elettronica, trucco, cura della pelle, offerte speciali, sconti, shopping online, spedizione gratuita">
 <meta name="author" content="L&Qmercatone">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -18,7 +18,7 @@
 <!-- Open Graph per condivisione social -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="L&Qmercatone — Il Tuo Negozio di Qualità">
-<meta property="og:description" content="Scopri le migliori offerte su abbigliamento, elettronica, trucco e cura della pelle. Prodotti originali, spedizione gratuita e reso in 7 giorni.">
+<meta property="og:description" content="Scopri le migliori offerte su abbigliamento, detersivi, articoli per la casa. Prodotti originali, spedizione gratuita e reso in 7 giorni.">
 <meta property="og:url" content="/">
 <meta property="og:site_name" content="L&Qmercatone">
 <meta property="og:locale" content="it_IT">
@@ -30,7 +30,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="L&Qmercatone — Il Tuo Negozio di Qualità">
-<meta name="twitter:description" content="Abbigliamento, elettronica, trucco e cura della pelle. Offerte speciali ogni giorno.">
+<meta name="twitter:description" content="Abbigliamento, detersivi e articoli per la casa. Offerte speciali ogni giorno.">
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
@@ -44,7 +44,7 @@
   "@context": "https://schema.org",
   "@type": "Store",
   "name": "L&Qmercatone",
-  "description": "Negozio online di qualità — abbigliamento, elettronica, trucco e cura della pelle",
+  "description": "Negozio online di qualità — abbigliamento, detersivi, articoli per la casa",
   "url": "/",
   "logo": "/",
   "image": "/og-image.png",
@@ -66,18 +66,13 @@
       },
       {
         "@type": "OfferCatalog",
-        "name": "Elettronica",
-        "url": "/#elettronica"
+        "name": "Detersivi",
+        "url": "/#detersivi"
       },
       {
         "@type": "OfferCatalog",
-        "name": "Trucco",
-        "url": "/#trucco"
-      },
-      {
-        "@type": "OfferCatalog",
-        "name": "Cura della Pelle",
-        "url": "/#cura-della-pelle"
+        "name": "Casa",
+        "url": "/#casa"
       }
     ]
   },
@@ -525,7 +520,7 @@ body { background: var(--xmas-bg) !important; }
 
 <!-- Hero — thin strip -->
 <div class="hero-strip" id="heroStrip">
-  <span class="hero-strip-text"><strong>Qualità selezionata per te</strong> — Abbigliamento, elettronica, trucco e cura della pelle</span>
+  <span class="hero-strip-text"><strong>Qualità selezionata per te</strong> — Abbigliamento, detersivi e articoli per la casa</span>
   <a href="#offerte" class="hero-strip-btn">Scopri le Offerte</a>
 </div>
 
@@ -655,17 +650,43 @@ body { background: var(--xmas-bg) !important; }
 
 <script>
 const API = '/api';
-let allProducts = [];
-let saleProducts = [];
-let cart = [];
+const PRODUCTS = [
+  // ===== 衣服 Abbigliamento =====
+  {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"",tag:"hot",on_sale:1},
+  {id:2,name:"Abito Floreale Francese",brand:"Maison Belle",category:"Abbigliamento",price:459,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"",tag:"sale",on_sale:1},
+  {id:4,name:"Camicia di Seta Bianca",brand:"Silk Touch",category:"Abbigliamento",price:599,old_price:null,emoji:"",tag:null,on_sale:0},
+  {id:5,name:"Set Sportivo Casual",brand:"Active Life",category:"Abbigliamento",price:389,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:6,name:"Maglione in Lana",brand:"L&Q Collection",category:"Abbigliamento",price:459,old_price:699,emoji:"",tag:"sale",on_sale:1},
+  {id:7,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:1},
+  {id:8,name:"Felpa con Cappuccio",brand:"Active Life",category:"Abbigliamento",price:259,old_price:null,emoji:"",tag:"new",on_sale:0},
+  // ===== 洗洁剂 Detersivi =====
+  {id:9,name:"Detersivo Lavatrice Concentrato 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1},
+  {id:10,name:"Detersivo Piatti Limone 1L",brand:"PulitoMax",category:"Detersivi",price:4.99,old_price:null,emoji:"🍋",tag:null,on_sale:0},
+  {id:11,name:"Ammorbidente per Pavimenti",brand:"CasaPulita",category:"Detersivi",price:7.99,old_price:11.99,emoji:"",tag:"sale",on_sale:1},
+  {id:12,name:"Candeggina Classica 1.5L",brand:"PulitoMax",category:"Detersivi",price:3.49,old_price:null,emoji:"",tag:"hot",on_sale:1},
+  {id:13,name:"Detersivo Lavastoviglie Tabs 30pz",brand:"CasaPulita",category:"Detersivi",price:12.99,old_price:16.99,emoji:"✨",tag:"sale",on_sale:1},
+  {id:14,name:"Sgrassatore Universale",brand:"CasaPulita",category:"Detersivi",price:5.99,old_price:null,emoji:"🧹",tag:"new",on_sale:0},
+  {id:15,name:"Detersivo Vetri Spray",brand:"PulitoMax",category:"Detersivi",price:4.49,old_price:5.99,emoji:"🪟",tag:"sale",on_sale:1},
+  {id:16,name:"Sapone Marsiglia Liquido 2L",brand:"NaturaleBio",category:"Detersivi",price:9.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  // ===== 家用品 Casa =====
+  {id:17,name:"Set Asciugamani in Cotone 6pz",brand:"CasaComfort",category:"Casa",price:39.99,old_price:59.99,emoji:"",tag:"sale",on_sale:1},
+  {id:18,name:"Lampada LED da Tavolo",brand:"BrightHome",category:"Casa",price:29.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:19,name:"Set Pentole Antiaderenti 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1},
+  {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1},
+  {id:21,name:"Set Lenzuola Matrimoniale",brand:"CasaComfort",category:"Casa",price:59.99,old_price:null,emoji:"️",tag:"new",on_sale:0},
+  {id:22,name:"Organizer Cucina Multiuso",brand:"CasaSmart",category:"Casa",price:19.99,old_price:29.99,emoji:"🗄️",tag:"sale",on_sale:1},
+  {id:23,name:"Diffusore di Profumo Casa",brand:"AromaVivo",category:"Casa",price:24.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:24,name:"Set Tazze in Ceramica 4pz",brand:"CasaComfort",category:"Casa",price:22.99,old_price:32.99,emoji:"☕",tag:"sale",on_sale:1}
+];
+let allProducts = PRODUCTS;
+let saleProducts = PRODUCTS.filter(p => p.on_sale === 1 || p.on_sale === true);
+let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
 
-// ===== Fetch Products =====
-async function loadProducts() {
-  const res = await fetch(`${API}/products`);
-  const data = await res.json();
-  allProducts = data;
-  saleProducts = data.filter(p => p.on_sale === 1 || p.on_sale === true);
+function saveCart() { localStorage.setItem('lq_cart', JSON.stringify(cart)); }
 
+// ===== Load Products (from embedded data) =====
+function loadProducts() {
   renderOfferte();
   renderProducts('Tutti');
 }
@@ -755,6 +776,7 @@ function addToCart(id) {
   const existing = cart.find(i => i.id === id);
   if (existing) existing.qty++;
   else cart.push({ ...p, qty: 1 });
+  saveCart();
   updateCart();
   showToast(`✅ Aggiunto al carrello: ${p.name}`);
 }
@@ -764,6 +786,7 @@ function changeQty(id, delta) {
   if (!item) return;
   item.qty += delta;
   if (item.qty <= 0) { cart = cart.filter(i => i.id !== id); }
+  saveCart();
   updateCart();
 }
 
@@ -877,31 +900,31 @@ async function submitOrder() {
     price: i.price, qty: i.qty, emoji: i.emoji, image: i.image
   }));
 
-  try {
-    const res = await fetch(`${API}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customer_name: name, customer_phone: phone,
-        customer_wechat: wechat, customer_email: email,
-        customer_address: addr, payment_method: payment,
-        note, items,
-      }),
-    });
-    const order = await res.json();
-    if (!res.ok) return showToast('❌ ' + (order.error || 'Errore durante l\'invio'));
+  const orderNo = 'LQ' + Date.now().toString().slice(-8) + Math.random().toString(36).slice(2,5).toUpperCase();
+  const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-    const totalItems = cart.reduce((s, i) => s + i.qty, 0);
-    const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const orders = JSON.parse(localStorage.getItem('lq_orders') || '[]');
+  orders.push({
+    order_no: orderNo,
+    customer_name: name, customer_phone: phone,
+    customer_wechat: wechat, customer_email: email,
+    customer_address: addr, payment_method: payment,
+    note: note, items: items,
+    total_amount: totalPrice, item_count: totalItems,
+    status: 'pending', settled: 0,
+    created_at: new Date().toISOString()
+  });
+  localStorage.setItem('lq_orders', JSON.stringify(orders));
 
-    document.getElementById('checkoutBody').innerHTML = `
+  document.getElementById('checkoutBody').innerHTML = `
       <div class="success-view">
         <div class="success-icon">🎉</div>
         <h3>Ordine Inviato con Successo!</h3>
         <p>Gentile ${name}, il tuo ordine è stato confermato.<br>Controlliamo e spediamo al più presto.</p>
         <div style="background:#f9fafb;border-radius:12px;padding:16px;text-align:left;">
           <div style="font-size:13px;color:var(--text-light);margin-bottom:4px;">Numero Ordine</div>
-          <div style="font-weight:600;margin-bottom:12px;">${order.order_no}</div>
+          <div style="font-weight:600;margin-bottom:12px;">${orderNo}</div>
           <div style="font-size:13px;color:var(--text-light);margin-bottom:4px;">Dati di Spedizione</div>
           <div style="font-size:14px;">${name} · ${phone}</div>
           ${wechat ? `<div style="font-size:14px;color:var(--text-light);">WeChat: ${wechat}</div>` : ''}
@@ -914,10 +937,8 @@ async function submitOrder() {
       </div>`;
     document.getElementById('coFooter').innerHTML = `<button class="submit-btn" onclick="finishOrder()">Fine</button>`;
     cart = [];
+    saveCart();
     updateCart();
-  } catch (err) {
-    showToast('❌ Errore di connessione, riprova');
-  }
 }
 function finishOrder() {
   closeCheckout();
