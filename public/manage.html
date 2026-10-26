@@ -159,6 +159,10 @@ body {
 .install-banner .install-title { font-size: 15px; font-weight: 600; }
 .install-banner .install-desc { font-size: 12px; opacity: 0.7; margin-top: 2px; }
 </style>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body>
 
@@ -166,6 +170,36 @@ body {
 <div class="app-header">
   <h1>🛍️ L&Qmercatone</h1>
   <p>商品管理后台</p>
+</div>
+
+<!-- Supabase Setup Banner -->
+<div id="supabaseBanner" style="display:none;">
+  <div class="card" style="margin:16px; background:#fff3e0;">
+    <h3>⚙️ 设置云数据库</h3>
+    <p style="font-size:13px;color:#666;margin:8px 0;">需要先设置 Supabase 才能使用实时同步功能</p>
+    <div class="form-group" style="padding:0;">
+      <label>Supabase URL</label>
+      <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+    </div>
+    <div class="form-group" style="padding:0;">
+      <label>Supabase Anon Key</label>
+      <input type="text" id="sbKey" placeholder="eyJhbGci...">
+    </div>
+    <button class="btn btn-primary" onclick="initSupabase()" style="margin-top:12px;">连接数据库</button>
+    <p style="font-size:12px;color:#888;margin-top:12px;">👉 打开 <a href="https://supabase.com" target="_blank" style="color:var(--blue);">supabase.com</a> 免费注册 → 创建项目 → 在 Settings → API 中复制 URL 和 Key</p>
+  </div>
+</div>
+
+<!-- Orders Page (NEW) -->
+<div class="page" id="page-orders">
+  <div style="padding:16px;">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:12px;">📬 新订单 <span id="newOrderBadge" style="background:var(--red);color:white;font-size:12px;padding:2px 8px;border-radius:10px;margin-left:8px;display:none;">0</span></h2>
+  </div>
+  <div id="ordersList"></div>
+  <div id="noOrders" style="text-align:center;padding:40px;color:var(--light);">
+    <div style="font-size:48px;margin-bottom:12px;">📭</div>
+    <p>还没有新订单</p>
+  </div>
 </div>
 
 <!-- Products Page -->
@@ -295,6 +329,10 @@ body {
     <div class="nav-icon">📦</div>
     <span>商品</span>
   </div>
+  <div class="nav-item" onclick="showPage('orders',this)">
+    <div class="nav-icon">📬</div>
+    <span>订单</span>
+  </div>
   <div class="nav-item" onclick="showPage('add',this)">
     <div class="nav-icon">➕</div>
     <span>添加</span>
@@ -401,6 +439,8 @@ function addProduct() {
   const maxId = products.reduce((max, p) => Math.max(max, p.id), 0);
   products.push({id: maxId + 1, name, brand, category, emoji, price, old_price, tag, on_sale});
   saveProducts();
+  // Sync to Supabase
+  saveProductToDB({name, brand, category, price, old_price, emoji, tag, on_sale: on_sale === 1});
 
   // Clear form
   ['fName','fBrand','fEmoji','fPrice','fOldPrice'].forEach(id => document.getElementById(id).value = '');
@@ -414,6 +454,7 @@ function deleteProduct(id) {
   if (!confirm('确定删除这个商品？')) return;
   products = products.filter(p => p.id !== id);
   saveProducts();
+  deleteProductFromDB(id);
   renderProducts();
   showToast('🗑️ 商品已删除');
 }
@@ -523,7 +564,153 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ===== PWA Service Worker =====
+// ===== Supabase 云数据库 =====
+let supabase = null;
+let sbConfig = JSON.parse(localStorage.getItem('sb_config') || 'null');
+
+function initSupabase() {
+  const url = document.getElementById('sbUrl').value.trim();
+  const key = document.getElementById('sbKey').value.trim();
+  if (!url || !key) { showToast('⚠️ 请填写 URL 和 Key'); return; }
+
+  try {
+    supabase = window.supabase.createClient(url, key);
+    sbConfig = { url, key };
+    localStorage.setItem('sb_config', JSON.stringify(sbConfig));
+    document.getElementById('supabaseBanner').style.display = 'none';
+    showToast('✅ 数据库已连接！');
+    loadProductsFromDB();
+    listenOrders();
+  } catch (e) {
+    showToast(' 连接失败: ' + e.message);
+  }
+}
+
+// Auto-connect if config saved
+if (sbConfig) {
+  try {
+    supabase = window.supabase.createClient(sbConfig.url, sbConfig.key);
+    document.getElementById('supabaseBanner').style.display = 'none';
+    loadProductsFromDB();
+    listenOrders();
+  } catch (e) {
+    document.getElementById('supabaseBanner').style.display = 'block';
+  }
+} else {
+  document.getElementById('supabaseBanner').style.display = 'block';
+}
+
+// Load products from Supabase
+async function loadProductsFromDB() {
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase.from('products').select('*').order('id');
+    if (error) throw error;
+    if (data && data.length > 0) {
+      products = data.map(p => ({
+        id: p.id, name: p.name, brand: p.brand, category: p.category,
+        price: parseFloat(p.price), old_price: p.old_price ? parseFloat(p.old_price) : null,
+        emoji: p.emoji || '', tag: p.tag, on_sale: p.on_sale ? 1 : 0,
+        image_url: p.image_url || '', stock: p.stock || 99
+      }));
+      saveProducts();
+      renderProducts();
+    }
+  } catch (e) {
+    console.log('DB load error:', e);
+  }
+}
+
+// Realtime: Listen for new orders
+function listenOrders() {
+  if (!supabase) return;
+  supabase.channel('orders')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+      onNewOrder(payload.new);
+    })
+    .subscribe();
+}
+
+let unreadOrders = 0;
+function onNewOrder(order) {
+  unreadOrders++;
+  const badge = document.getElementById('newOrderBadge');
+  if (badge) { badge.textContent = unreadOrders; badge.style.display = 'inline'; }
+  showToast('📬 新订单！来自 ' + order.customer_name);
+  renderOrders();
+}
+
+// Render orders
+function renderOrders() {
+  // In production, fetch from Supabase
+  const list = document.getElementById('ordersList');
+  if (!list) return;
+  if (!supabase) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--light);">请先连接数据库</div>'; return; }
+
+  supabase.from('orders').select('*').order('created_at', {ascending:false}).limit(50).then(({data}) => {
+    if (!data || data.length === 0) { document.getElementById('noOrders').style.display = 'block'; return; }
+    document.getElementById('noOrders').style.display = 'none';
+    const catNames = {Abbigliamento:'衣服', Detersivi:'洗洁剂', Casa:'家用品'};
+    list.innerHTML = data.map(o => {
+      const items = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+      const time = new Date(o.created_at).toLocaleString('zh-CN');
+      return `<div class="card" style="margin:0 16px 12px;">
+        <div style="padding:12px 16px;border-bottom:0.5px solid var(--ios-sep);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;">${o.order_no}</span>
+            <span style="font-size:12px;color:var(--light);">${time}</span>
+          </div>
+        </div>
+        <div style="padding:12px 16px;">
+          <div style="font-size:14px;margin-bottom:8px;">👤 ${o.customer_name} · 📱 ${o.customer_phone}</div>
+          ${o.customer_wechat ? '<div style="font-size:13px;color:var(--light);">💬 微信: '+o.customer_wechat+'</div>' : ''}
+          <div style="font-size:13px;color:var(--light);margin-top:4px;">📍 ${o.customer_address}</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--ios-sep);">
+            ${items.map(i => '<div style="font-size:13px;">'+(i.emoji||'📦')+' '+i.name+' ×'+i.qty+' — €'+(i.price*i.qty).toFixed(2)+'</div>').join('')}
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--light);">${o.item_count}件 · ${o.payment_method}</span>
+            <span style="font-size:18px;font-weight:700;color:var(--accent);">€${parseFloat(o.total_amount).toFixed(2)}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+// Save product changes to Supabase
+async function saveProductToDB(product) {
+  if (!supabase) return;
+  try {
+    if (product.id && product.id > 0) {
+      await supabase.from('products').update(product).eq('id', product.id);
+    } else {
+      await supabase.from('products').insert([product]);
+    }
+  } catch (e) { console.log('DB save error:', e); }
+}
+
+// Delete product from Supabase
+async function deleteProductFromDB(id) {
+  if (!supabase) return;
+  try { await supabase.from('products').delete().eq('id', id); } catch (e) {}
+}
+
+// Upload image to Supabase Storage
+async function uploadImage(file, productId) {
+  if (!supabase) { showToast('⚠️ 请先连接数据库'); return null; }
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `products/${productId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('product-images').upload(path, file);
+    if (error) throw error;
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
+  } catch (e) {
+    showToast('❌ 上传失败: ' + e.message);
+    return null;
+  }
+}
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }

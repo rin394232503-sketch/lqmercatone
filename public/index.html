@@ -38,6 +38,9 @@
 <!-- Sitemap -->
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- Dati Strutturati JSON-LD per Google -->
 <script type="application/ld+json">
 {
@@ -916,6 +919,23 @@ async function submitOrder() {
     created_at: new Date().toISOString()
   });
   localStorage.setItem('lq_orders', JSON.stringify(orders));
+
+  // Send order to Supabase cloud database
+  try {
+    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || 'null');
+    if (sbConfig && window.supabase) {
+      const sb = window.supabase.createClient(sbConfig.url, sbConfig.key);
+      await sb.from('orders').insert([{
+        order_no: orderNo,
+        customer_name: name, customer_phone: phone,
+        customer_wechat: wechat, customer_email: email,
+        customer_address: addr, payment_method: payment,
+        note: note, items: items,
+        total_amount: totalPrice, item_count: totalItems,
+        status: 'pending', settled: false
+      }]);
+    }
+  } catch (e) { console.log('Supabase order error:', e); }
 
   document.getElementById('checkoutBody').innerHTML = `
       <div class="success-view">
