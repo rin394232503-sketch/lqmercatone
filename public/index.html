@@ -39,7 +39,46 @@
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
 <!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ===== Mode Toggle =====
+function setMode(mode) {
+  const body = document.body;
+  const shopBtn = document.getElementById('modeShop');
+  const flyerBtn = document.getElementById('modeFlyer');
+
+  if (mode === 'flyer') {
+    body.classList.add('flyer-mode');
+    shopBtn.classList.remove('active');
+    flyerBtn.classList.add('active');
+    renderFlyer();
+  } else {
+    body.classList.remove('flyer-mode');
+    shopBtn.classList.add('active');
+    flyerBtn.classList.remove('active');
+  }
+}
+
+function renderFlyer() {
+  const grid = document.getElementById('flyerGrid');
+  const saleProducts = PRODUCTS.filter(p => p.on_sale);
+
+  grid.innerHTML = saleProducts.map(p => {
+    const discount = p.old_price ? Math.round((1 - p.price/p.old_price) * 100) : 0;
+    return `<div class="flyer-card">
+      <div class="flyer-card-img">${p.emoji || '📦'}</div>
+      ${discount > 0 ? '<div class="flyer-card-discount">-'+discount+'%</div>' : ''}
+      <div class="flyer-card-info">
+        <div class="flyer-card-name">${p.name}</div>
+        <div class="flyer-card-prices">
+          <span class="flyer-card-new-price">€${p.price}</span>
+          ${p.old_price ? '<span class="flyer-card-old-price">€'+p.old_price+'</span>' : ''}
+        </div>
+      </div>
+      <button class="flyer-add-btn" onclick="addToCart(${p.id}); showToast('✅ Aggiunto!')">+ Aggiungi</button>
+    </div>`;
+  }).join('');
+}
+</script>
 
 <!-- Dati Strutturati JSON-LD per Google -->
 <script type="application/ld+json">
@@ -469,6 +508,33 @@ body { background: var(--xmas-bg) !important; }
   border-bottom: 2px solid var(--xmas-gold) !important;
 }
 
+
+/* ===== Flyer Mode ===== */
+.mode-toggle { display: flex; justify-content: center; gap: 12px; margin: 16px 24px; }
+.mode-btn { padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border); background: white; cursor: pointer; transition: 0.2s; }
+.mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+.flyer-view { display: none; padding: 16px 24px 40px; }
+.flyer-view.active { display: block; }
+.flyer-header { text-align: center; padding: 24px 0 16px; }
+.flyer-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--accent); }
+.flyer-header p { color: var(--text-light); font-size: 14px; margin-top: 4px; }
+.flyer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.flyer-card { background: white; border-radius: 12px; overflow: hidden; border: 2px solid var(--accent); position: relative; transition: 0.2s; }
+.flyer-card:active { transform: scale(0.97); }
+.flyer-card-img { aspect-ratio: 1; background: #fff5f5; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.flyer-card-discount { position: absolute; top: 8px; right: 8px; background: var(--accent); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.flyer-card-info { padding: 10px; }
+.flyer-card-name { font-size: 12px; font-weight: 600; line-height: 1.3; height: 32px; overflow: hidden; }
+.flyer-card-prices { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+.flyer-card-new-price { font-size: 16px; font-weight: 700; color: var(--accent); }
+.flyer-card-old-price { font-size: 11px; color: var(--text-light); text-decoration: line-through; }
+.flyer-add-btn { width: 100%; padding: 8px; background: var(--accent); color: white; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+.flyer-add-btn:active { background: var(--accent-hover); }
+
+/* Hide normal views in flyer mode */
+.flyer-mode .cat-strip, .flyer-mode #products, .flyer-mode .offerte-section { display: none; }
+.flyer-mode .flyer-view { display: block; }
 </style>
 </head>
 <body>
@@ -527,6 +593,21 @@ body { background: var(--xmas-bg) !important; }
     </div>
   </div>
 </section>
+<!-- Mode Toggle -->
+<div class="mode-toggle">
+  <button class="mode-btn active" id="modeShop" onclick="setMode('shop')">🛒 购物模式</button>
+  <button class="mode-btn" id="modeFlyer" onclick="setMode('flyer')">📄 传单模式</button>
+</div>
+
+<!-- Flyer View -->
+<div class="flyer-view" id="flyerView">
+  <div class="flyer-header">
+    <h2> Offerte Speciali</h2>
+    <p>Tutti i prodotti in sconto — Volantino Digitale</p>
+  </div>
+  <div class="flyer-grid" id="flyerGrid"></div>
+</div>
+
 
 <!-- Category strip -->
 <div class="cat-strip" id="catStrip">
