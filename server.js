@@ -450,3 +450,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   📡 Porta API:  ${PORT}`);
   console.log('');
 });
+
+// Vercel serverless export
+module.exports = app;
