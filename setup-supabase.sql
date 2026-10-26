@@ -41,9 +41,35 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. 启用 Realtime（实时推送）
+-- 3. 网站设置表
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 插入默认设置
+INSERT INTO site_settings (key, value) VALUES
+('store_name', 'L&Qmercatone'),
+('store_tagline', 'Qualità selezionata per te'),
+('store_description', 'Abbigliamento, elettronica, trucco e cura della pelle'),
+('store_phone', ''),
+('store_email', ''),
+('store_address', ''),
+('store_wechat', ''),
+('store_whatsapp', ''),
+('store_douyin', ''),
+('store_tiktok', ''),
+('store_instagram', ''),
+('store_facebook', ''),
+('store_xiaohongshu', ''),
+('footer_text', '© 2026 L&Qmercatone. Tutti i diritti riservati.')
+ON CONFLICT (key) DO NOTHING;
+
+-- 4. 启用 Realtime（实时推送）
 ALTER PUBLICATION supabase_realtime ADD TABLE orders;
 ALTER PUBLICATION supabase_realtime ADD TABLE products;
+ALTER PUBLICATION supabase_realtime ADD TABLE site_settings;
 
 -- 4. 设置 RLS（行级安全）- 允许匿名读写
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
@@ -51,6 +77,7 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow all access to products" ON products FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all access to orders" ON orders FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow all access to site_settings" ON site_settings FOR ALL USING (true) WITH CHECK (true);
 
 -- 5. 插入默认商品数据
 INSERT INTO products (name, brand, category, price, old_price, emoji, tag, on_sale) VALUES

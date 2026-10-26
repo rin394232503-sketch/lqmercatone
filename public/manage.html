@@ -283,6 +283,48 @@ body {
   </div>
 </div>
 
+
+<!-- Settings Page -->
+<div class="page" id="page-settings">
+  <div style="padding:16px;">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">️ 网站设置</h2>
+    <p style="font-size:13px;color:var(--light);margin-bottom:16px;">修改后自动同步到网站，无需重新部署</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>基本信息</h3></div>
+    <div class="form-group"><label>店铺名称</label><input type="text" id="sName" placeholder="L&Qmercatone"></div>
+    <div class="form-group"><label>店铺标语</label><input type="text" id="sTagline" placeholder="Qualità selezionata per te"></div>
+    <div class="form-group"><label>店铺简介</label><textarea id="sDesc" rows="2" placeholder="描述你的店铺"></textarea></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>联系方式</h3></div>
+    <div class="form-group"><label>电话</label><input type="tel" id="sPhone" placeholder="+39 xxx"></div>
+    <div class="form-group"><label>邮箱</label><input type="email" id="sEmail" placeholder="info@..."></div>
+    <div class="form-group"><label>地址</label><input type="text" id="sAddress" placeholder="店铺地址"></div>
+    <div class="form-group"><label>微信</label><input type="text" id="sWechat" placeholder="微信号"></div>
+    <div class="form-group"><label>WhatsApp</label><input type="text" id="sWhatsapp" placeholder="+39 xxx"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>社交媒体链接</h3></div>
+    <div class="form-group"><label>抖音 / TikTok</label><input type="url" id="sTiktok" placeholder="https://..."></div>
+    <div class="form-group"><label>Instagram</label><input type="url" id="sInstagram" placeholder="https://..."></div>
+    <div class="form-group"><label>Facebook</label><input type="url" id="sFacebook" placeholder="https://..."></div>
+    <div class="form-group"><label>小红书</label><input type="url" id="sXiaohongshu" placeholder="https://..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>页脚</h3></div>
+    <div class="form-group"><label>页脚文字</label><input type="text" id="sFooter" placeholder="版权信息"></div>
+  </div>
+
+  <div style="padding:0 16px 16px;">
+    <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+  </div>
+</div>
+
 <!-- Sync Page -->
 <div class="page" id="page-sync">
   <div class="card">

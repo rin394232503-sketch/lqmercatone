@@ -86,26 +86,6 @@
     "bestRating": "5"
   }
 }
-
-// ===== Christmas Snow Effect =====
-function createSnowflakes() {
-  const container = document.getElementById('snowContainer');
-  if (!container) return;
-  const flakes = ['❄', '❅', '❆', '✦', '•'];
-  for (let i = 0; i < 30; i++) {
-    const flake = document.createElement('div');
-    flake.className = 'snowflake';
-    flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
-    flake.style.left = Math.random() * 100 + '%';
-    flake.style.fontSize = (Math.random() * 12 + 8) + 'px';
-    flake.style.animationDuration = (Math.random() * 8 + 5) + 's';
-    flake.style.animationDelay = (Math.random() * 10) + 's';
-    flake.style.opacity = Math.random() * 0.6 + 0.4;
-    container.appendChild(flake);
-  }
-}
-createSnowflakes();
-
 </script>
 <script type="application/ld+json">
 {
@@ -653,6 +633,60 @@ body { background: var(--xmas-bg) !important; }
 
 <script>
 const API = '/api';
+
+// ===== Load Site Settings from Supabase =====
+async function loadSiteSettings() {
+  try {
+    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || sessionStorage.getItem('sb_config') || 'null');
+    if (!sbConfig || !window.supabase) return;
+    const sb = window.supabase.createClient(sbConfig.url, sbConfig.key);
+    const { data } = await sb.from('site_settings').select('*');
+    if (!data) return;
+    const s = {};
+    data.forEach(r => { s[r.key] = r.value; });
+
+    // Update page elements
+    if (s.store_name) {
+      document.title = s.store_name + ' - ' + (s.store_description || 'Negozio Online');
+      document.querySelectorAll('.logo').forEach(el => {
+        if (el.textContent.includes('L&Q')) {
+          const parts = s.store_name.split(/(&|and)/i);
+          if (parts.length > 1) {
+            el.innerHTML = parts[0] + '<span>' + parts.slice(1).join('') + '</span>';
+          } else {
+            el.innerHTML = s.store_name;
+          }
+        }
+      });
+    }
+    if (s.store_tagline) {
+      const tagline = document.querySelector('.hero-strip-text strong');
+      if (tagline) tagline.textContent = s.store_tagline;
+    }
+    if (s.store_description) {
+      const desc = document.querySelector('.hero-strip-text');
+      if (desc && !desc.querySelector('strong').nextSibling) {
+        // append description
+      }
+    }
+    if (s.footer_text) {
+      const footer = document.querySelector('.footer-bottom span');
+      if (footer) footer.textContent = s.footer_text;
+    }
+
+    // Update meta tags for SEO
+    if (s.store_name) {
+      document.querySelector('meta[property="og:title"]')?.setAttribute('content', s.store_name);
+      document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', s.store_name);
+    }
+    if (s.store_description) {
+      document.querySelector('meta[name="description"]')?.setAttribute('content', s.store_description);
+      document.querySelector('meta[property="og:description"]')?.setAttribute('content', s.store_description);
+    }
+
+  } catch (e) { console.log('Settings load error:', e); }
+}
+
 const PRODUCTS = [
   // ===== 衣服 Abbigliamento =====
   {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"",tag:"hot",on_sale:1},
@@ -690,6 +724,7 @@ function saveCart() { localStorage.setItem('lq_cart', JSON.stringify(cart)); }
 
 // ===== Load Products (from embedded data) =====
 function loadProducts() {
+  loadSiteSettings();
   renderOfferte();
   renderProducts('Tutti');
 }
