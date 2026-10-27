@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>L&Qmercatone - 订单结算</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #ffffff; --bg-soft: #f8f9fa; --text: #2d3436; --text-light: #636e72;
+  --text-muted: #b2bec3; --accent: #6c5ce7; --accent-soft: #a29bfe;
+  --accent-bg: #f0eeff; --border: #e9ecef; --border-light: #f1f3f5;
+  --danger: #e17055; --success: #00b894; --warning: #fdcb6e;
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+  background: var(--bg-soft); color: var(--text);
+  max-width: 480px; margin: 0 auto; padding-bottom: 100px;
+}
+a { text-decoration: none; color: inherit; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+/* Top Nav */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.back-btn { font-size: 20px; }
+.top-nav-title { flex: 1; font-size: 16px; font-weight: 600; text-align: center; }
+
+/* Section Card */
+.section-card {
+  background: white; border-radius: var(--radius);
+  margin: 12px 16px; padding: 16px;
+}
+
+/* Address Section */
+.address-section { display: flex; align-items: flex-start; gap: 12px; }
+.address-default {
+  flex: 1;
+}
+.address-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.address-name { font-size: 15px; font-weight: 600; }
+.address-phone { font-size: 13px; color: var(--text-light); }
+.address-detail { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+.address-edit { font-size: 12px; color: var(--accent); white-space: nowrap; margin-top: 4px; }
+.add-address-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 14px; border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+  font-size: 14px; color: var(--text-muted); cursor: pointer;
+}
+.add-address-btn:active { background: var(--bg-soft); }
+
+/* Product Preview */
+.product-preview-item {
+  display: flex; gap: 10px; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border-light);
+}
+.product-preview-item:last-child { border-bottom: none; }
+.pp-img { width: 56px; height: 56px; border-radius: var(--radius-xs); background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.pp-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-xs); }
+.pp-info { flex: 1; min-width: 0; }
+.pp-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pp-sku { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.pp-price { font-size: 14px; font-weight: 600; color: var(--text); text-align: right; flex-shrink: 0; }
+.pp-price::before { content: '€'; font-size: 11px; }
+.pp-qty { font-size: 11px; color: var(--text-muted); text-align: right; }
+.pp-more { text-align: center; padding: 8px; font-size: 12px; color: var(--text-muted); }
+
+/* Coupon & Payment Row */
+.info-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border-light);
+}
+.info-row:last-child { border-bottom: none; }
+.info-left { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.info-left .icon { font-size: 18px; }
+.info-right { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.info-right .arrow { font-size: 12px; }
+.info-right .value { color: var(--danger); font-weight: 500; }
+
+/* Payment Options */
+.payment-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 0; border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+}
+.payment-option:last-child { border-bottom: none; }
+.payment-option.active { color: var(--accent); }
+.payment-icon { font-size: 20px; width: 28px; text-align: center; }
+.payment-name { font-size: 14px; flex: 1; }
+.payment-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.payment-option.active .payment-check { border-color: var(--accent); background: var(--accent); color: white; }
+
+/* Note Input */
+.note-input {
+  width: 100%; padding: 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px;
+  font-family: inherit; resize: none; outline: none;
+  transition: 0.2s; background: var(--bg-soft);
+}
+.note-input:focus { border-color: var(--accent); background: white; }
+.note-input::placeholder { color: var(--text-muted); }
+
+/* Price Summary */
+.price-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; font-size: 14px;
+}
+.price-row.total {
+  border-top: 1px solid var(--border-light);
+  padding-top: 12px; margin-top: 4px;
+}
+.price-row.total .price-label { font-size: 15px; font-weight: 600; }
+.price-row.total .price-value { font-size: 20px; font-weight: 700; color: var(--danger); }
+.price-row.total .price-value::before { content: '€'; font-size: 14px; }
+.price-label { color: var(--text-light); }
+.price-value { font-weight: 500; }
+.price-value.free { color: var(--success); }
+
+/* Bottom Submit Bar */
+.submit-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  padding: 12px 16px; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.submit-total { font-size: 13px; color: var(--text-light); }
+.submit-total strong { font-size: 22px; font-weight: 700; color: var(--danger); }
+.submit-total strong::before { content: '€'; font-size: 14px; }
+.submit-btn {
+  padding: 14px 32px; background: var(--accent); color: white;
+  border-radius: var(--radius-sm); font-size: 16px; font-weight: 600;
+}
+.submit-btn:active { opacity: 0.85; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: white;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 200;
+  opacity: 0; transition: 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 300; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal-content {
+  background: white; border-radius: var(--radius) var(--radius) 0 0;
+  width: 100%; max-width: 480px; padding: 20px;
+  transform: translateY(100%); transition: 0.3s;
+  max-height: 80vh; overflow-y: auto;
+}
+.modal-overlay.open .modal-content { transform: translateY(0); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { font-size: 20px; color: var(--text-muted); }
+.modal-content input, .modal-content textarea {
+  width: 100%; padding: 12px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+  outline: none; margin-bottom: 12px; transition: 0.2s;
+}
+.modal-content input:focus, .modal-content textarea:focus { border-color: var(--accent); }
+.modal-save-btn {
+  width: 100%; padding: 14px; background: var(--accent); color: white;
+  border-radius: var(--radius-sm); font-size: 15px; font-weight: 600;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="top-nav">
+  <button class="back-btn" onclick="location.href='cart.html'">←</button>
+  <div class="top-nav-title">确认订单 Conferma Ordine</div>
+  <div style="width:24px;"></div>
+</div>
+
+<!-- Address Section -->
+<div class="section-card" id="addressCard">
+  <div id="addressContent">
+    <div class="address-section">
+      <div class="address-default">
+        <div class="address-name-row">
+          <span class="address-name">张三 Mario Rossi</span>
+          <span class="address-phone">+39 333 123 4567</span>
+        </div>
+        <div class="address-detail">Via Roma 123, 20121 Milano, Italia</div>
+      </div>
+      <div class="address-edit" onclick="openAddressModal()">修改</div>
+    </div>
+  </div>
+  <div class="add-address-btn" onclick="openAddressModal()" id="addAddrBtn" style="display:none;">
+    <span>+</span> 新增收货地址 Aggiungi indirizzo
+  </div>
+</div>
+
+<!-- Product Preview -->
+<div class="section-card">
+  <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">🏪 L&Qmercatone 旗舰店</div>
+  <div id="productPreview"></div>
+  <div class="pp-more" id="moreItems" style="display:none;">还有 <span id="moreCount">0</span> 件商品...</div>
+</div>
+
+<!-- Coupon & Shipping -->
+<div class="section-card">
+  <div class="info-row" onclick="showToast('🎫 优惠券功能开发中')">
+    <div class="info-left"><span class="icon">🎫</span> 优惠券 Coupon</div>
+    <div class="info-right"><span class="value" id="couponValue">暂无优惠</span> <span class="arrow">></span></div>
+  </div>
+  <div class="info-row">
+    <div class="info-left"><span class="icon">🚚</span> 运费 Spedizione</div>
+    <div class="info-right"><span class="value free" id="shippingValue">免运费 Gratis</span></div>
+  </div>
+</div>
+
+<!-- Payment Method -->
+<div class="section-card">
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">支付方式 Metodo di pagamento</div>
+  <div class="payment-option active" onclick="selectPayment(this,'sisal')">
+    <div class="payment-icon">🏪</div>
+    <div class="payment-name">Sisal / Lottomatica（便利店付款）</div>
+    <div class="payment-check">✓</div>
+  </div>
+  <div class="payment-option" onclick="selectPayment(this,'card')">
+    <div class="payment-icon"></div>
+    <div class="payment-name">信用卡 Carta di credito</div>
+    <div class="payment-check"></div>
+  </div>
+  <div class="payment-option" onclick="selectPayment(this,'paypal')">
+    <div class="payment-icon">🅿️</div>
+    <div class="payment-name">PayPal</div>
+    <div class="payment-check"></div>
+  </div>
+</div>
+
+<!-- Order Note -->
+<div class="section-card">
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">订单备注 Note dell'ordine</div>
+  <textarea class="note-input" id="orderNote" rows="2" placeholder="如有特殊要求请在此备注，如包装、配送时间等..."></textarea>
+</div>
+
+<!-- Price Summary -->
+<div class="section-card">
+  <div class="price-row">
+    <span class="price-label">商品小计 Subtotale</span>
+    <span class="price-value" id="subtotal">€0</span>
+  </div>
+  <div class="price-row">
+    <span class="price-label">运费 Spedizione</span>
+    <span class="price-value free" id="shippingCost">€0</span>
+  </div>
+  <div class="price-row">
+    <span class="price-label">优惠 Sconto</span>
+    <span class="price-value" id="discount" style="color:var(--danger);">-€0</span>
+  </div>
+  <div class="price-row total">
+    <span class="price-label">应付总额 Totale</span>
+    <span class="price-value" id="totalPrice">€0</span>
+  </div>
+</div>
+
+<!-- Submit Bar -->
+<div class="submit-bar">
+  <div class="submit-total">合计: <strong id="submitTotal">0</strong></div>
+  <button class="submit-btn" onclick="submitOrder()">提交订单 Invia Ordine</button>
+</div>
+
+<!-- Address Modal -->
+<div class="modal-overlay" id="addressModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📍 收货地址 Indirizzo di spedizione</h3>
+      <button class="modal-close" onclick="closeAddressModal()">✕</button>
+    </div>
+    <input type="text" id="addrName" placeholder="收货人 Nome e cognome *">
+    <input type="tel" id="addrPhone" placeholder="手机号码 Telefono *">
+    <textarea id="addrDetail" rows="3" placeholder="详细地址 Indirizzo completo *&#10;例: Via Roma 123, 20121 Milano"></textarea>
+    <div style="display:flex;gap:10px;">
+      <input type="text" id="addrCity" placeholder="城市 Città" style="flex:1;">
+      <input type="text" id="addrZip" placeholder="邮编 CAP" style="flex:1;">
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin:8px 0;">
+      <input type="checkbox" id="addrDefault" style="accent-color:var(--accent);"> 设为默认地址 Indirizzo predefinito
+    </label>
+    <button class="modal-save-btn" onclick="saveAddress()">💾 保存地址 Salva</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Cart Data =====
+let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
+let selectedPayment = 'sisal';
+let addresses = JSON.parse(localStorage.getItem('lq_addresses') || 'null') || [{
+  name: 'Mario Rossi', phone: '+39 333 123 4567',
+  detail: 'Via Roma 123, 20121 Milano, Italia',
+  city: 'Milano', zip: '20121', isDefault: true
+}];
+let currentAddress = addresses.find(a => a.isDefault) || addresses[0];
+
+// Demo data if cart is empty
+if (cart.length === 0) {
+  cart = [
+    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",price:1299,emoji:"🧥",qty:1,color:"Nero",size:"M",stock:15,selected:true},
+    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",price:329,emoji:"👖",qty:1,color:"Blu",size:"L",stock:23,selected:true},
+    {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",price:89.99,emoji:"",qty:2,color:"",size:"",stock:3,selected:true}
+  ];
+}
+
+// ===== Render =====
+function render() {
+  const items = cart.filter(i => i.selected);
+  const preview = document.getElementById('productPreview');
+
+  if (items.length === 0) {
+    preview.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:14px;">购物车为空 Il carrello è vuoto</div>';
+  } else {
+    const show = items.slice(0, 3);
+    preview.innerHTML = show.map(item => `
+      <div class="product-preview-item">
+        <div class="pp-img">${item.emoji || '📦'}</div>
+        <div class="pp-info">
+          <div class="pp-name">${item.name}</div>
+          <div class="pp-sku">${item.color ? 'Colore: '+item.color : ''} ${item.size ? 'Taglia: '+item.size : ''}</div>
+        </div>
+        <div>
+          <div class="pp-price">${item.price}</div>
+          <div class="pp-qty">×${item.qty}</div>
+        </div>
+      </div>
+    `).join('');
+
+    if (items.length > 3) {
+      document.getElementById('moreItems').style.display = 'block';
+      document.getElementById('moreCount').textContent = items.length - 3;
+    }
+  }
+
+  // Calculate prices
+  const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const shipping = subtotal >= 99 ? 0 : 4.99;
+  const coupon = 0;
+  const total = subtotal + shipping - coupon;
+
+  document.getElementById('subtotal').textContent = '€' + subtotal.toFixed(2);
+  document.getElementById('shippingCost').textContent = shipping === 0 ? '€0 (Gratis)' : '€' + shipping.toFixed(2);
+  document.getElementById('shippingValue').textContent = shipping === 0 ? '免运费 Gratis' : '€' + shipping.toFixed(2);
+  document.getElementById('discount').textContent = '-€' + coupon.toFixed(2);
+  document.getElementById('totalPrice').textContent = total.toFixed(2);
+  document.getElementById('submitTotal').textContent = total.toFixed(2);
+  document.getElementById('couponValue').textContent = coupon > 0 ? '-€'+coupon.toFixed(2) : '暂无优惠';
+
+  // Address
+  if (currentAddress) {
+    document.getElementById('addressContent').innerHTML = `
+      <div class="address-section">
+        <div class="address-default">
+          <div class="address-name-row">
+            <span class="address-name">${currentAddress.name}</span>
+            <span class="address-phone">${currentAddress.phone}</span>
+          </div>
+          <div class="address-detail">${currentAddress.detail}</div>
+        </div>
+        <div class="address-edit" onclick="openAddressModal()">修改</div>
+      </div>
+    `;
+    document.getElementById('addAddrBtn').style.display = 'none';
+  }
+}
+
+// ===== Payment =====
+function selectPayment(el, method) {
+  document.querySelectorAll('.payment-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  el.querySelector('.payment-check').textContent = '✓';
+  document.querySelectorAll('.payment-option').forEach(p => {
+    if (p !== el) p.querySelector('.payment-check').textContent = '';
+  });
+  selectedPayment = method;
+}
+
+// ===== Address Modal =====
+function openAddressModal() {
+  document.getElementById('addressModal').classList.add('open');
+  if (currentAddress) {
+    document.getElementById('addrName').value = currentAddress.name || '';
+    document.getElementById('addrPhone').value = currentAddress.phone || '';
+    document.getElementById('addrDetail').value = currentAddress.detail || '';
+    document.getElementById('addrCity').value = currentAddress.city || '';
+    document.getElementById('addrZip').value = currentAddress.zip || '';
+    document.getElementById('addrDefault').checked = currentAddress.isDefault || false;
+  }
+}
+function closeAddressModal() { document.getElementById('addressModal').classList.remove('open'); }
+function saveAddress() {
+  const name = document.getElementById('addrName').value.trim();
+  const phone = document.getElementById('addrPhone').value.trim();
+  const detail = document.getElementById('addrDetail').value.trim();
+  if (!name || !phone || !detail) { showToast('⚠️ 请填写必填项'); return; }
+
+  const addr = {
+    name, phone, detail,
+    city: document.getElementById('addrCity').value.trim(),
+    zip: document.getElementById('addrZip').value.trim(),
+    isDefault: document.getElementById('addrDefault').checked
+  };
+
+  addresses = [addr];
+  currentAddress = addr;
+  localStorage.setItem('lq_addresses', JSON.stringify(addresses));
+  closeAddressModal();
+  render();
+  showToast('✅ 地址已保存');
+}
+
+// ===== Submit Order =====
+function submitOrder() {
+  if (!currentAddress) { showToast('⚠️ 请选择收货地址'); return; }
+  const items = cart.filter(i => i.selected);
+  if (items.length === 0) { showToast('️ 购物车为空'); return; }
+
+  const orderNo = 'LQ' + Date.now().toString().slice(-8);
+  const total = document.getElementById('totalPrice').textContent;
+
+  const order = {
+    order_no: orderNo,
+    address: currentAddress,
+    items: items,
+    payment: selectedPayment,
+    note: document.getElementById('orderNote').value.trim(),
+    total: total,
+    created_at: new Date().toISOString()
+  };
+
+  // Save to localStorage
+  const orders = JSON.parse(localStorage.getItem('lq_orders') || '[]');
+  orders.push(order);
+  localStorage.setItem('lq_orders', JSON.stringify(orders));
+
+  // Clear cart
+  localStorage.removeItem('lq_cart');
+
+  // Show success
+  document.body.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+      <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">订单提交成功!</h2>
+      <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">订单号 Order No.</p>
+      <p style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:16px;">${orderNo}</p>
+      <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">应付金额 Totale</p>
+      <p style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:24px;">€${total}</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">我们会在 1-3 个工作日内为您安排发货<br>Consegna entro 1-3 giorni lavorativi</p>
+      <a href="index.html" style="display:inline-block;padding:14px 40px;background:var(--accent);color:white;border-radius:50px;font-size:15px;font-weight:600;">继续购物 Continua</a>
+    </div>
+  `;
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
