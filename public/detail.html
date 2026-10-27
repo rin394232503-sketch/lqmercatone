@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>L&Qmercatone - 商品详情</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Product Detail Page - Nordic Minimalist ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #ffffff; --bg-soft: #f8f9fa; --text: #2d3436; --text-light: #636e72;
+  --text-muted: #b2bec3; --accent: #6c5ce7; --accent-soft: #a29bfe;
+  --accent-bg: #f0eeff; --border: #e9ecef; --border-light: #f1f3f5;
+  --danger: #e17055; --success: #00b894; --warning: #fdcb6e;
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04); --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+  background: var(--bg); color: var(--text);
+  max-width: 480px; margin: 0 auto; padding-bottom: 80px;
+}
+a { text-decoration: none; color: inherit; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+/* ===== Top Nav ===== */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.back-btn { font-size: 20px; color: var(--text); }
+.top-nav-title { flex: 1; font-size: 15px; font-weight: 600; text-align: center; }
+.top-nav-actions { display: flex; gap: 8px; }
+.top-nav-actions button { font-size: 18px; }
+
+/* ===== Image Carousel ===== */
+.carousel {
+  position: relative; aspect-ratio: 1; background: var(--bg-soft);
+  overflow: hidden;
+}
+.carousel-track { display: flex; transition: transform 0.3s ease; height: 100%; }
+.carousel-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; font-size: 120px; }
+.carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
+.carousel-dots {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px;
+}
+.carousel-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+.carousel-dot.active { background: white; width: 18px; border-radius: 3px; }
+.video-badge {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,0.6); color: white;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 12px; display: flex; align-items: center; gap: 4px;
+}
+
+/* ===== Product Info ===== */
+.product-info { padding: 16px; }
+.price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.price-current { font-size: 28px; font-weight: 700; color: var(--danger); }
+.price-current::before { content: '€'; font-size: 18px; }
+.price-original { font-size: 15px; color: var(--text-muted); text-decoration: line-through; }
+.price-original::before { content: '€'; }
+.price-discount { background: var(--danger); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.product-title { font-size: 16px; font-weight: 600; line-height: 1.5; margin-bottom: 8px; }
+.product-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.tag { padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.tag-stock { background: #e8f8f5; color: var(--success); }
+.tag-ships { background: var(--accent-bg); color: var(--accent); }
+.delivery-info { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+
+/* ===== SKU Selection ===== */
+.sku-section { padding: 16px; border-top: 8px solid var(--bg-soft); }
+.sku-label { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+.sku-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.sku-option {
+  padding: 8px 16px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 13px;
+  cursor: pointer; transition: 0.2s;
+}
+.sku-option.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.sku-color { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid var(--border); cursor: pointer;
+  transition: 0.2s; position: relative;
+}
+.color-dot.active { border-color: var(--accent); }
+.color-dot.active::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px; font-weight: 700;
+}
+
+/* ===== Product Details ===== */
+.detail-section { padding: 16px; border-top: 8px solid var(--bg-soft); }
+.detail-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.detail-params { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.param-item { display: flex; flex-direction: column; gap: 4px; }
+.param-label { font-size: 12px; color: var(--text-muted); }
+.param-value { font-size: 13px; color: var(--text); }
+.detail-desc { font-size: 14px; line-height: 1.7; color: var(--text-light); }
+.detail-images { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+.detail-img { width: 100%; aspect-ratio: 1; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 60px; border-radius: var(--radius-sm); }
+
+/* ===== Reviews ===== */
+.reviews-section { padding: 16px; border-top: 8px solid var(--bg-soft); }
+.reviews-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.reviews-score { display: flex; align-items: center; gap: 8px; }
+.score-big { font-size: 32px; font-weight: 700; color: var(--text); }
+.score-stars { color: var(--warning); font-size: 14px; }
+.score-count { font-size: 12px; color: var(--text-muted); }
+.review-item { padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+.review-user { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.review-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.review-name { font-size: 13px; font-weight: 500; }
+.review-date { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+.review-stars { color: var(--warning); font-size: 12px; margin-bottom: 6px; }
+.review-text { font-size: 13px; line-height: 1.6; color: var(--text-light); margin-bottom: 8px; }
+.review-images { display: flex; gap: 6px; }
+.review-img { width: 64px; height: 64px; border-radius: var(--radius-xs); background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+
+/* ===== Related Products ===== */
+.related-section { padding: 16px; border-top: 8px solid var(--bg-soft); }
+.related-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.related-card { background: var(--bg); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-light); }
+.related-img { aspect-ratio: 1; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.related-info { padding: 8px; }
+.related-name { font-size: 12px; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.related-price { font-size: 14px; font-weight: 700; color: var(--danger); }
+
+/* ===== Bottom Action Bar ===== */
+.action-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  display: flex; padding: 10px 16px; gap: 10px;
+  z-index: 100; padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+.action-btn {
+  flex: 1; padding: 12px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; text-align: center;
+}
+.action-btn.cart { background: var(--bg-soft); color: var(--text); border: 1.5px solid var(--border); }
+.action-btn.buy { background: var(--accent); color: white; }
+.action-btn:active { opacity: 0.8; transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="top-nav">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div class="top-nav-title">商品详情</div>
+  <div class="top-nav-actions">
+    <button onclick="showToast('❤️ 已收藏')">♡</button>
+    <button onclick="showToast(' 分享链接已复制')"></button>
+  </div>
+</div>
+
+<!-- Image Carousel -->
+<div class="carousel" id="carousel">
+  <div class="carousel-track" id="carouselTrack">
+    <div class="carousel-slide">🧥</div>
+    <div class="carousel-slide"></div>
+    <div class="carousel-slide">👖</div>
+  </div>
+  <div class="carousel-dots">
+    <div class="carousel-dot active"></div>
+    <div class="carousel-dot"></div>
+    <div class="carousel-dot"></div>
+  </div>
+  <div class="video-badge" onclick="showToast('▶️ 视频播放功能开发中')">▶ 视频</div>
+</div>
+
+<!-- Product Info -->
+<div class="product-info">
+  <div class="price-row">
+    <span class="price-current">299</span>
+    <span class="price-original">459</span>
+    <span class="price-discount">-35%</span>
+  </div>
+  <h1 class="product-title">Cappotto Classico in Cashmere - 经典羊绒大衣</h1>
+  <div class="product-tags">
+    <span class="tag tag-stock">现货</span>
+    <span class="tag tag-ships">🚚 预计 3-5 天送达</span>
+  </div>
+  <div class="delivery-info">📍 配送至：Italia · Spedizione gratuita sopra €99</div>
+</div>
+
+<!-- SKU Selection -->
+<div class="sku-section">
+  <div class="sku-label">颜色 Colore</div>
+  <div class="sku-color">
+    <div class="color-dot active" style="background:#2d3436" onclick="selectColor(this)"></div>
+    <div class="color-dot" style="background:#dfe6e9" onclick="selectColor(this)"></div>
+    <div class="color-dot" style="background:#e17055" onclick="selectColor(this)"></div>
+    <div class="color-dot" style="background:#00b894" onclick="selectColor(this)"></div>
+  </div>
+
+  <div class="sku-label" style="margin-top:16px;">尺码 Taglia</div>
+  <div class="sku-options">
+    <div class="sku-option" onclick="selectSku(this)">S</div>
+    <div class="sku-option active" onclick="selectSku(this)">M</div>
+    <div class="sku-option" onclick="selectSku(this)">L</div>
+    <div class="sku-option" onclick="selectSku(this)">XL</div>
+  </div>
+
+  <div class="sku-label">数量 Quantità</div>
+  <div class="sku-options" style="align-items:center;">
+    <button onclick="changeQty(-1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px;">−</button>
+    <span id="qty" style="min-width:32px;text-align:center;font-weight:600;">1</span>
+    <button onclick="changeQty(1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px;">+</button>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">库存 23 件</span>
+  </div>
+</div>
+
+<!-- Product Details -->
+<div class="detail-section">
+  <div class="detail-title">商品参数 Parametri</div>
+  <div class="detail-params">
+    <div class="param-item"><span class="param-label">品牌 Brand</span><span class="param-value">L&Q Collection</span></div>
+    <div class="param-item"><span class="param-label">材质 Materiale</span><span class="param-value">100% Cashmere</span></div>
+    <div class="param-item"><span class="param-label">产地 Origine</span><span class="param-value">Italia</span></div>
+    <div class="param-item"><span class="param-label">货号 Codice</span><span class="param-value">LQ-2026-001</span></div>
+  </div>
+</div>
+
+<div class="detail-section">
+  <div class="detail-title">商品描述 Descrizione</div>
+  <p class="detail-desc">经典款羊绒大衣，采用意大利进口 100% 纯羊绒面料，手感柔软细腻，保暖性极佳。简约北欧设计风格，适合秋冬季节穿着。</p>
+  <div class="detail-images">
+    <div class="detail-img">🧥</div>
+    <div class="detail-img">👔</div>
+    <div class="detail-img"></div>
+  </div>
+</div>
+
+<!-- Reviews -->
+<div class="reviews-section">
+  <div class="reviews-header">
+    <div class="reviews-score">
+      <span class="score-big">4.8</span>
+      <div>
+        <div class="score-stars">★★★★★</div>
+        <div class="score-count">128 条评价</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-item">
+    <div class="review-user">
+      <div class="review-avatar">👩</div>
+      <span class="review-name">Maria R.</span>
+      <span class="review-date">2026-10-20</span>
+    </div>
+    <div class="review-stars">★★★★★</div>
+    <p class="review-text">质量非常好，羊绒很柔软，尺码合适，物流也快！</p>
+    <div class="review-images">
+      <div class="review-img"></div>
+      <div class="review-img">📸</div>
+    </div>
+  </div>
+
+  <div class="review-item">
+    <div class="review-user">
+      <div class="review-avatar">👨</div>
+      <span class="review-name">Luigi B.</span>
+      <span class="review-date">2026-10-18</span>
+    </div>
+    <div class="review-stars">★★★★☆</div>
+    <p class="review-text">Ottimo cappotto, molto caldo e elegante. Consigliato!</p>
+  </div>
+
+  <div class="review-item">
+    <div class="review-user">
+      <div class="review-avatar">👩</div>
+      <span class="review-name">张女士</span>
+      <span class="review-date">2026-10-15</span>
+    </div>
+    <div class="review-stars">★★★★★</div>
+    <p class="review-text">第二次购买了，品质一如既往的好，准备再买一件送妈妈。</p>
+    <div class="review-images">
+      <div class="review-img">📸</div>
+    </div>
+  </div>
+</div>
+
+<!-- Related Products -->
+<div class="related-section">
+  <div class="related-title">相似推荐 Prodotti Simili</div>
+  <div class="related-grid">
+    <div class="related-card" onclick="showToast('查看其他商品')">
+      <div class="related-img"></div>
+      <div class="related-info">
+        <div class="related-name">Abito Floreale Francese 法式碎花连衣裙</div>
+        <div class="related-price">€459</div>
+      </div>
+    </div>
+    <div class="related-card" onclick="showToast('查看其他商品')">
+      <div class="related-img">🧶</div>
+      <div class="related-info">
+        <div class="related-name">Maglione in Lana 羊毛针织毛衣</div>
+        <div class="related-price">€459</div>
+      </div>
+    </div>
+    <div class="related-card" onclick="showToast('查看其他商品')">
+      <div class="related-img">👔</div>
+      <div class="related-info">
+        <div class="related-name">Camicia di Seta 真丝衬衫</div>
+        <div class="related-price">€599</div>
+      </div>
+    </div>
+    <div class="related-card" onclick="showToast('查看其他商品')">
+      <div class="related-img"></div>
+      <div class="related-info">
+        <div class="related-name">Sciarpa in Cashmere 羊绒围巾</div>
+        <div class="related-price">€189</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Action Bar -->
+<div class="action-bar">
+  <button class="action-btn cart" onclick="addToCart()"> 加入购物车</button>
+  <button class="action-btn buy" onclick="buyNow()">⚡ 立即购买</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Carousel =====
+let currentSlide = 0;
+const track = document.getElementById('carouselTrack');
+const dots = document.querySelectorAll('.carousel-dot');
+const slides = document.querySelectorAll('.carousel-slide');
+
+function goToSlide(n) {
+  dots[currentSlide].classList.remove('active');
+  currentSlide = (n + slides.length) % slides.length;
+  track.style.transform = `translateX(-${currentSlide * 100}%)`;
+  dots[currentSlide].classList.add('active');
+}
+
+setInterval(() => goToSlide(currentSlide + 1), 4000);
+
+// Touch swipe
+let touchStartX = 0;
+document.getElementById('carousel').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.getElementById('carousel').addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+});
+
+// ===== SKU =====
+let qty = 1;
+function selectColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+function selectSku(el) {
+  document.querySelectorAll('.sku-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+}
+function changeQty(delta) {
+  qty = Math.max(1, Math.min(23, qty + delta));
+  document.getElementById('qty').textContent = qty;
+}
+
+// ===== Actions =====
+function addToCart() {
+  showToast('✅ 已加入购物车');
+}
+function buyNow() {
+  showToast('⚡ 跳转到结算页面');
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(100px)';
+  }, 2000);
+}
+</script>
+</body>
+</html>
