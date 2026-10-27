@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>L&Qmercatone - 购物车</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #ffffff; --bg-soft: #f8f9fa; --text: #2d3436; --text-light: #636e72;
+  --text-muted: #b2bec3; --accent: #6c5ce7; --accent-soft: #a29bfe;
+  --accent-bg: #f0eeff; --border: #e9ecef; --border-light: #f1f3f5;
+  --danger: #e17055; --success: #00b894; --warning: #fdcb6e;
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+  background: var(--bg-soft); color: var(--text);
+  max-width: 480px; margin: 0 auto; padding-bottom: 140px;
+}
+a { text-decoration: none; color: inherit; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+/* Top Nav */
+.top-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.back-btn { font-size: 20px; }
+.top-nav-title { flex: 1; font-size: 16px; font-weight: 600; text-align: center; }
+.edit-btn { font-size: 13px; color: var(--accent); font-weight: 500; }
+
+/* Summary Bar */
+.summary-bar {
+  background: white; padding: 12px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border-light);
+}
+.summary-left { display: flex; align-items: center; gap: 8px; }
+.summary-left input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+.summary-left label { font-size: 14px; }
+.summary-right { font-size: 14px; color: var(--text-light); }
+.summary-right strong { color: var(--danger); font-size: 18px; }
+
+/* Cart Items */
+.cart-section { padding: 12px 16px; }
+.store-name { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+.cart-item {
+  background: white; border-radius: var(--radius);
+  padding: 14px; margin-bottom: 10px;
+  display: flex; gap: 12px; align-items: flex-start;
+  position: relative; transition: 0.2s;
+}
+.cart-item.out-of-stock { opacity: 0.6; }
+.cart-item input[type="checkbox"] {
+  width: 18px; height: 18px; margin-top: 30px;
+  accent-color: var(--accent); flex-shrink: 0;
+}
+.cart-item-img {
+  width: 80px; height: 80px; border-radius: var(--radius-sm);
+  background: var(--bg-soft); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 32px; flex-shrink: 0;
+}
+.cart-item-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name {
+  font-size: 14px; font-weight: 500; line-height: 1.4;
+  margin-bottom: 4px;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.cart-item-sku { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.cart-item-bottom { display: flex; align-items: center; justify-content: space-between; }
+.cart-item-price { font-size: 16px; font-weight: 700; color: var(--danger); }
+.cart-item-price::before { content: '€'; font-size: 12px; }
+.cart-item-price.low-stock { color: var(--danger); }
+.qty-control {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+.qty-btn {
+  width: 28px; height: 28px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text);
+}
+.qty-btn:active { background: var(--bg-soft); }
+.qty-val { width: 32px; text-align: center; font-size: 13px; font-weight: 600; border-left: 1px solid var(--border); border-right: 1px solid var(--border); line-height: 28px; }
+.delete-btn {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 14px; color: var(--text-muted);
+}
+.delete-btn:active { color: var(--danger); }
+
+/* Low Stock Warning */
+.stock-warning {
+  font-size: 11px; color: var(--danger);
+  margin-top: 4px; display: flex; align-items: center; gap: 4px;
+}
+
+/* Coupon Section */
+.coupon-section {
+  background: white; border-radius: var(--radius);
+  margin: 0 16px 12px; padding: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.coupon-left { display: flex; align-items: center; gap: 10px; }
+.coupon-icon { font-size: 20px; }
+.coupon-text { font-size: 13px; }
+.coupon-text strong { color: var(--danger); }
+.coupon-arrow { color: var(--text-muted); font-size: 14px; }
+
+/* Shipping Info */
+.shipping-bar {
+  background: var(--accent-bg); border-radius: var(--radius);
+  margin: 0 16px 12px; padding: 10px 14px;
+  font-size: 12px; color: var(--accent);
+  display: flex; align-items: center; gap: 6px;
+}
+.shipping-bar.free { background: #e8f8f5; color: var(--success); }
+
+/* Bottom Checkout Bar */
+.checkout-bar {
+  position: fixed; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  padding: 10px 16px; z-index: 100;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+}
+.checkout-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.checkout-total { font-size: 13px; color: var(--text-light); }
+.checkout-total strong { color: var(--danger); font-size: 20px; }
+.checkout-total strong::before { content: '€'; font-size: 14px; }
+.checkout-shipping { font-size: 11px; color: var(--text-muted); }
+.checkout-btn {
+  width: 100%; padding: 14px; background: var(--accent);
+  color: white; border-radius: var(--radius-sm);
+  font-size: 16px; font-weight: 600; text-align: center;
+}
+.checkout-btn:active { opacity: 0.85; }
+.checkout-btn:disabled { background: var(--text-muted); }
+
+/* Empty Cart */
+.empty-cart {
+  text-align: center; padding: 60px 20px;
+}
+.empty-cart .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+.empty-cart p { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
+.empty-cart .shop-btn {
+  display: inline-block; padding: 12px 32px;
+  background: var(--accent); color: white;
+  border-radius: 50px; font-size: 14px; font-weight: 600;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  display: flex; z-index: 99;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 4px; cursor: pointer; }
+.nav-item.active { color: var(--accent); }
+.nav-item:not(.active) { color: var(--text-muted); }
+.nav-icon { font-size: 20px; margin-bottom: 2px; }
+.nav-label { font-size: 10px; font-weight: 500; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 160px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: white;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 200;
+  opacity: 0; transition: 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="top-nav">
+  <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <div class="top-nav-title">购物车 Carrello</div>
+  <button class="edit-btn" id="editBtn" onclick="toggleEdit()">编辑</button>
+</div>
+
+<!-- Summary Bar -->
+<div class="summary-bar">
+  <div class="summary-left">
+    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
+    <label for="selectAll">全选 Seleziona tutto</label>
+  </div>
+  <div class="summary-right">
+    合计 <strong id="totalPrice">0</strong>
+  </div>
+</div>
+
+<!-- Shipping Info -->
+<div class="shipping-bar" id="shippingBar">
+  🚚 再买 €<span id="freeShipGap">99</span> 免运费 Spedizione gratis sopra €99
+</div>
+
+<!-- Coupon Section -->
+<div class="coupon-section" onclick="showToast('🎫 优惠券功能开发中')">
+  <div class="coupon-left">
+    <span class="coupon-icon">🎫</span>
+    <span class="coupon-text">优惠券 Coupon — <strong>选择可用优惠券</strong></span>
+  </div>
+  <span class="coupon-arrow">></span>
+</div>
+
+<!-- Cart Items -->
+<div class="cart-section" id="cartItems"></div>
+
+<!-- Bottom Checkout Bar -->
+<div class="checkout-bar" id="checkoutBar">
+  <div class="checkout-row">
+    <div>
+      <div class="checkout-total">合计 Totale: <strong id="checkoutTotal">0</strong></div>
+      <div class="checkout-shipping" id="checkoutShipping">运费 €4.99</div>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>结算 Checkout (0)</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Cart Data =====
+let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
+let editMode = false;
+
+// If cart is empty, add demo items
+if (cart.length === 0) {
+  cart = [
+    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:1,stock:15,selected:true,color:"Nero",size:"M"},
+    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"👖",tag:"sale",on_sale:1,stock:23,selected:true,color:"Blu",size:"L"},
+    {id:9,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1,stock:50,selected:false,color:"",size:""},
+    {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1,stock:3,selected:true,color:"",size:""},
+    {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1,stock:0,selected:false,color:"",size:""}
+  ];
+  saveCart();
+}
+
+function saveCart() { localStorage.setItem('lq_cart', JSON.stringify(cart)); }
+
+// ===== Render =====
+function render() {
+  const container = document.getElementById('cartItems');
+  if (cart.length === 0) {
+    container.innerHTML = '<div class="empty-cart"><div class="empty-icon">🛒</div><p>购物车是空的 Il carrello è vuoto</p><a href="index.html" class="shop-btn">去购物 Vai allo shopping</a></div>';
+    updateTotals();
+    return;
+  }
+
+  container.innerHTML = '<div class="store-name">🏪 L&Qmercatone 旗舰店</div>' +
+    cart.map((item, i) => {
+      const oos = item.stock === 0;
+      const lowStock = item.stock > 0 && item.stock <= 5;
+      return `<div class="cart-item ${oos ? 'out-of-stock' : ''}">
+        <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleItem(${i},this.checked)" ${oos ? 'disabled' : ''}>
+        <div class="cart-item-img">${item.emoji || '📦'}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          ${item.color || item.size ? `<div class="cart-item-sku">${item.color ? 'Colore: '+item.color : ''} ${item.size ? 'Taglia: '+item.size : ''}</div>` : ''}
+          <div class="cart-item-bottom">
+            <span class="cart-item-price ${lowStock ? 'low-stock' : ''}">${item.price}</span>
+            ${!editMode ? `<div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+              <span class="qty-val">${item.qty || 1}</span>
+              <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+            </div>` : ''}
+          </div>
+          ${oos ? '<div class="stock-warning">⚠️ 库存不足 Esaurito</div>' : ''}
+          ${lowStock ? `<div class="stock-warning">⚠️ 仅剩 ${item.stock} 件 Solo ${item.stock} rimasti</div>` : ''}
+        </div>
+        ${editMode ? `<button class="delete-btn" onclick="deleteItem(${i})"></button>` : ''}
+      </div>`;
+    }).join('');
+
+  updateTotals();
+}
+
+function updateTotals() {
+  const selected = cart.filter(i => i.selected && i.stock > 0);
+  const total = selected.reduce((s, i) => s + i.price * (i.qty || 1), 0);
+  const count = selected.reduce((s, i) => s + (i.qty || 1), 0);
+  const freeShip = total >= 99;
+
+  document.getElementById('totalPrice').textContent = total.toFixed(2);
+  document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+  document.getElementById('checkoutShipping').textContent = freeShip ? '运费 €0 (免运费)' : '运费 €4.99';
+
+  const btn = document.getElementById('checkoutBtn');
+  btn.textContent = `结算 Checkout (${count})`;
+  btn.disabled = count === 0;
+
+  const gap = Math.max(0, 99 - total);
+  const bar = document.getElementById('shippingBar');
+  if (gap > 0) {
+    bar.className = 'shipping-bar';
+    bar.innerHTML = `🚚 再买 €${gap.toFixed(2)} 免运费 Spedizione gratis sopra €99`;
+  } else {
+    bar.className = 'shipping-bar free';
+    bar.innerHTML = '✅ 已满足免运费条件 Spedizione gratis!';
+  }
+
+  // Update select all
+  const allSelected = cart.length > 0 && cart.every(i => i.selected);
+  document.getElementById('selectAll').checked = allSelected;
+}
+
+// ===== Actions =====
+function toggleItem(i, checked) { cart[i].selected = checked; saveCart(); render(); }
+function toggleSelectAll(checked) { cart.forEach(i => { if (i.stock > 0) i.selected = checked; }); saveCart(); render(); }
+function changeQty(i, delta) {
+  const item = cart[i];
+  item.qty = Math.max(1, Math.min(item.stock, (item.qty || 1) + delta));
+  if (item.qty > item.stock) item.qty = item.stock;
+  saveCart(); render();
+}
+function deleteItem(i) {
+  if (!confirm('删除这个商品？')) return;
+  cart.splice(i, 1);
+  saveCart(); render();
+  showToast('🗑️ 已删除');
+}
+function toggleEdit() {
+  editMode = !editMode;
+  document.getElementById('editBtn').textContent = editMode ? '完成' : '编辑';
+  render();
+}
+function checkout() {
+  const selected = cart.filter(i => i.selected && i.stock > 0);
+  if (selected.length === 0) { showToast('️ 请选择商品'); return; }
+  showToast('⚡ 跳转到结算页面...');
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
