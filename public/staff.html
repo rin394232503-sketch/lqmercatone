@@ -270,7 +270,13 @@ input,select,textarea{font-family:inherit}
 
   <!-- After Sales Page -->
   <div class="page" id="page-aftersales">
-    <div class="empty"><div class="empty-icon">🔄</div><p>暂无售后申请<br>Nessuna richiesta di reso</p></div>
+    <div class="filter-tabs">
+      <div class="ftab active" onclick="filterAfterSales('all',this)">全部</div>
+      <div class="ftab" onclick="filterAfterSales('pending',this)">待处理</div>
+      <div class="ftab" onclick="filterAfterSales('approved',this)">已同意</div>
+      <div class="ftab" onclick="filterAfterSales('rejected',this)">已拒绝</div>
+    </div>
+    <div id="aftersalesList"><div class="empty"><div class="empty-icon"></div><p>暂无售后申请</p></div></div>
   </div>
 
   <!-- Marketing Page -->
@@ -280,12 +286,38 @@ input,select,textarea{font-family:inherit}
 
   <!-- Reviews Page -->
   <div class="page" id="page-reviews">
-    <div class="empty"><div class="empty-icon">⭐</div><p>暂无新评价</p></div>
+    <div class="filter-tabs">
+      <div class="ftab active">全部</div>
+      <div class="ftab">待回复</div>
+      <div class="ftab">已回复</div>
+    </div>
+    <div id="reviewsList">
+      <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:12px">👩</div><div><div style="font-size:13px;font-weight:500">Maria R.</div><div style="font-size:11px;color:var(--text2)">2026-10-20</div></div><div style="margin-left:auto;color:var(--warning)">★★★★★</div></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">质量非常好，羊绒很柔软，尺码合适！</div>
+        <div style="font-size:12px;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-xs)">商家回复：感谢您的好评！🙏</div>
+      </div>
+      <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:12px">👨</div><div><div style="font-size:13px;font-weight:500">Luigi B.</div><div style="font-size:11px;color:var(--text2)">2026-10-18</div></div><div style="margin-left:auto;color:var(--warning)">★★★★☆</div></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Ottimo cappotto, molto caldo.</div>
+        <button onclick="openReplyModal('Luigi B.','Ottimo cappotto...')" style="padding:6px 14px;background:var(--accent);color:white;border-radius:16px;font-size:12px">回复 Rispondi</button>
+      </div>
+    </div>
   </div>
 
   <!-- Notifications Page -->
   <div class="page" id="page-notifications">
-    <div class="empty"><div class="empty-icon">🔔</div><p>暂无新通知</p></div>
+    <div class="filter-tabs">
+      <div class="ftab active">全部</div>
+      <div class="ftab">订单</div>
+      <div class="ftab">库存</div>
+      <div class="ftab">系统</div>
+    </div>
+    <div id="notifList">
+      <div class="todo-item" style="border-left:3px solid var(--danger)"><span class="todo-icon">🔔</span><div style="flex:1"><div style="font-size:13px;font-weight:500">新订单 LQ29100001</div><div style="font-size:12px;color:var(--text2)">Mario R. 下单 €1,299 · 10分钟前</div></div></div>
+      <div class="todo-item" style="border-left:3px solid var(--warning)"><span class="todo-icon">⚠️</span><div style="flex:1"><div style="font-size:13px;font-weight:500">库存预警：Set Pentole</div><div style="font-size:12px;color:var(--text2)">仅剩 3 件 · 1小时前</div></div></div>
+      <div class="todo-item" style="border-left:3px solid var(--success)"><span class="todo-icon">✅</span><div style="flex:1"><div style="font-size:13px;font-weight:500">订单 LQ29100004 已完成</div><div style="font-size:12px;color:var(--text2)">Anna M. 确认收货 · 2小时前</div></div></div>
+    </div>
   </div>
 
   <!-- Settings Page -->
