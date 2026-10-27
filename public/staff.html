@@ -268,6 +268,48 @@ input,select,textarea{font-family:inherit}
     <div id="ordersList"></div>
   </div>
 
+  <!-- Add Product Page -->
+  <div class="page" id="page-addproduct">
+    <div class="form-section">
+      <h3>基本信息 Informazioni</h3>
+      <div class="form-group"><label>商品名称 Nome *</label><input type="text" id="npName" placeholder="例: Detersivo Lavatrice 3L"></div>
+      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="例: PulitoMax"></div>
+      <div class="form-row">
+        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory"><option value="Abbigliamento">衣服 Abbigliamento</option><option value="Detersivi">洗洁剂 Detersivi</option><option value="Casa">家用品 Casa</option></select></div>
+        <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">无</option><option value="new">新品</option><option value="hot">热销</option><option value="sale">特价</option></select></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <h3>价格与库存 Prezzo e Stock</h3>
+      <div class="form-row">
+        <div class="form-group"><label>售价 Prezzo (€) *</label><input type="number" id="npPrice" step="0.01" placeholder="9.90"></div>
+        <div class="form-group"><label>原价 Vecchio prezzo (€)</label><input type="number" id="npOldPrice" step="0.01" placeholder="可选"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>库存 Stock *</label><input type="number" id="npStock" value="99" min="0"></div>
+        <div class="form-group"><label>上架状态</label><select id="npOnSale"><option value="1">在售 On Sale</option><option value="0">下架 Off</option></select></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <h3>图标/图片</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Emoji 图标</label><input type="text" id="npEmoji" placeholder="📦" maxlength="4"></div>
+        <div class="form-group"><label>上传图片</label><input type="file" id="npImage" accept="image/*"></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <h3>描述 Descrizione</h3>
+      <div class="form-group"><label>商品描述</label><textarea id="npDesc" rows="3" placeholder="简短描述商品特点..."></textarea></div>
+    </div>
+    <button class="save-btn" onclick="saveNewProduct()">✅ 保存并发布 Salva</button>
+    <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">取消 Annulla</button>
+  </div>
+
+  <!-- Low Stock Page -->
+  <div class="page" id="page-lowstock">
+    <div id="lowStockList"></div>
+  </div>
+
   <!-- After Sales Page -->
   <div class="page" id="page-aftersales">
     <div class="filter-tabs">
@@ -385,7 +427,7 @@ async function doLogin(){
   }else{showToast('账号或密码错误\n演示: admin/admin123')}
 }
 function doLogout(){localStorage.removeItem('staff_session');currentUser=null;document.getElementById('app').classList.remove('show');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUser').value='';document.getElementById('loginPass').value=''}
-function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData()}
+function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh()}
 function applyPermissions(){if(!currentUser)return;const p=currentUser.permissions||'all';const isStaff=p!=='all';document.getElementById('addProductFab').style.display=isStaff?'none':'block';document.getElementById('logMenuItem').style.display=isStaff?'none':'flex';document.getElementById('staffMenuItem').style.display=isStaff?'none':'flex'}
 
 // ===== Data Loading =====
@@ -529,7 +571,119 @@ async function confirmShip(id){
 // ===== Low Stock Page =====
 function renderLowStock(){
   const low=allProducts.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);
-  const container=document.getElementById('ordersList')// reuse
+  const container=document.getElementById('lowStockList');
+  if(!low.length){container.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>库存充足，无预警<br>Stock sufficiente</p></div>';return}
+  container.innerHTML=low.map(p=>{
+    const cls=p.stock===0?'oos':'low';
+    const txt=p.stock===0?'缺货 Esaurito':'仅剩 '+p.stock+' 件';
+    return`<div class="p-card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;cursor:default">
+      <div style="font-size:28px">${p.emoji||'📦'}</div>
+      <div style="flex:1"><div class="p-name">${p.name}</div><div class="p-stock ${cls}">${txt}</div><div class="p-price">€${p.price}</div></div>
+      <button style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px" onclick="quickRestock(${p.id})">补货</button>
+    </div>`
+  }).join('')
+}
+async function quickRestock(id){
+  const p=allProducts.find(x=>x.id===id);if(!p)return;
+  const qty=prompt('补货数量？(当前: '+p.stock+')','50');
+  if(!qty||isNaN(qty))return;
+  const newStock=(parseInt(p.stock)||0)+parseInt(qty);
+  if(sb){await sb.from('products').update({stock:newStock}).eq('id',id)}
+  p.stock=newStock;
+  showToast('✅ 已补货至 '+newStock+' 件');
+  renderDashboard();renderProducts();renderLowStock()
+}
+
+// ===== Save New Product =====
+async function saveNewProduct(){
+  const name=document.getElementById('npName').value.trim();
+  const price=parseFloat(document.getElementById('npPrice').value);
+  const category=document.getElementById('npCategory').value;
+  if(!name||isNaN(price)){showToast('⚠️ 请填写商品名称和价格');return}
+  const newP={
+    name,
+    brand:document.getElementById('npBrand').value.trim(),
+    category,
+    price,
+    old_price:parseFloat(document.getElementById('npOldPrice').value)||null,
+    emoji:document.getElementById('npEmoji').value||'📦',
+    tag:document.getElementById('npTag').value||null,
+    on_sale:document.getElementById('npOnSale').value==='1',
+    stock:parseInt(document.getElementById('npStock').value)||99,
+    description:document.getElementById('npDesc').value.trim()
+  };
+  // Handle image upload
+  const imgFile=document.getElementById('npImage').files[0];
+  if(imgFile&&sb){
+    try{
+      const ext=imgFile.name.split('.').pop();
+      const imgPath='products/'+Date.now()+'.'+ext;
+      const{error:uploadErr}=await sb.storage.from('product-images').upload(imgPath,imgFile);
+      if(!uploadErr){
+        const{data:urlData}=sb.storage.from('product-images').getPublicUrl(imgPath);
+        newP.image_url=urlData.publicUrl;
+      }
+    }catch(e){console.log('Image upload error:',e)}
+  }
+  let sbOk=false;
+  if(sb){
+    try{
+      const{data,error}=await sb.from('products').insert(newP).select();
+      if(error){showToast('❌ '+error.message);return}
+      sbOk=true;
+      if(data&&data[0]){newP.id=data[0].id;allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale})}
+    }catch(e){console.log('SB insert error:',e)}
+  }
+  if(!sbOk){
+    newP.id=Math.floor(Math.random()*10000)+100;
+    allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
+  }
+  showToast('✅ 商品已发布! €'+price);
+  renderDashboard();renderProducts();
+  showPage('products');
+  document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('#productFilterTabs .ftab').classList.add('active');
+  currentProductFilter='all'
+}
+
+// ===== Realtime Order Listener =====
+function setupRealtime(){
+  if(!sb)return;
+  try{
+    sb.channel('orders-realtime')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'orders'},payload=>{
+        console.log('[Realtime] New order:',payload.new);
+        const newOrder=payload.new;
+        newOrder.items=typeof newOrder.items==='string'?JSON.parse(newOrder.items):(newOrder.items||[]);
+        allOrders.unshift(newOrder);
+        renderDashboard();renderOrders();
+        showToast('🔔 新订单! '+newOrder.customer_name+' €'+parseFloat(newOrder.total_amount).toFixed(2))
+      })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders'},payload=>{
+        console.log('[Realtime] Order updated:',payload.new);
+        const idx=allOrders.findIndex(o=>o.id===payload.new.id);
+        if(idx>=0){allOrders[idx]={...allOrders[idx],...payload.new};renderDashboard();renderOrders()}
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'products'},payload=>{
+        console.log('[Realtime] Product changed, reloading...');
+        loadData()
+      })
+      .subscribe()
+  }catch(e){console.log('Realtime error:',e)}
+}
+
+// ===== Auto-refresh every 30 seconds =====
+function startAutoRefresh(){
+  setInterval(async()=>{
+    if(!sb)return;
+    try{
+      const{data:p}=await sb.from('products').select('*').order('id',{ascending:false});
+      if(p&&p.length){allProducts=p.map(x=>({...x,price:parseFloat(x.price),old_price:x.old_price?parseFloat(x.old_price):null,on_sale:!!x.on_sale}))}
+      const{data:o}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+      if(o&&o.length){allOrders=o}
+      renderDashboard();renderProducts();renderOrders()
+    }catch(e){}
+  },30000)
 }
 
 // ===== Navigation =====
@@ -540,11 +694,12 @@ function showPage(page,navEl){
   if(el)el.classList.add('active');
   if(navEl)navEl.classList.add('active');
   else{const navs=document.querySelectorAll('.bnav-item');const map={dashboard:0,products:1,orders:2,settings:3};if(map[page]!==undefined)navs[map[page]].classList.add('active')}
-  const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品',lowstock:'库存预警'};
+  const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();
-  if(page==='orders')renderOrders()
+  if(page==='orders')renderOrders();
+  if(page==='lowstock')renderLowStock()
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 

@@ -352,11 +352,13 @@ img { max-width: 100%; display: block; }
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ===== Product Data (from Supabase or fallback) =====
 let PRODUCTS = [];
 let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
 let currentLang = 'it';
+let sbClient = null;
 
 const FALLBACK_PRODUCTS = [
   {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:1,stock:15},
@@ -376,8 +378,8 @@ const FALLBACK_PRODUCTS = [
 // ===== Load Products =====
 async function loadProducts() {
   try {
-    const sb = window.supabase.createClient('https://yiyydikfpgbmtdypiggc.supabase.co', 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM');
-    const { data, error } = await sb.from('products').select('*').order('id');
+    sbClient = window.supabase.createClient('https://yiyydikfpgbmtdypiggc.supabase.co', 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM');
+    const { data, error } = await sbClient.from('products').select('*').order('id');
     if (error) throw error;
     if (data && data.length > 0) {
       PRODUCTS = data.map(p => ({
@@ -389,6 +391,15 @@ async function loadProducts() {
     } else {
       PRODUCTS = [...FALLBACK_PRODUCTS];
     }
+    // Set up Realtime listener
+    try {
+      sbClient.channel('products-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+          console.log('[Realtime] Products changed, reloading...');
+          loadProducts();
+        })
+        .subscribe();
+    } catch(e) { console.log('Realtime subscribe error:', e); }
   } catch (e) {
     PRODUCTS = [...FALLBACK_PRODUCTS];
   }
@@ -424,7 +435,7 @@ function renderCard(p) {
   const discount = p.old_price ? Math.round((1 - p.price/p.old_price) * 100) : 0;
   const stockText = p.stock > 20 ? '现货' : p.stock > 5 ? '现货' : '仅剩' + p.stock + '件';
   const stockClass = p.stock <= 5 ? 'low' : '';
-  return `<div class="product-card" onclick="event.stopPropagation();addToCart(${p.id})">
+  return `<div class="product-card" onclick="goToDetail(${p.id})">
     <div class="product-img">
       ${p.emoji || '📦'}
       <span class="stock-tag ${stockClass}">${stockText}</span>
@@ -439,6 +450,10 @@ function renderCard(p) {
       </div>
     </div>
   </div>`;
+}
+
+function goToDetail(id) {
+  location.href = 'detail.html?id=' + id;
 }
 
 // ===== Cart =====
@@ -486,8 +501,11 @@ function toggleLang() {
 function switchTab(tab, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
-  if (tab === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
-  else showToast(tab === 'cart' ? ' 购物车功能开发中' : ' 功能开发中');
+  if (tab === 'home') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  else if (tab === 'cart') { location.href = 'cart.html'; }
+  else if (tab === 'profile') { location.href = 'profile.html'; }
+  else if (tab === 'category') { location.href = 'detail.html'; }
+  else { showToast('🔍 搜索功能开发中'); }
 }
 
 // ===== Toast =====

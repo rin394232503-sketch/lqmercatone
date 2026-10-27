@@ -223,7 +223,10 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 </div>
 
 <!-- Cart Items -->
-<div class="cart-section" id="cartItems"></div>
+<div class="cart-section">
+  <input class="cart-search" type="text" placeholder="🔍 搜索购物车商品..." oninput="filterCart(this.value)">
+  <div id="cartItems"></div>
+</div>
 
 <!-- Bottom Checkout Bar -->
 <div class="checkout-bar" id="checkoutBar">
@@ -347,15 +350,16 @@ function toggleEdit() {
 function checkout() {
   const selected = cart.filter(i => i.selected && i.stock > 0);
   if (selected.length === 0) { showToast('️ 请选择商品'); return; }
-  showToast('⚡ 跳转到结算页面...');
+  saveCart();
+  location.href = 'checkout.html';
 }
 
 
 function filterCart(q) {
-  const items = document.querySelectorAll('.prod-item');
+  const items = document.querySelectorAll('.cart-item');
   const ql = q.toLowerCase();
   items.forEach(item => {
-    const name = item.querySelector('.prod-name')?.textContent.toLowerCase() || '';
+    const name = item.querySelector('.cart-item-name')?.textContent.toLowerCase() || '';
     item.style.display = name.includes(ql) ? 'flex' : 'none';
   });
 }
