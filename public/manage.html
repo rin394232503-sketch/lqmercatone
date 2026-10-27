@@ -629,13 +629,14 @@ function initSupabase() {
 }
 
 // Auto-connect if config saved
-if (sbConfig) {
+if (sbConfig && typeof window !== 'undefined' && window.supabase) {
   try {
     supabase = window.supabase.createClient(sbConfig.url, sbConfig.key);
     document.getElementById('supabaseBanner').style.display = 'none';
     loadProductsFromDB();
     listenOrders();
   } catch (e) {
+    console.log('Supabase init error:', e);
     document.getElementById('supabaseBanner').style.display = 'block';
   }
 } else {
