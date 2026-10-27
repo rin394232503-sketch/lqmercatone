@@ -791,6 +791,14 @@ setTimeout(() => {
       document.getElementById('supabaseBanner').style.display = 'none';
       loadProductsFromDB();
       listenOrders();
+
+      // Auto-refresh every 60 seconds
+      setInterval(() => {
+        console.log('Auto-refreshing products from database...');
+        loadProductsFromDB();
+        renderOrders();
+      }, 60000); // 60 seconds
+
     } catch (e) {
       console.log('Supabase init error:', e);
     }
