@@ -770,35 +770,68 @@ async function loadSiteSettings() {
   } catch (e) { console.log('Settings load error:', e); }
 }
 
-const PRODUCTS = [
-  // ===== 衣服 Abbigliamento =====
-  {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"",tag:"hot",on_sale:1},
-  {id:2,name:"Abito Floreale Francese",brand:"Maison Belle",category:"Abbigliamento",price:459,old_price:null,emoji:"",tag:"new",on_sale:0},
-  {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"",tag:"sale",on_sale:1},
-  {id:4,name:"Camicia di Seta Bianca",brand:"Silk Touch",category:"Abbigliamento",price:599,old_price:null,emoji:"",tag:null,on_sale:0},
-  {id:5,name:"Set Sportivo Casual",brand:"Active Life",category:"Abbigliamento",price:389,old_price:null,emoji:"",tag:"new",on_sale:0},
-  {id:6,name:"Maglione in Lana",brand:"L&Q Collection",category:"Abbigliamento",price:459,old_price:699,emoji:"",tag:"sale",on_sale:1},
-  {id:7,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:1},
-  {id:8,name:"Felpa con Cappuccio",brand:"Active Life",category:"Abbigliamento",price:259,old_price:null,emoji:"",tag:"new",on_sale:0},
-  // ===== 洗洁剂 Detersivi =====
-  {id:9,name:"Detersivo Lavatrice Concentrato 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1},
-  {id:10,name:"Detersivo Piatti Limone 1L",brand:"PulitoMax",category:"Detersivi",price:4.99,old_price:null,emoji:"🍋",tag:null,on_sale:0},
-  {id:11,name:"Ammorbidente per Pavimenti",brand:"CasaPulita",category:"Detersivi",price:7.99,old_price:11.99,emoji:"",tag:"sale",on_sale:1},
-  {id:12,name:"Candeggina Classica 1.5L",brand:"PulitoMax",category:"Detersivi",price:3.49,old_price:null,emoji:"",tag:"hot",on_sale:1},
-  {id:13,name:"Detersivo Lavastoviglie Tabs 30pz",brand:"CasaPulita",category:"Detersivi",price:12.99,old_price:16.99,emoji:"✨",tag:"sale",on_sale:1},
-  {id:14,name:"Sgrassatore Universale",brand:"CasaPulita",category:"Detersivi",price:5.99,old_price:null,emoji:"🧹",tag:"new",on_sale:0},
-  {id:15,name:"Detersivo Vetri Spray",brand:"PulitoMax",category:"Detersivi",price:4.49,old_price:5.99,emoji:"🪟",tag:"sale",on_sale:1},
-  {id:16,name:"Sapone Marsiglia Liquido 2L",brand:"NaturaleBio",category:"Detersivi",price:9.99,old_price:null,emoji:"",tag:"new",on_sale:0},
-  // ===== 家用品 Casa =====
-  {id:17,name:"Set Asciugamani in Cotone 6pz",brand:"CasaComfort",category:"Casa",price:39.99,old_price:59.99,emoji:"",tag:"sale",on_sale:1},
-  {id:18,name:"Lampada LED da Tavolo",brand:"BrightHome",category:"Casa",price:29.99,old_price:null,emoji:"",tag:"new",on_sale:0},
-  {id:19,name:"Set Pentole Antiaderenti 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1},
-  {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1},
-  {id:21,name:"Set Lenzuola Matrimoniale",brand:"CasaComfort",category:"Casa",price:59.99,old_price:null,emoji:"️",tag:"new",on_sale:0},
-  {id:22,name:"Organizer Cucina Multiuso",brand:"CasaSmart",category:"Casa",price:19.99,old_price:29.99,emoji:"🗄️",tag:"sale",on_sale:1},
-  {id:23,name:"Diffusore di Profumo Casa",brand:"AromaVivo",category:"Casa",price:24.99,old_price:null,emoji:"",tag:"new",on_sale:0},
-  {id:24,name:"Set Tazze in Ceramica 4pz",brand:"CasaComfort",category:"Casa",price:22.99,old_price:32.99,emoji:"☕",tag:"sale",on_sale:1}
-];
+// Products loaded from Supabase
+let PRODUCTS = [];
+
+async function loadProductsFromSupabase() {
+  try {
+    const sbConfig = {
+      url: 'https://yiyydikfpgbmtdypiggc.supabase.co',
+      key: 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM'
+    };
+    const sb = window.supabase.createClient(sbConfig.url, sbConfig.key);
+    const { data, error } = await sb.from('products').select('*').order('id');
+    if (error) throw error;
+    if (data && data.length > 0) {
+      PRODUCTS = data.map(p => ({
+        id: p.id, name: p.name, brand: p.brand, category: p.category,
+        price: parseFloat(p.price), old_price: p.old_price ? parseFloat(p.old_price) : null,
+        emoji: p.emoji || '', tag: p.tag, on_sale: p.on_sale ? 1 : 0,
+        image_url: p.image_url || '', stock: p.stock || 99
+      }));
+      console.log('Loaded ' + PRODUCTS.length + ' products from Supabase');
+    } else {
+      console.log('Supabase empty, using fallback');
+      loadFallbackProducts();
+    }
+  } catch (e) {
+    console.log('Supabase error, using fallback:', e);
+    loadFallbackProducts();
+  }
+  renderOfferte();
+  renderProducts('Tutti');
+  renderCategories();
+  updateSaleBanner();
+}
+
+function loadFallbackProducts() {
+  PRODUCTS = [
+    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:1},
+    {id:2,name:"Abito Floreale Francese",brand:"Maison Belle",category:"Abbigliamento",price:459,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"",tag:"sale",on_sale:1},
+    {id:4,name:"Camicia di Seta Bianca",brand:"Silk Touch",category:"Abbigliamento",price:599,old_price:null,emoji:"",tag:null,on_sale:0},
+    {id:5,name:"Set Sportivo Casual",brand:"Active Life",category:"Abbigliamento",price:389,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:6,name:"Maglione in Lana",brand:"L&Q Collection",category:"Abbigliamento",price:459,old_price:699,emoji:"",tag:"sale",on_sale:1},
+    {id:7,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:1},
+    {id:8,name:"Felpa con Cappuccio",brand:"Active Life",category:"Abbigliamento",price:259,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:9,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1},
+    {id:10,name:"Detersivo Piatti Limone",brand:"PulitoMax",category:"Detersivi",price:4.99,old_price:null,emoji:"🍋",tag:null,on_sale:0},
+    {id:11,name:"Ammorbidente Pavimenti",brand:"CasaPulita",category:"Detersivi",price:7.99,old_price:11.99,emoji:"",tag:"sale",on_sale:1},
+    {id:12,name:"Candeggina Classica 1.5L",brand:"PulitoMax",category:"Detersivi",price:3.49,old_price:null,emoji:"",tag:"hot",on_sale:1},
+    {id:13,name:"Detersivo Lavastoviglie 30pz",brand:"CasaPulita",category:"Detersivi",price:12.99,old_price:16.99,emoji:"✨",tag:"sale",on_sale:1},
+    {id:14,name:"Sgrassatore Universale",brand:"CasaPulita",category:"Detersivi",price:5.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:15,name:"Detersivo Vetri Spray",brand:"PulitoMax",category:"Detersivi",price:4.49,old_price:5.99,emoji:"",tag:"sale",on_sale:1},
+    {id:16,name:"Sapone Marsiglia 2L",brand:"NaturaleBio",category:"Detersivi",price:9.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:17,name:"Set Asciugamani 6pz",brand:"CasaComfort",category:"Casa",price:39.99,old_price:59.99,emoji:"",tag:"sale",on_sale:1},
+    {id:18,name:"Lampada LED da Tavolo",brand:"BrightHome",category:"Casa",price:29.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:19,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1},
+    {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1},
+    {id:21,name:"Set Lenzuola Matrimoniale",brand:"CasaComfort",category:"Casa",price:59.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:22,name:"Organizer Cucina",brand:"CasaSmart",category:"Casa",price:19.99,old_price:29.99,emoji:"🗄️",tag:"sale",on_sale:1},
+    {id:23,name:"Diffusore Profumo Casa",brand:"AromaVivo",category:"Casa",price:24.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+    {id:24,name:"Set Tazze Ceramica 4pz",brand:"CasaComfort",category:"Casa",price:22.99,old_price:32.99,emoji:"☕",tag:"sale",on_sale:1}
+  ];
+}
 let allProducts = PRODUCTS;
 let saleProducts = PRODUCTS.filter(p => p.on_sale === 1 || p.on_sale === true);
 let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
@@ -1097,7 +1130,12 @@ window.addEventListener('scroll', () => {
 });
 
 // ===== Init =====
-loadProducts();
+loadProductsFromSupabase();
+
+// Auto-refresh every 60 seconds
+setInterval(() => {
+  loadProductsFromSupabase();
+}, 60000);
 </script>
 </body>
 </html>
