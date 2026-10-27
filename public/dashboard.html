@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L&Qmercatone · 管理后台 Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --sidebar-bg: #1e1e2d; --sidebar-hover: #2a2a3c; --sidebar-active: #6c5ce7;
+  --bg: #f0f2f5; --card: #ffffff; --text: #1a1a2e; --text-light: #6b7280;
+  --border: #e5e7eb; --radius: 12px; --shadow: 0 1px 4px rgba(0,0,0,0.06);
+  --green: #00b894; --blue: #6c5ce7; --orange: #e17055; --red: #d63031;
+  --purple: #a29bfe; --cyan: #81ecec;
+}
+body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+a { text-decoration: none; color: inherit; }
+
+/* ===== Layout ===== */
+.layout { display: flex; min-height: 100vh; }
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 220px; background: var(--sidebar-bg); color: white;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  display: flex; flex-direction: column; z-index: 100;
+}
+.sidebar-logo {
+  padding: 20px 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo h2 { font-size: 18px; font-weight: 700; }
+.sidebar-logo h2 span { color: var(--sidebar-active); }
+.sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.sidebar-menu { padding: 12px 0; flex: 1; overflow-y: auto; }
+.menu-label { font-size: 10px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 20px 8px; letter-spacing: 1px; font-weight: 600; }
+.menu-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px; font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.6); cursor: pointer;
+  transition: 0.2s; border-left: 3px solid transparent;
+}
+.menu-item:hover { color: white; background: var(--sidebar-hover); }
+.menu-item.active { color: white; background: rgba(108,92,231,0.15); border-left-color: var(--sidebar-active); }
+.menu-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.menu-item .badge { margin-left: auto; background: var(--orange); color: white; font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 700; }
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px; color: rgba(255,255,255,0.3);
+}
+
+/* ===== Main Content ===== */
+.main { flex: 1; margin-left: 220px; }
+
+/* ===== Top Bar ===== */
+.topbar {
+  background: var(--card); padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-left h1 { font-size: 18px; font-weight: 600; }
+.topbar-left .breadcrumb { font-size: 12px; color: var(--text-light); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; font-size: 16px; }
+.topbar-btn .dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--card); }
+.admin-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+
+/* ===== Content ===== */
+.content { padding: 24px 28px; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== Stats Cards ===== */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.stat-info .stat-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+.stat-info .stat-label { font-size: 12px; color: var(--text-light); }
+.stat-info .stat-change { font-size: 11px; margin-top: 8px; }
+.stat-change.up { color: var(--green); }
+.stat-change.down { color: var(--red); }
+.stat-icon { font-size: 32px; opacity: 0.8; }
+
+/* ===== Charts Row ===== */
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+.chart-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+}
+.chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+.chart-card h3 .period { font-size: 12px; color: var(--text-light); font-weight: 400; }
+
+/* Bar Chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 20px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar { width: 100%; border-radius: 4px 4px 0 0; transition: 0.3s; min-height: 4px; }
+.bar:hover { opacity: 0.8; }
+.bar-label { font-size: 10px; color: var(--text-light); }
+.bar-value { font-size: 11px; font-weight: 600; }
+
+/* Donut Chart */
+.donut-container { display: flex; align-items: center; gap: 20px; }
+.donut { width: 140px; height: 140px; border-radius: 50%; position: relative; }
+.donut-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+}
+.donut-center .val { font-size: 24px; font-weight: 700; }
+.donut-center .lbl { font-size: 11px; color: var(--text-light); }
+.donut-legend { flex: 1; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 12px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend-val { margin-left: auto; font-weight: 600; font-size: 12px; }
+
+/* ===== Tables ===== */
+.table-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.table-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+}
+.table-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border-light); }
+tr:hover td { background: var(--bg); }
+.product-mini { display: flex; align-items: center; gap: 10px; }
+.product-mini-img { width: 36px; height: 36px; border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-dot.green { background: var(--green); }
+.status-dot.orange { background: var(--orange); }
+.status-dot.blue { background: var(--blue); }
+.status-dot.red { background: var(--red); }
+.status-dot.gray { background: var(--text-muted); }
+
+/* ===== Page Content Areas ===== */
+.empty-page { text-align: center; padding: 80px 20px; color: var(--text-light); }
+.empty-page .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.empty-page p { font-size: 14px; }
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row, .table-section { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .sidebar-logo h2, .sidebar-logo p, .menu-item span, .menu-label, .sidebar-footer { display: none; }
+  .menu-item { justify-content: center; padding: 14px 0; border-left: none; }
+  .main { margin-left: 60px; }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>L&Q<span>mercatone</span></h2>
+      <p>Pannello Admin</p>
+    </div>
+    <div class="sidebar-menu">
+      <div class="menu-label">主菜单 Principale</div>
+      <div class="menu-item active" onclick="showPage('dashboard',this)">
+        <span class="icon"></span><span>数据看板 Dashboard</span>
+      </div>
+      <div class="menu-item" onclick="showPage('products',this)">
+        <span class="icon"></span><span>商品管理 Prodotti</span>
+      </div>
+      <div class="menu-item" onclick="showPage('orders',this)">
+        <span class="icon"></span><span>订单管理 Ordini</span>
+        <span class="badge">3</span>
+      </div>
+      <div class="menu-item" onclick="showPage('marketing',this)">
+        <span class="icon">📢</span><span>营销活动 Marketing</span>
+      </div>
+      <div class="menu-item" onclick="showPage('reviews',this)">
+        <span class="icon">⭐</span><span>评价管理 Recensioni</span>
+        <span class="badge">12</span>
+      </div>
+
+      <div class="menu-label">系统 Sistema</div>
+      <div class="menu-item" onclick="showPage('settings',this)">
+        <span class="icon">⚙️</span><span>系统设置 Impostazioni</span>
+      </div>
+      <div class="menu-item" onclick="window.open('manage.html','_blank')">
+        <span class="icon">📱</span><span>移动端 APP</span>
+      </div>
+      <div class="menu-item" onclick="window.open('/','_blank')">
+        <span class="icon">🌐</span><span>查看商城</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">v2.0 · © 2026 L&Qmercatone</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">数据看板 Dashboard</h1>
+        <span class="breadcrumb" id="breadcrumb">首页 / Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-btn" onclick="showToast(' 3 条新通知')"><div class="dot"></div></div>
+        <div class="topbar-btn" onclick="showToast('✉️ 5 条新消息')">✉️</div>
+        <div class="admin-avatar" onclick="showToast('管理员 Admin')">A</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ===== Dashboard Page ===== -->
+      <div class="page active" id="page-dashboard">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="stat-value">€2,847</div>
+              <div class="stat-label">今日销售额 Vendite Oggi</div>
+              <div class="stat-change up">↑ 12.5% vs 昨天</div>
+            </div>
+            <div class="stat-icon">💰</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="stat-value">24</div>
+              <div class="stat-label">今日订单 Ordini Oggi</div>
+              <div class="stat-change up">↑ 8.3% vs 昨天</div>
+            </div>
+            <div class="stat-icon"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="stat-value">1,286</div>
+              <div class="stat-label">今日访客 Visitatori</div>
+              <div class="stat-change down">↓ 3.2% vs 昨天</div>
+            </div>
+            <div class="stat-icon"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <div class="stat-value">4.8</div>
+              <div class="stat-label">平均评分 Valutazione</div>
+              <div class="stat-change up">↑ 0.2 vs 上周</div>
+            </div>
+            <div class="stat-icon">⭐</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>📈 本周销售趋势 Andamento Settimanale <span class="period">最近 7 天</span></h3>
+            <div class="bar-chart" id="weeklyChart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>🏷️ 品类销售占比 <span class="period">本月</span></h3>
+            <div class="donut-container">
+              <div class="donut" id="donutChart"></div>
+              <div class="donut-legend" id="donutLegend"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tables -->
+        <div class="table-section">
+          <div class="table-card">
+            <h3>🔥 热销商品 Top Prodotti</h3>
+            <table>
+              <thead><tr><th>商品</th><th>销量</th><th>销售额</th><th>趋势</th></tr></thead>
+              <tbody id="topProductsTable"></tbody>
+            </table>
+          </div>
+          <div class="table-card">
+            <h3>🕐 最近订单 Ultimi Ordini</h3>
+            <table>
+              <thead><tr><th>订单号</th><th>客户</th><th>金额</th><th>状态</th></tr></thead>
+              <tbody id="recentOrdersTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Products Page ===== -->
+      <div class="page" id="page-products">
+        <div class="chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h3 style="margin:0;">📦 商品管理 Gestione Prodotti</h3>
+            <button onclick="showToast('➕ 添加商品')" style="padding:8px 16px;background:var(--blue);color:white;border-radius:8px;font-size:13px;font-weight:600;">+ 添加商品</button>
+          </div>
+          <table>
+            <thead><tr><th>商品</th><th>分类</th><th>价格</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="productsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== Orders Page ===== -->
+      <div class="page" id="page-orders">
+        <div class="chart-card">
+          <h3>📋 订单管理 Gestione Ordini</h3>
+          <div style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;">
+            <button style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--blue);color:white;border:none;">全部 All</button>
+            <button style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--bg);border:1px solid var(--border);">待付款</button>
+            <button style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--bg);border:1px solid var(--border);">待发货</button>
+            <button style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--bg);border:1px solid var(--border);">已发货</button>
+            <button style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--bg);border:1px solid var(--border);">已完成</button>
+          </div>
+          <table>
+            <thead><tr><th>订单号</th><th>客户</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== Marketing Page ===== -->
+      <div class="page" id="page-marketing">
+        <div class="empty-page">
+          <div class="icon">📢</div>
+          <p>营销活动管理 — 开发中</p>
+          <p style="font-size:12px;margin-top:8px;">Promozioni e campagne marketing</p>
+        </div>
+      </div>
+
+      <!-- ===== Reviews Page ===== -->
+      <div class="page" id="page-reviews">
+        <div class="empty-page">
+          <div class="icon">⭐</div>
+          <p>评价管理 — 开发中</p>
+          <p style="font-size:12px;margin-top:8px;">Gestione delle recensioni dei clienti</p>
+        </div>
+      </div>
+
+      <!-- ===== Settings Page ===== -->
+      <div class="page" id="page-settings">
+        <div class="chart-card">
+          <h3>⚙️ 系统设置 Impostazioni di Sistema</h3>
+          <div style="max-width:400px;margin-top:16px;">
+            <div style="margin-bottom:16px;">
+              <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">店铺名称 Nome Negozio</label>
+              <input type="text" value="L&Qmercatone" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">联系邮箱 Email</label>
+              <input type="email" value="info@lqmercatone.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+            </div>
+            <div style="margin-bottom:16px;">
+              <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">联系电话 Telefono</label>
+              <input type="tel" value="+39 02 1234567" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;">
+            </div>
+            <button onclick="showToast('✅ 设置已保存')" style="padding:10px 24px;background:var(--blue);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;">💾 保存设置</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Sample Data =====
+const weekDays = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+const weekSales = [320, 450, 380, 520, 680, 890, 750];
+const maxSale = Math.max(...weekSales);
+
+const categories = [
+  { name: 'Abbigliamento 衣服', value: 45, color: '#6c5ce7' },
+  { name: 'Detersivi 洗洁剂', value: 30, color: '#00b894' },
+  { name: 'Casa 家用品', value: 25, color: '#e17055' }
+];
+
+const topProducts = [
+  { name: 'Cappotto in Cashmere', emoji: '🧥', sales: 48, revenue: '€62,352', trend: '↑ 23%' },
+  { name: 'Set Pentole 5pz', emoji: '', sales: 36, revenue: '€3,240', trend: '↑ 15%' },
+  { name: 'Detersivo Lavatrice', emoji: '', sales: 124, revenue: '€2,355', trend: '↑ 8%' },
+  { name: 'Jeans Slim', emoji: '👖', sales: 28, revenue: '€9,212', trend: '↓ 3%' },
+  { name: 'Set Asciugamani', emoji: '', sales: 22, revenue: '€879', trend: '↑ 12%' }
+];
+
+const recentOrders = [
+  { no: 'LQ29100001', customer: 'Mario R.', amount: '€1,299', status: 'green', statusText: '已完成' },
+  { no: 'LQ29100002', customer: 'Laura B.', amount: '€329', status: 'blue', statusText: '已发货' },
+  { no: 'LQ29100003', customer: 'Giuseppe V.', amount: '€89.97', status: 'orange', statusText: '待发货' },
+  { no: 'LQ29100004', customer: 'Anna M.', amount: '€459', status: 'green', statusText: '已完成' }
+];
+
+const products = [
+  { name: 'Cappotto Classico in Cashmere', emoji: '', cat: 'Abbigliamento', price: '€1,299', stock: 15, status: 'green' },
+  { name: 'Abito Floreale Francese', emoji: '', cat: 'Abbigliamento', price: '€459', stock: 8, status: 'green' },
+  { name: 'Detersivo Lavatrice 3L', emoji: '', cat: 'Detersivi', price: '€18.99', stock: 50, status: 'green' },
+  { name: 'Set Pentole 5pz', emoji: '', cat: 'Casa', price: '€89.99', stock: 3, status: 'orange' },
+  { name: 'Aspirapolvere Portatile', emoji: '🧹', cat: 'Casa', price: '€49.99', stock: 0, status: 'red' }
+];
+
+// ===== Render Charts =====
+function renderWeeklyChart() {
+  const container = document.getElementById('weeklyChart');
+  container.innerHTML = weekDays.map((day, i) => {
+    const height = (weekSales[i] / maxSale) * 140;
+    const color = i === 5 ? 'var(--blue)' : 'var(--accent-bg)';
+    return `<div class="bar-col">
+      <div class="bar-value">€${weekSales[i]}</div>
+      <div class="bar" style="height:${height}px;background:${color};"></div>
+      <div class="bar-label">${day}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDonut() {
+  const total = categories.reduce((s, c) => s + c.value, 0);
+  let gradient = '';
+  let offset = 0;
+  categories.forEach(c => {
+    const pct = (c.value / total) * 100;
+    gradient += `${c.color} ${offset}% ${offset + pct}%, `;
+    offset += pct;
+  });
+  gradient = gradient.slice(0, -2);
+
+  document.getElementById('donutChart').style.background = `conic-gradient(${gradient})`;
+  document.getElementById('donutChart').innerHTML = `<div class="donut-center"><div class="val">${total}%</div><div class="lbl">总销售</div></div>`;
+
+  document.getElementById('donutLegend').innerHTML = categories.map(c =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div><span>${c.name}</span><span class="legend-val">${c.value}%</span></div>`
+  ).join('');
+}
+
+function renderTopProducts() {
+  document.getElementById('topProductsTable').innerHTML = topProducts.map(p =>
+    `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span>${p.name}</span></div></td><td>${p.sales}</td><td>${p.revenue}</td><td style="color:${p.trend.startsWith('↑') ? 'var(--green)' : 'var(--red)'};font-size:12px;">${p.trend}</td></tr>`
+  ).join('');
+}
+
+function renderRecentOrders() {
+  document.getElementById('recentOrdersTable').innerHTML = recentOrders.map(o =>
+    `<tr><td style="font-weight:600;font-size:12px;">${o.no}</td><td>${o.customer}</td><td style="font-weight:600;">${o.amount}</td><td><span class="status-dot ${o.status}"></span>${o.statusText}</td></tr>`
+  ).join('');
+}
+
+function renderProducts() {
+  document.getElementById('productsTable').innerHTML = products.map(p =>
+    `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span style="font-size:13px;">${p.name}</span></div></td><td>${p.cat}</td><td style="font-weight:600;">${p.price}</td><td>${p.stock}</td><td><span class="status-dot ${p.status}"></span>${p.status === 'green' ? '在售' : p.status === 'orange' ? '低库存' : '缺货'}</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">编辑</button> <button style="font-size:12px;color:var(--red);cursor:pointer;">删除</button></td></tr>`
+  ).join('');
+}
+
+function renderOrders() {
+  document.getElementById('ordersTableBody').innerHTML = [
+    ...recentOrders,
+    { no: 'LQ29100005', customer: 'Carlo F.', amount: '€24.99', status: 'gray', statusText: '待付款' },
+    { no: 'LQ29100006', customer: 'Sofia L.', amount: '€189', status: 'blue', statusText: '已发货' }
+  ].map(o => `<tr><td style="font-weight:600;font-size:12px;">${o.no}</td><td>${o.customer}</td><td>2件</td><td style="font-weight:600;">${o.amount}</td><td><span class="status-dot ${o.status}"></span>${o.statusText}</td><td style="font-size:12px;color:var(--text-light);">今天</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">详情</button></td></tr>`).join('');
+}
+
+// ===== Navigation =====
+function showPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+
+  const titles = {
+    dashboard: '数据看板 Dashboard',
+    products: '商品管理 Prodotti',
+    orders: '订单管理 Ordini',
+    marketing: '营销活动 Marketing',
+    reviews: '评价管理 Recensioni',
+    settings: '系统设置 Impostazioni'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  document.getElementById('breadcrumb').textContent = '首页 / ' + (titles[page] || page);
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 24px;border-radius:10px;font-size:14px;z-index:200;opacity:1;transition:0.3s;';
+  setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
+// ===== Init =====
+renderWeeklyChart();
+renderDonut();
+renderTopProducts();
+renderRecentOrders();
+renderProducts();
+renderOrders();
+</script>
+</body>
+</html>
