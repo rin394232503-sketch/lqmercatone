@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>L&Qmercatone - 个人中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #ffffff; --bg-soft: #f8f9fa; --text: #2d3436; --text-light: #636e72;
+  --text-muted: #b2bec3; --accent: #6c5ce7; --accent-soft: #a29bfe;
+  --accent-bg: #f0eeff; --border: #e9ecef; --border-light: #f1f3f5;
+  --danger: #e17055; --success: #00b894; --warning: #fdcb6e;
+  --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+}
+html { font-size: 16px; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+  background: var(--bg-soft); color: var(--text);
+  max-width: 480px; margin: 0 auto; padding-bottom: 80px;
+}
+a { text-decoration: none; color: inherit; }
+button { border: none; background: none; cursor: pointer; font-family: inherit; }
+
+/* ===== Profile Header ===== */
+.profile-header {
+  background: linear-gradient(135deg, var(--accent), #5a4bd1);
+  padding: 40px 20px 24px;
+  color: white;
+  border-radius: 0 0 24px 24px;
+}
+.profile-top { display: flex; align-items: center; gap: 14px; }
+.avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; border: 2px solid rgba(255,255,255,0.4);
+}
+.profile-info { flex: 1; }
+.profile-name { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.profile-id { font-size: 12px; opacity: 0.7; }
+.settings-btn { font-size: 20px; opacity: 0.8; }
+
+/* ===== Stats Row ===== */
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: white; border-radius: var(--radius);
+  margin: -12px 16px 0; padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  position: relative; z-index: 10;
+}
+.stat-item { text-align: center; }
+.stat-num { font-size: 20px; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ===== Menu Grid ===== */
+.menu-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: white; border-radius: var(--radius);
+  margin: 12px 16px 0; padding: 16px 8px;
+}
+.menu-item {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 4px; cursor: pointer; transition: 0.15s;
+  position: relative;
+}
+.menu-item:active { opacity: 0.7; }
+.menu-icon { font-size: 24px; margin-bottom: 6px; }
+.menu-label { font-size: 12px; color: var(--text-light); font-weight: 500; }
+.menu-badge {
+  position: absolute; top: 6px; right: calc(50% - 18px);
+  background: var(--danger); color: white;
+  font-size: 9px; font-weight: 700;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+/* ===== Order Status ===== */
+.order-section {
+  background: white; border-radius: var(--radius);
+  margin: 12px 16px 0; padding: 16px;
+}
+.order-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.order-header h3 { font-size: 15px; font-weight: 600; }
+.order-header .more { font-size: 12px; color: var(--text-muted); }
+.order-status-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.order-status-item {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px; cursor: pointer; transition: 0.15s;
+  border-radius: var(--radius-xs); position: relative;
+}
+.order-status-item:active { background: var(--bg-soft); }
+.order-status-icon { font-size: 22px; margin-bottom: 4px; }
+.order-status-label { font-size: 10px; color: var(--text-light); text-align: center; font-weight: 500; }
+.order-status-badge {
+  position: absolute; top: 4px; right: calc(50% - 14px);
+  background: var(--danger); color: white;
+  font-size: 8px; font-weight: 700;
+  min-width: 14px; height: 14px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 3px;
+}
+
+/* ===== Recent Orders ===== */
+.recent-orders { margin: 12px 16px 0; }
+.recent-orders h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; padding: 0 4px; }
+.order-card {
+  background: white; border-radius: var(--radius);
+  padding: 14px; margin-bottom: 10px;
+}
+.order-card-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.order-card-no { font-size: 12px; color: var(--text-muted); }
+.order-card-status {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 10px;
+}
+.status-pending { background: #fff3e0; color: #e65100; }
+.status-shipped { background: #e3f2fd; color: #1565c0; }
+.status-done { background: #e8f5e9; color: #2e7d32; }
+.order-card-items { display: flex; gap: 8px; margin-bottom: 10px; }
+.order-card-img {
+  width: 56px; height: 56px; border-radius: var(--radius-xs);
+  background: var(--bg-soft); display: flex;
+  align-items: center; justify-content: center; font-size: 24px;
+}
+.order-card-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 10px; border-top: 1px solid var(--border-light);
+}
+.order-card-total { font-size: 13px; color: var(--text-light); }
+.order-card-total strong { color: var(--text); font-size: 15px; }
+.order-card-btn {
+  padding: 6px 14px; border-radius: 16px;
+  font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border); color: var(--text-light);
+}
+.order-card-btn:active { background: var(--bg-soft); }
+.order-card-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* ===== Service Grid ===== */
+.service-section {
+  background: white; border-radius: var(--radius);
+  margin: 12px 16px 0; padding: 16px;
+}
+.service-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+.service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.service-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; cursor: pointer;
+}
+.service-item:active { opacity: 0.7; }
+.service-icon { font-size: 22px; }
+.service-label { font-size: 11px; color: var(--text-light); text-align: center; }
+
+/* ===== Bottom Nav ===== */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  display: flex; z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 8px 4px 4px; cursor: pointer;
+}
+.nav-item.active { color: var(--accent); }
+.nav-item:not(.active) { color: var(--text-muted); }
+.nav-icon { font-size: 20px; margin-bottom: 2px; }
+.nav-label { font-size: 10px; font-weight: 500; }
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: white;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 200;
+  opacity: 0; transition: 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Profile Header -->
+<div class="profile-header">
+  <div class="profile-top">
+    <div class="avatar"></div>
+    <div class="profile-info">
+      <div class="profile-name">Mario Rossi</div>
+      <div class="profile-id">ID: LQ20260001 · 意大利 Italia</div>
+    </div>
+    <button class="settings-btn" onclick="showToast('设置功能开发中')">⚙️</button>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-item" onclick="showToast('余额功能开发中')">
+    <div class="stat-num">€0</div>
+    <div class="stat-label">余额 Saldo</div>
+  </div>
+  <div class="stat-item" onclick="showToast('积分功能开发中')">
+    <div class="stat-num">128</div>
+    <div class="stat-label">积分 Punti</div>
+  </div>
+  <div class="stat-item" onclick="showToast('优惠券功能开发中')">
+    <div class="stat-num">3</div>
+    <div class="stat-label">优惠券 Coupon</div>
+  </div>
+</div>
+
+<!-- Menu Grid -->
+<div class="menu-grid">
+  <div class="menu-item" onclick="location.href='cart.html'">
+    <div class="menu-icon">🛒</div>
+    <div class="menu-label">购物车</div>
+    <div class="menu-badge" id="cartBadge">0</div>
+  </div>
+  <div class="menu-item" onclick="showToast('收藏功能开发中')">
+    <div class="menu-icon">❤️</div>
+    <div class="menu-label">收藏</div>
+  </div>
+  <div class="menu-item" onclick="showToast('足迹功能开发中')">
+    <div class="menu-icon"></div>
+    <div class="menu-label">足迹</div>
+  </div>
+  <div class="menu-item" onclick="showToast('优惠券功能开发中')">
+    <div class="menu-icon">🎫</div>
+    <div class="menu-label">优惠券</div>
+    <div class="menu-badge">3</div>
+  </div>
+  <div class="menu-item" onclick="showToast('消息功能开发中')">
+    <div class="menu-icon">💬</div>
+    <div class="menu-label">消息</div>
+    <div class="menu-badge">5</div>
+  </div>
+  <div class="menu-item" onclick="showToast('客服功能开发中')">
+    <div class="menu-icon">🎧</div>
+    <div class="menu-label">客服</div>
+  </div>
+</div>
+
+<!-- Order Status -->
+<div class="order-section">
+  <div class="order-header">
+    <h3>我的订单 I Miei Ordini</h3>
+    <span class="more" onclick="showToast('全部订单')">全部 ></span>
+  </div>
+  <div class="order-status-grid">
+    <div class="order-status-item" onclick="filterOrders('pending')">
+      <div class="order-status-icon"></div>
+      <div class="order-status-label">待付款</div>
+      <div class="order-status-badge">2</div>
+    </div>
+    <div class="order-status-item" onclick="filterOrders('toship')">
+      <div class="order-status-icon">📦</div>
+      <div class="order-status-label">待发货</div>
+      <div class="order-status-badge">1</div>
+    </div>
+    <div class="order-status-item" onclick="filterOrders('shipped')">
+      <div class="order-status-icon">🚚</div>
+      <div class="order-status-label">已发货</div>
+    </div>
+    <div class="order-status-item" onclick="filterOrders('done')">
+      <div class="order-status-icon">✅</div>
+      <div class="order-status-label">已完成</div>
+    </div>
+    <div class="order-status-item" onclick="filterOrders('refund')">
+      <div class="order-status-icon">🔄</div>
+      <div class="order-status-label">售后</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="recent-orders">
+  <h3>最近订单 Ordini Recenti</h3>
+
+  <div class="order-card">
+    <div class="order-card-top">
+      <span class="order-card-no">LQ17290310AB</span>
+      <span class="order-card-status status-pending">待付款</span>
+    </div>
+    <div class="order-card-items">
+      <div class="order-card-img">🧥</div>
+      <div class="order-card-img"></div>
+    </div>
+    <div class="order-card-bottom">
+      <div class="order-card-total">合计: <strong>€1,628</strong></div>
+      <button class="order-card-btn primary">去付款</button>
+    </div>
+  </div>
+
+  <div class="order-card">
+    <div class="order-card-top">
+      <span class="order-card-no">LQ17289950XY</span>
+      <span class="order-card-status status-shipped">已发货</span>
+    </div>
+    <div class="order-card-items">
+      <div class="order-card-img"></div>
+      <div class="order-card-img"></div>
+      <div class="order-card-img">🧹</div>
+    </div>
+    <div class="order-card-bottom">
+      <div class="order-card-total">合计: <strong>€179.97</strong></div>
+      <button class="order-card-btn">确认收货</button>
+    </div>
+  </div>
+
+  <div class="order-card">
+    <div class="order-card-top">
+      <span class="order-card-no">LQ17288800ZZ</span>
+      <span class="order-card-status status-done">已完成</span>
+    </div>
+    <div class="order-card-items">
+      <div class="order-card-img">👗</div>
+    </div>
+    <div class="order-card-bottom">
+      <div class="order-card-total">合计: <strong>€459</strong></div>
+      <button class="order-card-btn">去评价</button>
+    </div>
+  </div>
+</div>
+
+<!-- More Services -->
+<div class="service-section">
+  <h3>更多服务 Altri Servizi</h3>
+  <div class="service-grid">
+    <div class="service-item" onclick="showToast('地址管理')">
+      <div class="service-icon"></div>
+      <div class="service-label">地址管理</div>
+    </div>
+    <div class="service-item" onclick="showToast('发票管理')">
+      <div class="service-icon"></div>
+      <div class="service-label">发票</div>
+    </div>
+    <div class="service-item" onclick="showToast('帮助中心')">
+      <div class="service-icon">❓</div>
+      <div class="service-label">帮助中心</div>
+    </div>
+    <div class="service-item" onclick="showToast('意见反馈')">
+      <div class="service-icon">📝</div>
+      <div class="service-label">意见反馈</div>
+    </div>
+    <div class="service-item" onclick="showToast('隐私政策')">
+      <div class="service-icon">🔒</div>
+      <div class="service-label">隐私政策</div>
+    </div>
+    <div class="service-item" onclick="showToast('关于我们')">
+      <div class="service-icon">ℹ️</div>
+      <div class="service-label">关于</div>
+    </div>
+    <div class="service-item" onclick="location.href='manage.html'">
+      <div class="service-icon"></div>
+      <div class="service-label">商家后台</div>
+    </div>
+    <div class="service-item" onclick="showToast('设置')">
+      <div class="service-icon">⚙️</div>
+      <div class="service-label">设置</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <div class="nav-item" onclick="location.href='index.html'">
+    <div class="nav-icon">🏠</div>
+    <span class="nav-label">首页</span>
+  </div>
+  <div class="nav-item" onclick="showToast('分类')">
+    <div class="nav-icon">📂</div>
+    <span class="nav-label">分类</span>
+  </div>
+  <div class="nav-item" onclick="showToast('搜索')">
+    <div class="nav-icon">🔍</div>
+    <span class="nav-label">搜索</span>
+  </div>
+  <div class="nav-item" onclick="location.href='cart.html'">
+    <div class="nav-icon">🛒</div>
+    <span class="nav-label">购物车</span>
+  </div>
+  <div class="nav-item active">
+    <div class="nav-icon"></div>
+    <span class="nav-label">我的</span>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Cart Badge =====
+const cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
+const cartCount = cart.reduce((s, i) => s + (i.qty || 1), 0);
+document.getElementById('cartBadge').textContent = cartCount;
+
+// ===== Order Filter =====
+function filterOrders(status) {
+  const names = { pending:'待付款', toship:'待发货', shipped:'已发货', done:'已完成', refund:'售后' };
+  showToast('查看: ' + names[status]);
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>
