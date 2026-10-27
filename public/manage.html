@@ -628,20 +628,7 @@ function initSupabase() {
   }
 }
 
-// Auto-connect if config saved
-if (sbConfig && typeof window !== 'undefined' && window.supabase) {
-  try {
-    supabase = window.supabase.createClient(sbConfig.url, sbConfig.key);
-    document.getElementById('supabaseBanner').style.display = 'none';
-    loadProductsFromDB();
-    listenOrders();
-  } catch (e) {
-    console.log('Supabase init error:', e);
-    document.getElementById('supabaseBanner').style.display = 'block';
-  }
-} else {
-  document.getElementById('supabaseBanner').style.display = 'block';
-}
+// OLD Auto-connect code REMOVED - now handled at bottom of file
 
 // Load products from Supabase
 async function loadProductsFromDB() {
@@ -793,8 +780,22 @@ function haptic() {
   if (navigator.vibrate) navigator.vibrate(10);
 }
 
-// Init
+// ===== CRITICAL: Always render products FIRST =====
 renderProducts();
+
+// Then try Supabase in background (non-blocking)
+setTimeout(() => {
+  if (typeof window !== 'undefined' && window.supabase && sbConfig) {
+    try {
+      supabase = window.supabase.createClient(sbConfig.url, sbConfig.key);
+      document.getElementById('supabaseBanner').style.display = 'none';
+      loadProductsFromDB();
+      listenOrders();
+    } catch (e) {
+      console.log('Supabase init error:', e);
+    }
+  }
+}, 500);
 </script>
 </body>
 </html>
