@@ -608,7 +608,7 @@ function showToast(msg) {
 
 // ===== Supabase 云数据库 =====
 let supabase = null;
-let sbConfig = JSON.parse(localStorage.getItem('sb_config') || 'null');
+let sbConfig = JSON.parse(localStorage.getItem('sb_config') || '{"url":"https://yiyydikfpgbmtdypiggc.supabase.co","key":"sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM"}');
 
 function initSupabase() {
   const url = document.getElementById('sbUrl').value.trim();

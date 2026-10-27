@@ -718,7 +718,7 @@ const API = '/api';
 // ===== Load Site Settings from Supabase =====
 async function loadSiteSettings() {
   try {
-    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || sessionStorage.getItem('sb_config') || 'null');
+    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || sessionStorage.getItem('sb_config') || '{"url":"https://yiyydikfpgbmtdypiggc.supabase.co","key":"sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM"}');
     if (!sbConfig || !window.supabase) return;
     const sb = window.supabase.createClient(sbConfig.url, sbConfig.key);
     const { data } = await sb.from('site_settings').select('*');
@@ -1038,7 +1038,7 @@ async function submitOrder() {
 
   // Send order to Supabase cloud database
   try {
-    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || 'null');
+    const sbConfig = JSON.parse(localStorage.getItem('sb_config') || '{"url":"https://yiyydikfpgbmtdypiggc.supabase.co","key":"sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM"}');
     if (sbConfig && window.supabase) {
       const sb = window.supabase.createClient(sbConfig.url, sbConfig.key);
       await sb.from('orders').insert([{
