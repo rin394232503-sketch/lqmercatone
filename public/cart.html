@@ -183,6 +183,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   opacity: 0; transition: 0.3s; pointer-events: none;
 }
 .toast.show { opacity: 1; }
+
+.cart-search { width: 100%; padding: 10px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; font-size: 14px; color: var(--text); outline: none; margin-bottom: 12px; }
+.cart-search:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -345,6 +348,16 @@ function checkout() {
   const selected = cart.filter(i => i.selected && i.stock > 0);
   if (selected.length === 0) { showToast('️ 请选择商品'); return; }
   showToast('⚡ 跳转到结算页面...');
+}
+
+
+function filterCart(q) {
+  const items = document.querySelectorAll('.prod-item');
+  const ql = q.toLowerCase();
+  items.forEach(item => {
+    const name = item.querySelector('.prod-name')?.textContent.toLowerCase() || '';
+    item.style.display = name.includes(ql) ? 'flex' : 'none';
+  });
 }
 
 // ===== Toast =====
