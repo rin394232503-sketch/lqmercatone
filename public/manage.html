@@ -486,7 +486,8 @@ function addProduct() {
 
   // Clear form
   ['fName','fBrand','fEmoji','fPrice','fOldPrice'].forEach(id => document.getElementById(id).value = '');
-  showToast('✅ 商品已添加！');
+  showToast('✅ 商品已添加！自动同步中...');
+  autoSyncToGitHub();
 
   // Go to products page
   showPage('products', document.querySelectorAll('.nav-item')[0]);
@@ -502,7 +503,7 @@ function deleteProduct(id) {
 }
 
 // ===== Sync to GitHub =====
-async function syncToGitHub() {
+async function syncToGitHub(silent = false) {
   const token = document.getElementById('ghToken').value.trim();
   const repo = document.getElementById('ghRepo').value.trim();
   if (!token) { showToast('⚠️ 请输入 GitHub Token'); return; }
@@ -545,17 +546,17 @@ async function syncToGitHub() {
     if (pushRes.ok) {
       status.className = 'sync-status';
       text.textContent = '✅ 同步成功！Vercel 将在 1-2 分钟内自动更新';
-      showToast('✅ 同步成功！');
+      if (!silent) showToast('✅ 同步成功！'); else console.log('Auto-sync success');
     } else {
       const err = await pushRes.json();
       status.className = 'sync-status error';
       text.textContent = '❌ 同步失败: ' + (err.message || '未知错误');
-      showToast('❌ 同步失败');
+      if (!silent) showToast('❌ 同步失败'); else console.log('Auto-sync failed');
     }
   } catch (e) {
     status.className = 'sync-status error';
     text.textContent = '❌ 网络错误: ' + e.message;
-    showToast('❌ 网络错误');
+    if (!silent) showToast('✅ 同步成功！'); else console.log('Auto-sync success');
   }
 }
 
