@@ -658,9 +658,30 @@ async function loadProductsFromDB() {
       }));
       saveProducts();
       renderProducts();
+    } else {
+      // Database is empty - save default products to Supabase
+      console.log('Database empty, saving default products...');
+      const toInsert = DEFAULT_PRODUCTS.map(p => ({
+        name: p.name, brand: p.brand, category: p.category,
+        price: p.price, old_price: p.old_price, emoji: p.emoji,
+        tag: p.tag, on_sale: p.on_sale === 1, stock: p.stock || 99
+      }));
+      const { error: insertError } = await supabase.from('products').insert(toInsert);
+      if (insertError) console.log('Insert error:', insertError);
+      else {
+        products = [...DEFAULT_PRODUCTS];
+        saveProducts();
+        renderProducts();
+      }
     }
   } catch (e) {
     console.log('DB load error:', e);
+    // Fallback to defaults
+    if (products.length === 0) {
+      products = [...DEFAULT_PRODUCTS];
+      saveProducts();
+      renderProducts();
+    }
   }
 }
 
