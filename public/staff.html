@@ -1491,7 +1491,11 @@ document.addEventListener('click',e=>{if(!e.target.closest('#npBarcode')&&!e.tar
 
 // ===== Log Functions =====
 function renderLogs(filter='all'){
-  const logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  let logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  // Staff account can only see their own logs
+  if(currentUser&&currentUser.role==='staff'){
+    logs=logs.filter(l=>l.account===currentUser.username);
+  }
   const container=document.getElementById('logsList');
   const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
   if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>暂无日志记录<br>Nessun log</p></div>';return}
@@ -1513,7 +1517,31 @@ function renderLogs(filter='all'){
   }).join('');
 }
 function filterLogs(type,el){document.querySelectorAll('#page-logs .ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderLogs(type)}
-function clearLogs(){if(confirm('确定清空所有日志？/ Eliminare tutti i log?')){localStorage.removeItem('staff_logs');renderLogs();showToast('️ 日志已清空')}}
+function clearLogs(){showToast('日志只读，不可删除 / Log sola lettura, non eliminabile')}
+
+
+// ===== Export Logs as CSV =====
+function exportLogsCSV(){
+  let logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  if(currentUser&&currentUser.role==='staff'){logs=logs.filter(l=>l.account===currentUser.username)}
+  if(!logs.length){showToast('暂无日志可导出');return}
+  const headers=['时间','账号','角色','操作类型','目标类型','目标ID','修改前','修改后','设备信息','屏幕'];
+  const rows=logs.map(l=>[
+    new Date(l.created_at).toLocaleString('zh-CN'),
+    l.account,l.role,l.action,l.target_type,l.target_id,
+    l.before_value?JSON.stringify(l.before_value):'',
+    l.after_value?JSON.stringify(l.after_value):'',
+    (l.device_info||'').replace(/,/g,';'),
+    l.screen||''
+  ]);
+  let csv='\uFEFF'+headers.join(',')+'\n';
+  rows.forEach(r=>{csv+=r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')+'\n'});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='operation_logs_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 日志已导出 / Log esportati');
+}
 
 // ===== Navigation =====
 function showPage(page,navEl){
@@ -1528,7 +1556,7 @@ function showPage(page,navEl){
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs')renderLogs();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs'){renderLogs();const af=document.getElementById('logsAccountFilter');if(af){const allLogs=JSON.parse(localStorage.getItem('staff_logs')||'[]');const visibleLogs=(currentUser&&currentUser.role==='staff')?allLogs.filter(l=>l.account===currentUser.username):allLogs;af.textContent='共'+visibleLogs.length+'条 | 账号:'+(currentUser?currentUser.username:'unknown')+(currentUser&&currentUser.role==='staff'?' (仅自己的日志)':'')}};if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
