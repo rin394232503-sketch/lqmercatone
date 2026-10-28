@@ -30,7 +30,7 @@
 html { font-size: 16px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
-  background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%);
+  background: linear-gradient(180deg, #1a1510 0%, #0f0e0a 30%, #1a1815 60%, #151210 100%);
   color: var(--text);
   max-width: 480px;
   margin: 0 auto;
@@ -79,7 +79,7 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   position: relative;
   aspect-ratio: 16/9;
-  background: linear-gradient(135deg, rgba(192,57,43,0.15) 0%, rgba(241,196,15,0.1) 50%, rgba(39,174,96,0.15) 100%);
+  background: linear-gradient(135deg, rgba(201,169,110,0.12) 0%, rgba(232,213,163,0.08) 50%, rgba(201,169,110,0.12) 100%);
 }
 .banner-slide {
   position: absolute; inset: 0;
@@ -125,11 +125,11 @@ img { max-width: 100%; display: block; }
   transition: 0.2s;
 }
 .icon-nav-item:active .icon-nav-icon { transform: scale(0.9); }
-.icon-nav-item:nth-child(1) .icon-nav-icon { background: #fff0f0; }
-.icon-nav-item:nth-child(2) .icon-nav-icon { background: #fff8e1; }
-.icon-nav-item:nth-child(3) .icon-nav-icon { background: #e8f5e9; }
-.icon-nav-item:nth-child(4) .icon-nav-icon { background: #e3f2fd; }
-.icon-nav-item:nth-child(5) .icon-nav-icon { background: #f3e5f5; }
+.icon-nav-item:nth-child(1) .icon-nav-icon { background: rgba(201,169,110,0.12); }
+.icon-nav-item:nth-child(2) .icon-nav-icon { background: rgba(232,213,163,0.12); }
+.icon-nav-item:nth-child(3) .icon-nav-icon { background: rgba(201,169,110,0.10); }
+.icon-nav-item:nth-child(4) .icon-nav-icon { background: rgba(232,213,163,0.10); }
+.icon-nav-item:nth-child(5) .icon-nav-icon { background: rgba(201,169,110,0.10); }
 .icon-nav-label { font-size: 11px; color: var(--text-light); font-weight: 500; }
 
 /* ===== Section Title ===== */
@@ -253,14 +253,14 @@ img { max-width: 100%; display: block; }
 }
 .rebuy-overlay.open { opacity: 1; visibility: visible; }
 .rebuy-panel {
-  background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%); border-radius: 20px 20px 0 0;
+  background: linear-gradient(180deg, #1a1510 0%, #0f0e0a 30%, #1a1815 60%, #151210 100%); border-radius: 20px 20px 0 0;
   width: 100%; max-width: 480px; max-height: 75vh;
   overflow-y: auto; padding: 0; transform: translateY(100%);
   transition: 0.35s cubic-bezier(.32,.72,0,1);
 }
 .rebuy-overlay.open .rebuy-panel { transform: translateY(0); }
 .rebuy-header {
-  position: sticky; top: 0; background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%); z-index: 10;
+  position: sticky; top: 0; background: linear-gradient(180deg, #1a1510 0%, #0f0e0a 30%, #1a1815 60%, #151210 100%); z-index: 10;
   padding: 20px 20px 12px; display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border-light);
 }
@@ -303,11 +303,8 @@ img { max-width: 100%; display: block; }
   border-radius: 50%; border: 2px solid white;
 }
 
-/* ===== Christmas Decorations ===== */
-.xmas-garland{position:fixed;top:0;left:0;right:0;height:6px;z-index:200;display:flex;overflow:hidden;pointer-events:none}
-.xmas-garland span{flex:1;height:6px}
-.xmas-garland span:nth-child(odd){background:#c0392b}
-.xmas-garland span:nth-child(even){background:#27ae60}
+/* ===== Luxury Gold Decorations ===== */
+.xmas-garland{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;pointer-events:none;background:linear-gradient(90deg,transparent 0%,#c9a96e 20%,#e8d5a3 50%,#c9a96e 80%,transparent 100%);opacity:0.6}
 .xmas-snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:150;overflow:hidden}
 .xmas-snowflake{position:absolute;top:-10px;color:white;text-shadow:0 0 4px rgba(255,255,255,0.8);animation:snowfall linear infinite;pointer-events:none}
 @keyframes snowfall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0.3}}
@@ -336,32 +333,35 @@ body>*{position:relative;z-index:1}
 <!-- Christmas Garland -->
 <div class="xmas-garland" id="xmasGarland"></div>
 <!-- Christmas Corner Decoration -->
-<div class="xmas-corner" style="font-size:28px">🎄</div>
+<div class="xmas-corner" style="font-size:24px;opacity:0.5">✦</div>
 <!-- Snow Container -->
 <div class="xmas-snow" id="xmasSnow"></div>
-<!-- Christmas Tree Background -->
-<div class="xmas-tree-bg">
-<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-  <!-- Tree layers -->
-  <polygon points="100,10 60,80 140,80" fill="#1a5c2e"/>
-  <polygon points="100,40 50,120 150,120" fill="#1e6b35"/>
-  <polygon points="100,75 40,165 160,165" fill="#227a3c"/>
-  <polygon points="100,110 30,210 170,210" fill="#268a43"/>
-  <!-- Trunk -->
-  <rect x="85" y="210" width="30" height="30" fill="#5d4037" rx="3"/>
-  <!-- Star -->
-  <polygon points="100,0 103,8 111,8 105,13 107,21 100,16 93,21 95,13 89,8 97,8" fill="#ffd700"/>
-  <!-- Ornaments -->
-  <circle cx="80" cy="90" r="4" fill="#e74c3c"/>
-  <circle cx="120" cy="95" r="4" fill="#3498db"/>
-  <circle cx="90" cy="130" r="4" fill="#f1c40f"/>
-  <circle cx="115" cy="140" r="4" fill="#e74c3c"/>
-  <circle cx="75" cy="175" r="5" fill="#e74c3c"/>
-  <circle cx="130" cy="180" r="5" fill="#f1c40f"/>
-  <circle cx="100" cy="170" r="5" fill="#3498db"/>
-  <circle cx="60" cy="205" r="5" fill="#f1c40f"/>
-  <circle cx="140" cy="205" r="5" fill="#e74c3c"/>
-  <circle cx="100" cy="195" r="5" fill="#2ecc71"/>
+<!-- Gold Luxury Background -->
+<div class="xmas-tree-bg" style="width:300px;opacity:0.06">
+<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Laurel wreath left -->
+  <path d="M50,200 Q30,150 60,100 Q80,80 100,100" stroke="#c9a96e" fill="none" stroke-width="3"/>
+  <path d="M60,180 Q40,140 65,100" stroke="#c9a96e" fill="none" stroke-width="2"/>
+  <path d="M55,220 Q30,180 55,130" stroke="#c9a96e" fill="none" stroke-width="2"/>
+  <!-- Laurel wreath right -->
+  <path d="M250,200 Q270,150 240,100 Q220,80 200,100" stroke="#c9a96e" fill="none" stroke-width="3"/>
+  <path d="M240,180 Q260,140 235,100" stroke="#c9a96e" fill="none" stroke-width="2"/>
+  <path d="M245,220 Q270,180 245,130" stroke="#c9a96e" fill="none" stroke-width="2"/>
+  <!-- Stars -->
+  <polygon points="150,40 153,55 168,55 156,64 160,79 150,70 140,79 144,64 132,55 147,55" fill="#c9a96e"/>
+  <polygon points="60,80 62,88 70,88 64,93 66,101 60,96 54,101 56,93 50,88 58,88" fill="#c9a96e"/>
+  <polygon points="240,80 242,88 250,88 244,93 246,101 240,96 234,101 236,93 230,88 238,88" fill="#c9a96e"/>
+  <!-- Diamond ornaments -->
+  <polygon points="100,150 110,165 100,180 90,165" fill="#c9a96e"/>
+  <polygon points="200,150 210,165 200,180 190,165" fill="#c9a96e"/>
+  <polygon points="150,200 160,215 150,230 140,215" fill="#c9a96e"/>
+  <!-- Elegant lines -->
+  <line x1="80" y1="300" x2="220" y2="300" stroke="#c9a96e" stroke-width="1"/>
+  <line x1="100" y1="320" x2="200" y2="320" stroke="#c9a96e" stroke-width="1"/>
+  <!-- Small dots -->
+  <circle cx="150" cy="350" r="3" fill="#c9a96e"/>
+  <circle cx="130" cy="370" r="2" fill="#c9a96e"/>
+  <circle cx="170" cy="370" r="2" fill="#c9a96e"/>
 </svg>
 </div>
 
@@ -490,8 +490,8 @@ body>*{position:relative;z-index:1}
 (function(){
   const snow=document.getElementById('xmasSnow');
   if(!snow)return;
-  const flakes=['❄','❅','❆','✦','•'];
-  const colors=['rgba(255,255,255,0.9)','rgba(255,255,255,0.7)','rgba(200,220,255,0.8)'];
+  const flakes=['✦','·','✧','','✶'];
+  const colors=['rgba(201,169,110,0.8)','rgba(201,169,110,0.5)','rgba(255,215,0,0.4)','rgba(218,185,120,0.6)'];
   function createFlake(){
     const f=document.createElement('div');
     f.className='xmas-snowflake';
@@ -507,7 +507,7 @@ body>*{position:relative;z-index:1}
   }
   // Garland
   const g=document.getElementById('xmasGarland');
-  for(let i=0;i<60;i++){const s=document.createElement('span');g.appendChild(s)}
+  
   // Snow loop
   setInterval(createFlake,400);
   for(let i=0;i<15;i++)setTimeout(createFlake,i*200);
@@ -921,8 +921,8 @@ loadProducts();
 (function(){
   const snow=document.getElementById('xmasSnow');
   if(!snow)return;
-  const flakes=['❄','❅','❆','✦','•'];
-  const colors=['rgba(255,255,255,0.9)','rgba(255,255,255,0.7)','rgba(200,220,255,0.8)'];
+  const flakes=['✦','·','✧','','✶'];
+  const colors=['rgba(201,169,110,0.8)','rgba(201,169,110,0.5)','rgba(255,215,0,0.4)','rgba(218,185,120,0.6)'];
   function createFlake(){
     const f=document.createElement('div');
     f.className='xmas-snowflake';
@@ -938,7 +938,7 @@ loadProducts();
   }
   // Garland
   const g=document.getElementById('xmasGarland');
-  for(let i=0;i<60;i++){const s=document.createElement('span');g.appendChild(s)}
+  
   // Snow loop
   setInterval(createFlake,400);
   for(let i=0;i<15;i++)setTimeout(createFlake,i*200);
