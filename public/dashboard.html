@@ -233,6 +233,29 @@ tr:hover td{background:var(--bg2)}
         <div class="chart-card"><h3>📊 本周销售 Vendite Settimanali <span class="period" id="weekPeriod"></span></h3><div class="bar-chart" id="weeklyChart"></div></div>
         <div class="chart-card"><h3>🍩 分类占比 Categorie</h3><div class="donut-container"><div class="donut" id="donutChart"></div><div class="donut-legend" id="donutLegend"></div></div></div>
       </div>
+      <!-- Quick Actions -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+        <div onclick="showPage('products')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
+          <div style="font-size:28px;margin-bottom:8px"></div>
+          <div style="font-size:13px;font-weight:600">商品管理</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Prodotti</div>
+        </div>
+        <div onclick="showPage('orders')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
+          <div style="font-size:28px;margin-bottom:8px"></div>
+          <div style="font-size:13px;font-weight:600">订单管理</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Ordini</div>
+        </div>
+        <div onclick="showPage('discount')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
+          <div style="font-size:28px;margin-bottom:8px">🏷️</div>
+          <div style="font-size:13px;font-weight:600">营销打折</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">Marketing Sconti</div>
+        </div>
+        <div onclick="showPage('aftersales')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
+          <div style="font-size:28px;margin-bottom:8px"></div>
+          <div style="font-size:13px;font-weight:600">售后管理</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Resi</div>
+        </div>
+      </div>
       <div class="table-section">
         <div class="table-card"><h3>🏆 热销商品 Top Prodotti</h3><table><thead><tr><th>商品</th><th>销量</th><th>收入</th><th>趋势</th></tr></thead><tbody id="topProductsTable"></tbody></table></div>
         <div class="table-card"><h3>📋 最近订单 Ultimi Ordini</h3><table><thead><tr><th>订单号</th><th>客户</th><th>金额</th><th>状态</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div>
