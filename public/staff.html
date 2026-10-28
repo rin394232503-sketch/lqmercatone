@@ -627,6 +627,11 @@ function getSelectedSizes() {
   document.querySelectorAll('#sizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
   return sizes;
 }
+function getEditSizes() {
+  const sizes = [];
+  document.querySelectorAll('#editSizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
+  return sizes;
+}
 
 // ===== Save New Product =====
 async function saveNewProduct(){
@@ -750,25 +755,54 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ===== Language =====
 function toggleAppLang(){appLang=appLang==='zh'?'it':'zh';document.getElementById('currentLang').textContent=appLang==='zh'?'中文 >':'Italiano >';showToast(appLang==='zh'?'切换为中文':'Cambiato in Italiano')}
 
-// ===== Edit Product (placeholder) =====
+// ===== Edit Product =====
 function editProduct(id){
   const p=allProducts.find(x=>x.id===id);if(!p)return;
-  openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+  // Parse existing sizes from description
+  const sizeMatch=(p.description||'').match(/Taglie:\s*([A-Z,\s]+)/i);
+  const existingSizes=sizeMatch?sizeMatch[1].split(',').map(s=>s.trim()):['S','M','L','XL'];
+  const allSizes=['S','M','L','XL','XXL'];
+  const sizeBtns=allSizes.map(s=>{
+    const isActive=existingSizes.includes(s);
+    const style=isActive?'border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent)':'border:1.5px solid var(--border);color:var(--text2)';
+    return`<div class="sku-opt${isActive?' active':''}" onclick="toggleSize(this)" data-size="${s}" style="padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;${style}">${s}</div>`;
+  }).join('');
+  const showSizes=p.category==='Abbigliamento'?'block':'none';
+
+  openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
     <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
     <div class="form-row">
       <div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
       <div class="form-group"><label>库存</label><input type="number" id="epStock" value="${p.stock||0}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>分类</label><select id="epCat"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
+      <div class="form-group"><label>分类</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
       <div class="form-group"><label>上架状态</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
+    </div>
+    <div id="editSizeSelector" class="form-group" style="display:${showSizes}">
+      <label>尺码 Taglie <span style="font-size:11px;color:var(--text2)">(点选可用尺码)</span></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${sizeBtns}</div>
     </div>
     <button class="save-btn" onclick="saveEditProduct(${id})">💾 保存修改</button>
     <button class="save-btn secondary" style="margin-top:8px;background:var(--danger);color:white" onclick="deleteProduct(${id})">🗑️ 删除商品</button>
   `)
 }
+function toggleEditSize(){
+  const cat=document.getElementById('epCat').value;
+  document.getElementById('editSizeSelector').style.display=cat==='Abbigliamento'?'block':'none';
+}
 async function saveEditProduct(id){
-  const updates={name:document.getElementById('epName').value.trim(),price:parseFloat(document.getElementById('epPrice').value),stock:parseInt(document.getElementById('epStock').value),category:document.getElementById('epCat').value,on_sale:document.getElementById('epSale').value==='1'};
+  const sizes=getEditSizes();
+  const sizeInfo=sizes.length>0?' Taglie: '+sizes.join(', '):'';
+  const desc=document.getElementById('epName').value.trim();
+  const updates={
+    name:document.getElementById('epName').value.trim(),
+    price:parseFloat(document.getElementById('epPrice').value),
+    stock:parseInt(document.getElementById('epStock').value),
+    category:document.getElementById('epCat').value,
+    on_sale:document.getElementById('epSale').value==='1',
+    description:desc+sizeInfo
+  };
   if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
   closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
