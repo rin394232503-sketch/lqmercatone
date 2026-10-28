@@ -309,28 +309,28 @@ img { max-width: 100%; display: block; }
 <div class="top-bar">
   <div class="search-box">
     <span>🔍</span>
-    <input type="text" placeholder="Cerca prodotti..." id="searchInput" oninput="handleSearch(this.value)">
+    <input type="text" placeholder="Cerca prodotti..." id="searchInput" oninput="handleSearch(this.value)" data-i18n-ph="search_ph">
   </div>
-  <button class="icon-btn" onclick="showToast('📷 Ricerca per immagine')">📷</button>
-  <button class="lang-btn" onclick="toggleLang()">IT/中</button>
+  <button class="icon-btn" onclick="showToast(t('camera_toast'))">📷</button>
+  <button class="lang-btn" onclick="toggleLang()" id="langBtn">IT/中</button>
 </div>
 
 <!-- Banner Carousel -->
 <div class="banner" id="banner">
   <div class="banner-slide active">
     <div class="banner-emoji">🎄</div>
-    <h3>Offerte di Natale</h3>
-    <p>Sconti fino al 50% su articoli natalizi</p>
+    <h3 data-i18n="banner1_title">Offerte di Natale</h3>
+    <p data-i18n="banner1_desc">Sconti fino al 50% su articoli natalizi</p>
   </div>
   <div class="banner-slide">
     <div class="banner-emoji">🌸</div>
-    <h3>Fiori Artificiali</h3>
-    <p>Nuova collezione primavera 2026</p>
+    <h3 data-i18n="banner2_title">Fiori Artificiali</h3>
+    <p data-i18n="banner2_desc">Nuova collezione primavera 2026</p>
   </div>
   <div class="banner-slide">
     <div class="banner-emoji">🏠</div>
-    <h3>Decorazioni Casa</h3>
-    <p>Stile nordico, prezzi imbattibili</p>
+    <h3 data-i18n="banner3_title">Decorazioni Casa</h3>
+    <p data-i18n="banner3_desc">Stile nordico, prezzi imbattibili</p>
   </div>
   <div class="banner-dots">
     <div class="banner-dot active"></div>
@@ -343,43 +343,43 @@ img { max-width: 100%; display: block; }
 <div class="icon-nav">
   <div class="icon-nav-item" onclick="filterProducts('sale')">
     <div class="icon-nav-icon">⚡</div>
-    <span class="icon-nav-label">Offerte Lampo</span>
+    <span class="icon-nav-label" data-i18n="nav_flash">Offerte Lampo</span>
   </div>
-  <div class="icon-nav-item" onclick="showToast('🎫 Coupon中心开发中')">
+  <div class="icon-nav-item" onclick="showToast(t('coupon_toast'))">
     <div class="icon-nav-icon">🎫</div>
-    <span class="icon-nav-label">Coupon</span>
+    <span class="icon-nav-label" data-i18n="nav_coupon">Coupon</span>
   </div>
   <div class="icon-nav-item" onclick="filterProducts('new')">
     <div class="icon-nav-icon">✨</div>
-    <span class="icon-nav-label">Nuovi</span>
+    <span class="icon-nav-label" data-i18n="nav_new">Nuovi</span>
   </div>
   <div class="icon-nav-item" onclick="filterProducts('hot')">
     <div class="icon-nav-icon">🔥</div>
-    <span class="icon-nav-label">Bestseller</span>
+    <span class="icon-nav-label" data-i18n="nav_hot">Bestseller</span>
   </div>
   <div class="icon-nav-item" onclick="openRebuy()">
     <div class="icon-nav-icon rebuy-badge" id="rebuyIcon">🔄</div>
-    <span class="icon-nav-label">Riacquista</span>
+    <span class="icon-nav-label" data-i18n="nav_rebuy">Riacquista</span>
   </div>
 </div>
 
 <!-- Flash Sale Section -->
 <div class="section-title">
-  <h2>⚡ Offerte Lampo</h2>
-  <span class="more"> Vedi tutto ></span>
+  <h2 data-i18n="sec_flash">⚡ Offerte Lampo</h2>
+  <span class="more" data-i18n="see_all"> Vedi tutto ></span>
 </div>
 <div class="product-grid" id="flashSaleGrid"></div>
 
 <!-- New Arrivals -->
 <div class="section-title">
-  <h2>✨ Nuovi上架</h2>
-  <span class="more"> Vedi tutto ></span>
+  <h2 data-i18n="sec_new">✨ Novità</h2>
+  <span class="more" data-i18n="see_all2"> Vedi tutto ></span>
 </div>
 <div class="product-grid" id="newGrid"></div>
 
 <!-- All Products -->
 <div class="section-title">
-  <h2>🛍️ Tutti i Prodotti</h2>
+  <h2 data-i18n="sec_all">🛍️ Tutti i Prodotti</h2>
   <span class="more" id="productCount">0 件</span>
 </div>
 <div class="product-grid" id="productGrid"></div>
@@ -388,23 +388,23 @@ img { max-width: 100%; display: block; }
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab('home',this)">
     <div class="nav-icon">🏠</div>
-    <span class="nav-label">Home</span>
+    <span class="nav-label" data-i18n="tab_home">Home</span>
   </div>
   <div class="nav-item" onclick="switchTab('category',this)">
     <div class="nav-icon">📂</div>
-    <span class="nav-label">Categorie</span>
+    <span class="nav-label" data-i18n="tab_cat">Categorie</span>
   </div>
   <div class="nav-item" onclick="switchTab('search',this)">
     <div class="nav-icon">🔍</div>
-    <span class="nav-label">Cerca</span>
+    <span class="nav-label" data-i18n="tab_search">Cerca</span>
   </div>
   <div class="nav-item cart-badge" data-count="0" onclick="switchTab('cart',this)">
     <div class="nav-icon">🛒</div>
-    <span class="nav-label">Carrello</span>
+    <span class="nav-label" data-i18n="tab_cart">Carrello</span>
   </div>
   <div class="nav-item" onclick="switchTab('profile',this)">
     <div class="nav-icon"></div>
-    <span class="nav-label">Profilo</span>
+    <span class="nav-label" data-i18n="tab_profile">Profilo</span>
   </div>
 </div>
 
@@ -412,7 +412,7 @@ img { max-width: 100%; display: block; }
 <div class="rebuy-overlay" id="rebuyOverlay" onclick="closeRebuy(event)">
   <div class="rebuy-panel" onclick="event.stopPropagation()">
     <div class="rebuy-header">
-      <h3>🔄 Riacquista Riacquista</h3>
+      <h3>🔄 <span data-i18n="nav_rebuy">Riacquista</span></h3>
       <div class="rebuy-close" onclick="closeRebuy()">✕</div>
     </div>
     <div id="rebuyContent"></div>
@@ -503,7 +503,7 @@ function renderProducts() {
 
 function renderCard(p) {
   const discount = p.old_price ? Math.round((1 - p.price/p.old_price) * 100) : 0;
-  const stockText = p.stock > 20 ? 'Disponibile' : p.stock > 5 ? 'Disponibile' : 'Solo ' + p.stock + '';
+  const stockText = p.stock > 20 ? t('available') : p.stock > 5 ? t('available') : t('low_stock') + p.stock;
   const stockClass = p.stock <= 5 ? 'low' : '';
   return `<div class="product-card" onclick="goToDetail(${p.id})">
     <div class="product-img">
@@ -535,7 +535,7 @@ function addToCart(id) {
   else cart.push({ ...p, qty: 1 });
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
-  showToast('✅ Aggiunto al carrello');
+  showToast(t('added_cart'));
 }
 
 function updateCartBadge() {
@@ -561,10 +561,77 @@ function filterProducts(tag) {
   document.getElementById('productGrid').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ===== Language Toggle =====
+// ===== Language Toggle (双语切换) =====
+const I18N = {
+  it: {
+    search_ph: 'Cerca prodotti...',
+    banner1_title: 'Offerte di Natale', banner1_desc: 'Sconti fino al 50% su articoli natalizi',
+    banner2_title: 'Fiori Artificiali', banner2_desc: 'Nuova collezione primavera 2026',
+    banner3_title: 'Decorazioni Casa', banner3_desc: 'Stile nordico, prezzi imbattibili',
+    nav_flash: 'Offerte Lampo', nav_coupon: 'Coupon', nav_new: 'Nuovi', nav_hot: 'Bestseller', nav_rebuy: 'Riacquista',
+    sec_flash: '⚡ Offerte Lampo', sec_new: '✨ Novità', sec_all: '🛍️ Tutti i Prodotti',
+    see_all: ' Vedi tutto >', see_all2: ' Vedi tutto >',
+    tab_home: 'Home', tab_cat: 'Categorie', tab_search: 'Cerca', tab_cart: 'Carrello', tab_profile: 'Profilo',
+    added_cart: '✅ Aggiunto al carrello',
+    available: 'Disponibile', low_stock: 'Solo ',
+    no_orders: 'Nessun ordine', no_orders_sub: 'Vai a scoprire i nostri prodotti',
+    recent_order: 'Ordine recente', in_cart: 'Nel carrello', add: 'Aggiungi',
+    add_all: 'Aggiungi tutto al carrello', unavailable: 'Prodotto non disponibile',
+    camera_toast: '📷 Ricerca per immagine', coupon_toast: '🎫 Centro Coupon in arrivo',
+    items_added: ' prodotti aggiunti', bought: 'acquistati',
+  },
+  zh: {
+    search_ph: '搜索商品...',
+    banner1_title: '圣诞特惠', banner1_desc: '圣诞商品低至5折',
+    banner2_title: '仿真花卉', banner2_desc: '2026春季新品系列',
+    banner3_title: '家居装饰', banner3_desc: '北欧风格，超值价格',
+    nav_flash: '限时秒杀', nav_coupon: '领券', nav_new: '新品', nav_hot: '热销', nav_rebuy: '再次购买',
+    sec_flash: '⚡ 限时秒杀', sec_new: '✨ 新品上架', sec_all: '🛍️ 全部商品',
+    see_all: ' 更多 >', see_all2: ' 更多 >',
+    tab_home: '首页', tab_cat: '分类', tab_search: '搜索', tab_cart: '购物车', tab_profile: '我的',
+    added_cart: '✅ 已加入购物车',
+    available: '现货', low_stock: '仅剩 ',
+    no_orders: '还没有购买记录', no_orders_sub: '快去挑选心仪的商品吧',
+    recent_order: '近期订单', in_cart: '已在购物车', add: '加入购物车',
+    add_all: '全部加入购物车', unavailable: '商品已下架',
+    camera_toast: '📷 拍照识图', coupon_toast: '🎫 领券中心即将上线',
+    items_added: ' 件商品已加入购物车', bought: '已购',
+  }
+};
+
+function t(key) { return (I18N[currentLang] && I18N[currentLang][key]) || key; }
+
 function toggleLang() {
   currentLang = currentLang === 'it' ? 'zh' : 'it';
-  showToast(currentLang === 'it' ? '🇹 Italiano' : '🇳 中文');
+  localStorage.setItem('lq_lang', currentLang);
+  applyLang();
+  showToast(currentLang === 'it' ? '🇮🇹 Italiano' : '🇨🇳 中文');
+}
+
+function applyLang() {
+  const dict = I18N[currentLang];
+  if (!dict) return;
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (dict[key]) el.placeholder = dict[key];
+  });
+  // Update product count suffix
+  const pc = document.getElementById('productCount');
+  if (pc) {
+    const num = pc.textContent.match(/\d+/);
+    if (num) pc.textContent = num[0] + (currentLang === 'it' ? ' prodotti' : ' 件');
+  }
+  // Update lang button
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = currentLang === 'it' ? 'IT/中' : '中/IT';
+  // Update page title
+  document.title = currentLang === 'it' ? 'L&Qmercatone - Negozio Online' : 'L&Qmercatone - 网上商城';
 }
 
 // ===== Tab Switch =====
@@ -663,7 +730,7 @@ function openRebuy() {
   if (!history.length) {
     content.innerHTML = `<div class="rebuy-empty">
       <div class="rebuy-empty-icon">📦</div>
-      <p>Nessun ordine<br>Nessun ordine precedente<br><br>Vai a scoprire i nostri prodotti！</p>
+      <p>${t('no_orders')}<br>${t('no_orders_sub')}</p>
     </div>`;
     document.getElementById('rebuyOverlay').classList.add('open');
     return;
@@ -676,18 +743,18 @@ function openRebuy() {
   history.forEach((order, oi) => {
     html += `<div class="rebuy-order-group">
       <div class="rebuy-order-label">
-        📋 <span class="rebuy-date">${order.date || 'Ordine recente'}</span>
+        📋 <span class="rebuy-date">${order.date || t('recent_order')}</span>
         <span style="margin-left:auto;font-size:11px">${order.order_no}</span>
       </div>`;
     order.items.forEach(item => {
       const inCart = cart.find(c => c.id === item.id);
-      const btnText = inCart ? 'Nel carrello' : 'Aggiungi';
+      const btnText = inCart ? t('in_cart') : t('add');
       const btnStyle = inCart ? 'background:var(--bg-soft);color:var(--text-light)' : '';
       html += `<div class="rebuy-item">
         <div class="rebuy-emoji">${item.emoji}</div>
         <div class="rebuy-info">
           <div class="rebuy-name">${item.name}</div>
-          <div class="rebuy-meta"><span class="rebuy-price">€${item.price}</span> · acquistati${item.qty}件</div>
+          <div class="rebuy-meta"><span class="rebuy-price">€${item.price}</span> · ${t('bought')}${item.qty}</div>
         </div>
         <button class="rebuy-add-btn" style="${btnStyle}" onclick="rebuyAdd(${item.id},this)">${btnText}</button>
       </div>`;
@@ -696,7 +763,7 @@ function openRebuy() {
     // Add all button for orders with multiple items
     if (order.items.length > 1) {
       const ids = order.items.map(i => i.id).join(',');
-      html += `<div class="rebuy-all-btn" onclick="rebuyAddAll('${ids}')">🛒 全部Aggiungi (${order.items.length}件)</div>`;
+      html += `<div class="rebuy-all-btn" onclick="rebuyAddAll('${ids}')">🛒 ${t('add_all')} (${order.items.length})</div>`;
     }
   });
 
@@ -711,18 +778,18 @@ function closeRebuy(e) {
 
 function rebuyAdd(id, btnEl) {
   const p = PRODUCTS.find(x => x.id === id);
-  if (!p) { showToast('Prodotto non disponibile'); return; }
+  if (!p) { showToast(t('unavailable')); return; }
   const existing = cart.find(i => i.id === id);
   if (existing) { existing.qty++; }
   else { cart.push({ ...p, qty: 1 }); }
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
   if (btnEl) {
-    btnEl.textContent = 'Nel carrello ✓';
+    btnEl.textContent = t('in_cart') + ' ✓';
     btnEl.style.background = 'var(--bg-soft)';
     btnEl.style.color = 'var(--text-light)';
   }
-  showToast('✅ Aggiunto al carrello');
+  showToast(t('added_cart'));
 }
 
 function rebuyAddAll(idsStr) {
@@ -738,16 +805,18 @@ function rebuyAddAll(idsStr) {
   });
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
-  showToast(`✅ ${added} 件商品Aggiunto al carrello`);
+  showToast('✅ ' + added + t('items_added'));
   // Update all buttons
   document.querySelectorAll('.rebuy-add-btn').forEach(btn => {
-    btn.textContent = 'Nel carrello ✓';
+    btn.textContent = t('in_cart') + ' ✓';
     btn.style.background = 'var(--bg-soft)';
     btn.style.color = 'var(--text-light)';
   });
 }
 
 // ===== Init =====
+currentLang = localStorage.getItem('lq_lang') || 'it';
+applyLang();
 loadProducts();
 </script>
 </body>
