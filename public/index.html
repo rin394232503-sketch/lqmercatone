@@ -311,7 +311,7 @@ img { max-width: 100%; display: block; }
     <span>🔍</span>
     <input type="text" placeholder="Cerca prodotti..." id="searchInput" oninput="handleSearch(this.value)">
   </div>
-  <button class="icon-btn" onclick="showToast('📷 拍照识图功能开发中')">📷</button>
+  <button class="icon-btn" onclick="showToast('📷 Ricerca per immagine')">📷</button>
   <button class="lang-btn" onclick="toggleLang()">IT/中</button>
 </div>
 
@@ -343,43 +343,43 @@ img { max-width: 100%; display: block; }
 <div class="icon-nav">
   <div class="icon-nav-item" onclick="filterProducts('sale')">
     <div class="icon-nav-icon">⚡</div>
-    <span class="icon-nav-label">限时秒杀</span>
+    <span class="icon-nav-label">Offerte Lampo</span>
   </div>
-  <div class="icon-nav-item" onclick="showToast('🎫 领券中心开发中')">
+  <div class="icon-nav-item" onclick="showToast('🎫 Coupon中心开发中')">
     <div class="icon-nav-icon">🎫</div>
-    <span class="icon-nav-label">领券</span>
+    <span class="icon-nav-label">Coupon</span>
   </div>
   <div class="icon-nav-item" onclick="filterProducts('new')">
     <div class="icon-nav-icon">✨</div>
-    <span class="icon-nav-label">新品</span>
+    <span class="icon-nav-label">Nuovi</span>
   </div>
   <div class="icon-nav-item" onclick="filterProducts('hot')">
     <div class="icon-nav-icon">🔥</div>
-    <span class="icon-nav-label">热销</span>
+    <span class="icon-nav-label">Bestseller</span>
   </div>
   <div class="icon-nav-item" onclick="openRebuy()">
     <div class="icon-nav-icon rebuy-badge" id="rebuyIcon">🔄</div>
-    <span class="icon-nav-label">再次购买</span>
+    <span class="icon-nav-label">Riacquista</span>
   </div>
 </div>
 
 <!-- Flash Sale Section -->
 <div class="section-title">
-  <h2>⚡ 限时秒杀</h2>
-  <span class="more">更多 ></span>
+  <h2>⚡ Offerte Lampo</h2>
+  <span class="more"> Vedi tutto ></span>
 </div>
 <div class="product-grid" id="flashSaleGrid"></div>
 
 <!-- New Arrivals -->
 <div class="section-title">
-  <h2>✨ 新品上架</h2>
-  <span class="more">更多 ></span>
+  <h2>✨ Nuovi上架</h2>
+  <span class="more"> Vedi tutto ></span>
 </div>
 <div class="product-grid" id="newGrid"></div>
 
 <!-- All Products -->
 <div class="section-title">
-  <h2>🛍️ 全部商品</h2>
+  <h2>🛍️ Tutti i Prodotti</h2>
   <span class="more" id="productCount">0 件</span>
 </div>
 <div class="product-grid" id="productGrid"></div>
@@ -388,23 +388,23 @@ img { max-width: 100%; display: block; }
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchTab('home',this)">
     <div class="nav-icon">🏠</div>
-    <span class="nav-label">首页</span>
+    <span class="nav-label">Home</span>
   </div>
   <div class="nav-item" onclick="switchTab('category',this)">
     <div class="nav-icon">📂</div>
-    <span class="nav-label">分类</span>
+    <span class="nav-label">Categorie</span>
   </div>
   <div class="nav-item" onclick="switchTab('search',this)">
     <div class="nav-icon">🔍</div>
-    <span class="nav-label">搜索</span>
+    <span class="nav-label">Cerca</span>
   </div>
   <div class="nav-item cart-badge" data-count="0" onclick="switchTab('cart',this)">
     <div class="nav-icon">🛒</div>
-    <span class="nav-label">购物车</span>
+    <span class="nav-label">Carrello</span>
   </div>
   <div class="nav-item" onclick="switchTab('profile',this)">
     <div class="nav-icon"></div>
-    <span class="nav-label">我的</span>
+    <span class="nav-label">Profilo</span>
   </div>
 </div>
 
@@ -412,7 +412,7 @@ img { max-width: 100%; display: block; }
 <div class="rebuy-overlay" id="rebuyOverlay" onclick="closeRebuy(event)">
   <div class="rebuy-panel" onclick="event.stopPropagation()">
     <div class="rebuy-header">
-      <h3>🔄 再次购买 Riacquista</h3>
+      <h3>🔄 Riacquista Riacquista</h3>
       <div class="rebuy-close" onclick="closeRebuy()">✕</div>
     </div>
     <div id="rebuyContent"></div>
@@ -503,7 +503,7 @@ function renderProducts() {
 
 function renderCard(p) {
   const discount = p.old_price ? Math.round((1 - p.price/p.old_price) * 100) : 0;
-  const stockText = p.stock > 20 ? '现货' : p.stock > 5 ? '现货' : '仅剩' + p.stock + '件';
+  const stockText = p.stock > 20 ? 'Disponibile' : p.stock > 5 ? 'Disponibile' : 'Solo ' + p.stock + '';
   const stockClass = p.stock <= 5 ? 'low' : '';
   return `<div class="product-card" onclick="goToDetail(${p.id})">
     <div class="product-img">
@@ -535,7 +535,7 @@ function addToCart(id) {
   else cart.push({ ...p, qty: 1 });
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
-  showToast('✅ 已加入购物车');
+  showToast('✅ Aggiunto al carrello');
 }
 
 function updateCartBadge() {
@@ -614,7 +614,7 @@ function rotateBanner() {
 }
 setInterval(rotateBanner, 4000);
 
-// ===== Repurchase (再次购买) =====
+// ===== Repurchase (Riacquista) =====
 function getPurchaseHistory() {
   // Collect from localStorage orders
   const localOrders = JSON.parse(localStorage.getItem('lq_orders') || '[]');
@@ -663,7 +663,7 @@ function openRebuy() {
   if (!history.length) {
     content.innerHTML = `<div class="rebuy-empty">
       <div class="rebuy-empty-icon">📦</div>
-      <p>还没有购买记录哦<br>Nessun ordine precedente<br><br>快去挑选心仪的商品吧！</p>
+      <p>Nessun ordine<br>Nessun ordine precedente<br><br>Vai a scoprire i nostri prodotti！</p>
     </div>`;
     document.getElementById('rebuyOverlay').classList.add('open');
     return;
@@ -676,18 +676,18 @@ function openRebuy() {
   history.forEach((order, oi) => {
     html += `<div class="rebuy-order-group">
       <div class="rebuy-order-label">
-        📋 <span class="rebuy-date">${order.date || '近期订单'}</span>
+        📋 <span class="rebuy-date">${order.date || 'Ordine recente'}</span>
         <span style="margin-left:auto;font-size:11px">${order.order_no}</span>
       </div>`;
     order.items.forEach(item => {
       const inCart = cart.find(c => c.id === item.id);
-      const btnText = inCart ? '已在购物车' : '加入购物车';
+      const btnText = inCart ? 'Nel carrello' : 'Aggiungi';
       const btnStyle = inCart ? 'background:var(--bg-soft);color:var(--text-light)' : '';
       html += `<div class="rebuy-item">
         <div class="rebuy-emoji">${item.emoji}</div>
         <div class="rebuy-info">
           <div class="rebuy-name">${item.name}</div>
-          <div class="rebuy-meta"><span class="rebuy-price">€${item.price}</span> · 已购${item.qty}件</div>
+          <div class="rebuy-meta"><span class="rebuy-price">€${item.price}</span> · acquistati${item.qty}件</div>
         </div>
         <button class="rebuy-add-btn" style="${btnStyle}" onclick="rebuyAdd(${item.id},this)">${btnText}</button>
       </div>`;
@@ -696,7 +696,7 @@ function openRebuy() {
     // Add all button for orders with multiple items
     if (order.items.length > 1) {
       const ids = order.items.map(i => i.id).join(',');
-      html += `<div class="rebuy-all-btn" onclick="rebuyAddAll('${ids}')">🛒 全部加入购物车 (${order.items.length}件)</div>`;
+      html += `<div class="rebuy-all-btn" onclick="rebuyAddAll('${ids}')">🛒 全部Aggiungi (${order.items.length}件)</div>`;
     }
   });
 
@@ -711,18 +711,18 @@ function closeRebuy(e) {
 
 function rebuyAdd(id, btnEl) {
   const p = PRODUCTS.find(x => x.id === id);
-  if (!p) { showToast('商品已下架'); return; }
+  if (!p) { showToast('Prodotto non disponibile'); return; }
   const existing = cart.find(i => i.id === id);
   if (existing) { existing.qty++; }
   else { cart.push({ ...p, qty: 1 }); }
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
   if (btnEl) {
-    btnEl.textContent = '已在购物车 ✓';
+    btnEl.textContent = 'Nel carrello ✓';
     btnEl.style.background = 'var(--bg-soft)';
     btnEl.style.color = 'var(--text-light)';
   }
-  showToast('✅ 已加入购物车');
+  showToast('✅ Aggiunto al carrello');
 }
 
 function rebuyAddAll(idsStr) {
@@ -738,10 +738,10 @@ function rebuyAddAll(idsStr) {
   });
   localStorage.setItem('lq_cart', JSON.stringify(cart));
   updateCartBadge();
-  showToast(`✅ ${added} 件商品已加入购物车`);
+  showToast(`✅ ${added} 件商品Aggiunto al carrello`);
   // Update all buttons
   document.querySelectorAll('.rebuy-add-btn').forEach(btn => {
-    btn.textContent = '已在购物车 ✓';
+    btn.textContent = 'Nel carrello ✓';
     btn.style.background = 'var(--bg-soft)';
     btn.style.color = 'var(--text-light)';
   });

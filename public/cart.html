@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>L&Qmercatone - 购物车</title>
+<title>L&Qmercatone - Carrello</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -193,15 +193,15 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Top Nav -->
 <div class="top-nav">
   <button class="back-btn" onclick="location.href='index.html'">←</button>
-  <div class="top-nav-title">购物车 Carrello</div>
-  <button class="edit-btn" id="editBtn" onclick="toggleEdit()">编辑</button>
+  <div class="top-nav-title">Carrello</div>
+  <button class="edit-btn" id="editBtn" onclick="toggleEdit()">Modifica</button>
 </div>
 
 <!-- Summary Bar -->
 <div class="summary-bar">
   <div class="summary-left">
     <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
-    <label for="selectAll">全选 Seleziona tutto</label>
+    <label for="selectAll">Seleziona tutto</label>
   </div>
   <div class="summary-right">
     合计 <strong id="totalPrice">0</strong>
@@ -210,21 +210,21 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 <!-- Shipping Info -->
 <div class="shipping-bar" id="shippingBar">
-  🚚 再买 €<span id="freeShipGap">99</span> 免运费 Spedizione gratis sopra €99
+  🚚 Aggiungi ancora € €<span id="freeShipGap">99</span> per la spedizione gratis
 </div>
 
 <!-- Coupon Section -->
-<div class="coupon-section" onclick="showToast('🎫 优惠券功能开发中')">
+<div class="coupon-section" onclick="showToast('🎫 Centro Coupon in arrivo')">
   <div class="coupon-left">
     <span class="coupon-icon">🎫</span>
-    <span class="coupon-text">优惠券 Coupon — <strong>选择可用优惠券</strong></span>
+    <span class="coupon-text">Coupon — <strong>Seleziona coupon disponibile</strong></span>
   </div>
   <span class="coupon-arrow">></span>
 </div>
 
 <!-- Cart Items -->
 <div class="cart-section">
-  <input class="cart-search" type="text" placeholder="🔍 搜索购物车商品..." oninput="filterCart(this.value)">
+  <input class="cart-search" type="text" placeholder="🔍 Cerca nel carrello..." oninput="filterCart(this.value)">
   <div id="cartItems"></div>
 </div>
 
@@ -232,10 +232,10 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <div class="checkout-bar" id="checkoutBar">
   <div class="checkout-row">
     <div>
-      <div class="checkout-total">合计 Totale: <strong id="checkoutTotal">0</strong></div>
-      <div class="checkout-shipping" id="checkoutShipping">运费 €4.99</div>
+      <div class="checkout-total">Totale: <strong id="checkoutTotal">0</strong></div>
+      <div class="checkout-shipping" id="checkoutShipping">Spedizione €4.99</div>
     </div>
-    <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>结算 Checkout (0)</button>
+    <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>Checkout (0)</button>
   </div>
 </div>
 
@@ -265,7 +265,7 @@ function saveCart() { localStorage.setItem('lq_cart', JSON.stringify(cart)); }
 function render() {
   const container = document.getElementById('cartItems');
   if (cart.length === 0) {
-    container.innerHTML = '<div class="empty-cart"><div class="empty-icon">🛒</div><p>购物车是空的 Il carrello è vuoto</p><a href="index.html" class="shop-btn">去购物 Vai allo shopping</a></div>';
+    container.innerHTML = '<div class="empty-cart"><div class="empty-icon">🛒</div><p>Il carrello è vuoto</p><a href="index.html" class="shop-btn">Vai allo shopping</a></div>';
     updateTotals();
     return;
   }
@@ -288,8 +288,8 @@ function render() {
               <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
             </div>` : ''}
           </div>
-          ${oos ? '<div class="stock-warning">⚠️ 库存不足 Esaurito</div>' : ''}
-          ${lowStock ? `<div class="stock-warning">⚠️ 仅剩 ${item.stock} 件 Solo ${item.stock} rimasti</div>` : ''}
+          ${oos ? '<div class="stock-warning">⚠️ Esaurito</div>' : ''}
+          ${lowStock ? `<div class="stock-warning">⚠️ Solo ${item.stock}  rimasti ${item.stock} rimasti</div>` : ''}
         </div>
         ${editMode ? `<button class="delete-btn" onclick="deleteItem(${i})"></button>` : ''}
       </div>`;
@@ -306,20 +306,20 @@ function updateTotals() {
 
   document.getElementById('totalPrice').textContent = total.toFixed(2);
   document.getElementById('checkoutTotal').textContent = total.toFixed(2);
-  document.getElementById('checkoutShipping').textContent = freeShip ? '运费 €0 (免运费)' : '运费 €4.99';
+  document.getElementById('checkoutShipping').textContent = freeShip ? 'Spedizione €0 (免运费)' : 'Spedizione €4.99';
 
   const btn = document.getElementById('checkoutBtn');
-  btn.textContent = `结算 Checkout (${count})`;
+  btn.textContent = `Checkout (${count})`;
   btn.disabled = count === 0;
 
   const gap = Math.max(0, 99 - total);
   const bar = document.getElementById('shippingBar');
   if (gap > 0) {
     bar.className = 'shipping-bar';
-    bar.innerHTML = `🚚 再买 €${gap.toFixed(2)} 免运费 Spedizione gratis sopra €99`;
+    bar.innerHTML = `🚚 Aggiungi ancora € €${gap.toFixed(2)} per la spedizione gratis`;
   } else {
     bar.className = 'shipping-bar free';
-    bar.innerHTML = '✅ 已满足免运费条件 Spedizione gratis!';
+    bar.innerHTML = '✅ Spedizione gratis raggiunta!!';
   }
 
   // Update select all
@@ -337,10 +337,10 @@ function changeQty(i, delta) {
   saveCart(); render();
 }
 function deleteItem(i) {
-  if (!confirm('删除这个商品？')) return;
+  if (!confirm('Rimuovere questo prodotto？')) return;
   cart.splice(i, 1);
   saveCart(); render();
-  showToast('🗑️ 已删除');
+  showToast('🗑️ Rimosso');
 }
 function toggleEdit() {
   editMode = !editMode;
@@ -349,7 +349,7 @@ function toggleEdit() {
 }
 function checkout() {
   const selected = cart.filter(i => i.selected && i.stock > 0);
-  if (selected.length === 0) { showToast('️ 请选择商品'); return; }
+  if (selected.length === 0) { showToast('️ Seleziona i prodotti'); return; }
   saveCart();
   location.href = 'checkout.html';
 }
