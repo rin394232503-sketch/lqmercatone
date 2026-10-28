@@ -282,7 +282,15 @@ input,select,textarea{font-family:inherit}
     <div id="ordersList"></div>
   </div>
 
+
+  <!-- Quick Add Panel -->
+  <div class="page" id="page-quickadd">
+    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">选择商品模板，点击快速入库<br>Seleziona un modello per aggiunta rapida</div>
+    <div id="quickAddGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+  </div>
+
   <!-- Add Product Page -->
+
   <div class="page" id="page-addproduct">
     <div class="form-section">
       <h3>基本信息 Informazioni</h3>
@@ -459,6 +467,89 @@ async function doLogin(){
 function doLogout(){localStorage.removeItem('staff_session');currentUser=null;document.getElementById('app').classList.remove('show');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUser').value='';document.getElementById('loginPass').value=''}
 function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh()}
 function applyPermissions(){if(!currentUser)return;const p=currentUser.permissions||'all';const isStaff=p!=='all';document.getElementById('addProductFab').style.display=isStaff?'none':'block';document.getElementById('logMenuItem').style.display=isStaff?'none':'flex';document.getElementById('staffMenuItem').style.display=isStaff?'none':'flex'}
+
+
+// ===== Quick Add Templates =====
+const QUICK_TEMPLATES = [
+  // 衣服
+  {name:'Cappotto in Lana',brand:'L&Q Collection',category:'Abbigliamento',price:39.90,emoji:'🧥',tag:'new',sizes:['S','M','L','XL']},
+  {name:'Jeans Slim',brand:'Denim Lab',category:'Abbigliamento',price:29.90,emoji:'👖',tag:'sale',sizes:['S','M','L','XL']},
+  {name:'T-shirt Cotone',brand:'L&Q Collection',category:'Abbigliamento',price:19.90,emoji:'',tag:'new',sizes:['S','M','L','XL','XXL']},
+  {name:'Giacca Leggera',brand:'Urban Style',category:'Abbigliamento',price:49.90,emoji:'',tag:'new',sizes:['S','M','L','XL']},
+  {name:'Vestito Floreale',brand:'Maison Belle',category:'Abbigliamento',price:59.90,emoji:'👗',tag:'new',sizes:['S','M','L']},
+  {name:'Felpa con Cappuccio',brand:'Active Life',category:'Abbigliamento',price:35.90,emoji:'',tag:'new',sizes:['S','M','L','XL']},
+  // 洗洁剂
+  {name:'Detersivo Lavatrice 3L',brand:'PulitoMax',category:'Detersivi',price:9.90,emoji:'🧴',tag:'sale',sizes:[]},
+  {name:'Candeggina 1.5L',brand:'PulitoMax',category:'Detersivi',price:3.49,emoji:'🧴',tag:'',sizes:[]},
+  {name:'Detersivo Piatti Limone',brand:'PulitoMax',category:'Detersivi',price:4.99,emoji:'🍋',tag:'',sizes:[]},
+  {name:'Ammorbidente',brand:'CasaPulita',category:'Detersivi',price:7.99,emoji:'🌸',tag:'sale',sizes:[]},
+  {name:'Sgrassatore Universale',brand:'CasaPulita',category:'Detersivi',price:5.99,emoji:'✨',tag:'new',sizes:[]},
+  {name:'Detersivo Vetri Spray',brand:'PulitoMax',category:'Detersivi',price:4.49,emoji:'🪟',tag:'',sizes:[]},
+  // 家用品
+  {name:'Set Asciugamani 6pz',brand:'CasaComfort',category:'Casa',price:24.99,emoji:'',tag:'sale',sizes:[]},
+  {name:'Set Pentole 5pz',brand:'CucinaPro',category:'Casa',price:69.99,emoji:'🍳',tag:'hot',sizes:[]},
+  {name:'Aspirapolvere Portatile',brand:'CleanMax',category:'Casa',price:39.99,emoji:'🧹',tag:'sale',sizes:[]},
+  {name:'Lampada LED',brand:'BrightHome',category:'Casa',price:19.99,emoji:'💡',tag:'new',sizes:[]},
+  {name:'Diffusore Profumo',brand:'AromaVivo',category:'Casa',price:14.99,emoji:'',tag:'new',sizes:[]},
+  {name:'Set Tazze 4pz',brand:'CasaComfort',category:'Casa',price:16.99,emoji:'',tag:'sale',sizes:[]},
+  {name:'Mazzo Fiori Artificiali',brand:'FloraArt',category:'Casa',price:19.99,emoji:'💐',tag:'',sizes:[]},
+  {name:'Organizer Cucina',brand:'CasaSmart',category:'Casa',price:12.99,emoji:'️',tag:'',sizes:[]},
+];
+
+function renderQuickAdd(){
+  const grid=document.getElementById('quickAddGrid');
+  if(!grid)return;
+  grid.innerHTML=QUICK_TEMPLATES.map((t,i)=>`
+    <div class="p-card" onclick="quickAddProduct(${i})" style="padding:12px">
+      <div style="font-size:28px;margin-bottom:6px">${t.emoji}</div>
+      <div style="font-size:12px;font-weight:500;line-height:1.3;margin-bottom:4px">${t.name}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--danger)">€${t.price}</div>
+      <div style="font-size:10px;color:var(--text2);margin-top:2px">${t.category==='Abbigliamento'?'衣服':t.category==='Detersivi'?'洗洁剂':'家用品'}</div>
+    </div>
+  `).join('');
+}
+
+async function quickAddProduct(idx){
+  const t=QUICK_TEMPLATES[idx];
+  // Ask for price and stock
+  const price=prompt('价格 Prezzo (€) (默认 €'+t.price+'):',t.price);
+  if(price===null)return; // cancelled
+  const stock=prompt('库存 Stock (默认 50):','50');
+  if(stock===null)return;
+  
+  const finalPrice=parseFloat(price)||t.price;
+  const finalStock=parseInt(stock)||50;
+  const sizeInfo=t.sizes.length>0?' Taglie: '+t.sizes.join(', '):'';
+  
+  const newP={
+    name:t.name,
+    brand:t.brand,
+    category:t.category,
+    price:finalPrice,
+    old_price:Math.round(finalPrice*1.5*100)/100,
+    emoji:t.emoji,
+    tag:t.tag||null,
+    on_sale:true,
+    stock:finalStock,
+    description:sizeInfo?'Articolo di qualità.'+sizeInfo:'Articolo di qualità.'
+  };
+  
+  let sbOk=false;
+  if(sb){
+    try{
+      const{data,error}=await sb.from('products').insert(newP).select();
+      if(error){showToast('❌ '+error.message);return}
+      sbOk=true;
+      if(data&&data[0]){newP.id=data[0].id;allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale})}
+    }catch(e){console.log('SB error:',e)}
+  }
+  if(!sbOk){
+    newP.id=Math.floor(Math.random()*10000)+100;
+    allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
+  }
+  showToast('✅ '+t.name+' 已入库! €'+finalPrice+' × '+finalStock);
+  renderDashboard();renderProducts();renderQuickAdd();
+}
 
 // ===== Data Loading =====
 async function loadData(){
@@ -953,7 +1044,7 @@ function showPage(page,navEl){
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications()
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd()
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
