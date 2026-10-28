@@ -270,7 +270,7 @@ function render() {
     return;
   }
 
-  container.innerHTML = '<div class="store-name">🏪 L&Qmercatone 旗舰店</div>' +
+  container.innerHTML = '<div class="store-name">🏪 L&Qmercatone</div>' +
     cart.map((item, i) => {
       const oos = item.stock === 0;
       const lowStock = item.stock > 0 && item.stock <= 5;
@@ -291,7 +291,7 @@ function render() {
           ${oos ? '<div class="stock-warning">⚠️ Esaurito</div>' : ''}
           ${lowStock ? `<div class="stock-warning">⚠️ Solo ${item.stock}  rimasti ${item.stock} rimasti</div>` : ''}
         </div>
-        ${editMode ? `<button class="delete-btn" onclick="deleteItem(${i})"></button>` : ''}
+        ${editMode ? `<button class="delete-btn" onclick="deleteItem(${i})">✕</button>` : ''}
       </div>`;
     }).join('');
 
@@ -306,7 +306,7 @@ function updateTotals() {
 
   document.getElementById('totalPrice').textContent = total.toFixed(2);
   document.getElementById('checkoutTotal').textContent = total.toFixed(2);
-  document.getElementById('checkoutShipping').textContent = freeShip ? 'Spedizione €0 (免运费)' : 'Spedizione €4.99';
+  document.getElementById('checkoutShipping').textContent = freeShip ? 'Spedizione gratuita' : 'Spedizione €4.99';
 
   const btn = document.getElementById('checkoutBtn');
   btn.textContent = `Checkout (${count})`;
