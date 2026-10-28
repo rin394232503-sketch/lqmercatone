@@ -397,68 +397,78 @@ function renderProduct(){
   if(!product)return;
   const p=product;
   const discount=p.old_price?Math.round((1-p.price/p.old_price)*100):0;
-  const stockText=p.stock>20?'现货 Disponibile':p.stock>5?'现货 Disponibile':'仅剩 '+p.stock+' 件';
+  const stockText = p.stock > 20 ? 'Disponibile' : p.stock > 5 ? 'Disponibile' : 'Solo ' + p.stock + ' pz';
   const stockClass=p.stock<=5?'style="color:var(--danger)"':'';
 
+  const stockTag = p.stock > 0
+    ? `<span class="tag tag-stock">${stockText}</span>`
+    : `<span class="tag" style="background:#ffebee;color:var(--danger)">${stockText}</span>`;
+
   // Carousel
-  document.getElementById('carouselTrack').innerHTML=
-    `<div class="carousel-slide">${p.image_url?`<img src="${p.image_url}">`:p.emoji}</div>`+
-    `<div class="carousel-slide">${p.emoji}</div>`+
+  const mainSlide = p.image_url
+    ? `<div class="carousel-slide"><img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover"></div>`
+    : `<div class="carousel-slide">${p.emoji}</div>`;
+
+  document.getElementById('carouselTrack').innerHTML =
+    mainSlide +
+    `<div class="carousel-slide">${p.emoji}</div>` +
     `<div class="carousel-slide" style="font-size:48px;background:linear-gradient(135deg,var(--accent-bg),#f8f7ff)">${p.emoji}<br><span style="font-size:14px;color:var(--text-light)">${p.brand}</span></div>`;
 
   // Product info
-  document.querySelector('.product-info').innerHTML=`
+  document.querySelector('.product-info').innerHTML = `
     <div class="price-row">
       <span class="price-current">${p.price}</span>
-      ${p.old_price?`<span class="price-original">${p.old_price}</span><span class="price-discount">-${discount}%</span>`:''}
+      ${p.old_price ? `<span class="price-original">${p.old_price}</span><span class="price-discount">-${discount}%</span>` : ''}
     </div>
     <h1 class="product-title">${p.name}</h1>
     <div class="product-tags">
-      <span class="tag ${p.stock>0?'tag-stock':'tag" style="background:#ffebee;color:var(--danger)'}">${stockText}</span>
-      <span class="tag tag-ships">🚚 预计 3-5 天送达</span>
-      ${p.tag==='hot'?'<span class="tag" style="background:#fff0f0;color:var(--danger)">🔥 热销</span>':''}
-      ${p.tag==='new'?'<span class="tag" style="background:#e8f5e9;color:var(--success)">✨ 新品</span>':''}
-      ${p.tag==='sale'?'<span class="tag" style="background:#fff8e1;color:#e65100">⚡ 特价</span>':''}
+      ${stockTag}
+      <span class="tag tag-ships">🚚 Consegna in 3-5 giorni</span>
+      ${p.tag === 'hot' ? '<span class="tag" style="background:#fff0f0;color:var(--danger)">🔥 Bestseller</span>' : ''}
+      ${p.tag === 'new' ? '<span class="tag" style="background:#e8f5e9;color:var(--success)">✨ Novità</span>' : ''}
+      ${p.tag === 'sale' ? '<span class="tag" style="background:#fff8e1;color:#e65100">⚡ Offerta</span>' : ''}
     </div>
-    <div class="delivery-info">📍 配送至：Italia · Spedizione gratuita sopra €99</div>`;
+    <div class="delivery-info"> Spedizione in Italia · Gratis sopra €99</div>`;
 
-  // SKU section
-  document.querySelector('.sku-section').innerHTML=`
-    <div class="sku-label">颜色 Colore</div>
+  // SKU section - always render sizes for Abbigliamento
+  const sizeOptions = p.category === 'Abbigliamento'
+    ? '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>'
+    : '<div class="sku-option active" onclick="selectSku(this)">Taglia unica</div>';
+
+  document.querySelector('.sku-section').innerHTML = `
+    <div class="sku-label">Colore</div>
     <div class="sku-color">
       <div class="color-dot active" style="background:#2d3436" onclick="selectColor(this)"></div>
       <div class="color-dot" style="background:#dfe6e9" onclick="selectColor(this)"></div>
       <div class="color-dot" style="background:#636e72" onclick="selectColor(this)"></div>
       <div class="color-dot" style="background:#b2bec3" onclick="selectColor(this)"></div>
     </div>
-    <div class="sku-label" style="margin-top:16px">尺码 Taglia</div>
+    <div class="sku-label" style="margin-top:16px">Taglia</div>
     <div class="sku-options">
-      ${p.category==='Abbigliamento'?
-        '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>'
-        :'<div class="sku-option active" onclick="selectSku(this)">标准 Taglia unica</div>'}
+      ${sizeOptions}
     </div>
-    <div class="sku-label">数量 Quantità</div>
+    <div class="sku-label">Quantità</div>
     <div class="sku-options" style="align-items:center">
       <button onclick="changeQty(-1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">−</button>
       <span id="qty" style="min-width:32px;text-align:center;font-weight:600">1</span>
       <button onclick="changeQty(1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">+</button>
-      <span style="font-size:12px;color:var(--text-muted);margin-left:8px" ${stockClass}>库存 ${p.stock} 件</span>
+      <span style="font-size:12px;color:var(--text-muted);margin-left:8px" ${stockClass}>Stock: ${p.stock} pz</span>
     </div>`;
 
   // Detail section
-  document.querySelectorAll('.detail-section')[0].innerHTML=`
-    <div class="detail-title">商品参数 Parametri</div>
+  document.querySelectorAll('.detail-section')[0].innerHTML = `
+    <div class="detail-title">Parametri del prodotto</div>
     <div class="detail-params">
-      <div class="param-item"><span class="param-label">品牌 Brand</span><span class="param-value">${p.brand||'L&Qmercatone'}</span></div>
-      <div class="param-item"><span class="param-label">分类 Categoria</span><span class="param-value">${p.category}</span></div>
-      <div class="param-item"><span class="param-label">产地 Origine</span><span class="param-value">Italia</span></div>
-      <div class="param-item"><span class="param-label">货号 Codice</span><span class="param-value">LQ-${p.id}</span></div>
+      <div class="param-item"><span class="param-label">Marca</span><span class="param-value">${p.brand || 'L&Qmercatone'}</span></div>
+      <div class="param-item"><span class="param-label">Categoria</span><span class="param-value">${p.category}</span></div>
+      <div class="param-item"><span class="param-label">Origine</span><span class="param-value">Italia</span></div>
+      <div class="param-item"><span class="param-label">Codice</span><span class="param-value">LQ-${p.id}</span></div>
     </div>`;
 
   // Description
-  document.querySelectorAll('.detail-section')[1].innerHTML=`
-    <div class="detail-title">商品描述 Descrizione</div>
-    <p class="detail-desc">${p.description||p.name+' — '+p.brand+'，品质保证。'}</p>
+  document.querySelectorAll('.detail-section')[1].innerHTML = `
+    <div class="detail-title">Descrizione</div>
+    <p class="detail-desc">${p.description || p.name + ' — ' + p.brand + '. Qualità garantita.'}</p>
     <div class="detail-images">
       <div class="detail-img">${p.emoji}</div>
     </div>`;
