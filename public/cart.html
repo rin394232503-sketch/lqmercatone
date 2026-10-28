@@ -18,7 +18,7 @@ html { font-size: 16px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
   background: var(--bg-soft); color: var(--text);
-  max-width: 480px; margin: 0 auto; padding-bottom: 140px;
+  max-width: 1200px; margin: 0 auto; padding-bottom: 140px;
 }
 a { text-decoration: none; color: inherit; }
 button { border: none; background: none; cursor: pointer; font-family: inherit; }
@@ -132,7 +132,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 .checkout-bar {
   position: fixed; bottom: 0; left: 50%;
   transform: translateX(-50%);
-  width: 100%; max-width: 480px;
+  width: 100%; max-width: 1200px;
   background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-light);
   padding: 10px 16px; z-index: 100;
@@ -166,7 +166,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 /* Bottom Nav */
 .bottom-nav {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px;
+  width: 100%; max-width: 1200px;
   background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-light);
   display: flex; z-index: 99;
@@ -190,6 +190,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 .cart-search { width: 100%; padding: 10px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; font-size: 14px; color: var(--text); outline: none; margin-bottom: 12px; }
 .cart-search:focus { border-color: var(--accent); }
+
+/* ===== Responsive ===== */
+@media(max-width:768px){body{max-width:100%}}
 </style>
 </head>
 <body>
