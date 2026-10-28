@@ -1016,7 +1016,6 @@ async function saveNewProduct(){
   // Handle multiple image uploads - compress each to ~2-3MB JPEG
   const imgFiles=document.getElementById('npImages').files;
   newP.image_url='';
-  newP.images=[];
   for(let i=0;i<imgFiles.length;i++){
     try{
       const imgFile=imgFiles[i];
@@ -1038,14 +1037,14 @@ async function saveNewProduct(){
       ctx.drawImage(img,0,0,w,h);
       const compressed=canvas.toDataURL('image/jpeg',0.9);
       if(i===0)newP.image_url=compressed;
-      newP.images.push(compressed);
+      
     }catch(e){console.log('Image compress error:',e)}
   }
   // Also use preview uploaded images
   const validUploaded=uploadedImages.filter(u=>u);
   if(validUploaded.length>0){
     if(!newP.image_url)newP.image_url=validUploaded[0];
-    newP.images=validUploaded;
+    
   }
   let sbOk=false;
   if(sb){
