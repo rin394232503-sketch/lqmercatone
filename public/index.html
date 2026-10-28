@@ -242,6 +242,65 @@ img { max-width: 100%; display: block; }
   pointer-events: none;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== Repurchase Modal ===== */
+.rebuy-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; visibility: hidden; transition: 0.3s;
+}
+.rebuy-overlay.open { opacity: 1; visibility: visible; }
+.rebuy-panel {
+  background: var(--bg); border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 480px; max-height: 75vh;
+  overflow-y: auto; padding: 0; transform: translateY(100%);
+  transition: 0.35s cubic-bezier(.32,.72,0,1);
+}
+.rebuy-overlay.open .rebuy-panel { transform: translateY(0); }
+.rebuy-header {
+  position: sticky; top: 0; background: var(--bg); z-index: 10;
+  padding: 20px 20px 12px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-light);
+}
+.rebuy-header h3 { font-size: 17px; font-weight: 700; }
+.rebuy-close { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-light); cursor: pointer; }
+.rebuy-order-group { padding: 12px 20px 4px; }
+.rebuy-order-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rebuy-order-label .rebuy-date { font-weight: 500; color: var(--text-light); }
+.rebuy-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border-light);
+}
+.rebuy-item:last-child { border-bottom: none; }
+.rebuy-emoji { width: 48px; height: 48px; border-radius: 10px; background: var(--bg-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.rebuy-info { flex: 1; min-width: 0; }
+.rebuy-name { font-size: 14px; font-weight: 500; line-height: 1.3; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rebuy-meta { font-size: 12px; color: var(--text-muted); }
+.rebuy-meta .rebuy-price { color: var(--danger); font-weight: 600; }
+.rebuy-add-btn {
+  padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 600;
+  background: var(--accent); color: white; flex-shrink: 0; transition: 0.15s;
+}
+.rebuy-add-btn:active { transform: scale(0.92); opacity: 0.85; }
+.rebuy-all-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: calc(100% - 40px); margin: 8px 20px 16px; padding: 13px;
+  border-radius: 12px; font-size: 14px; font-weight: 600;
+  background: var(--accent-bg); color: var(--accent); cursor: pointer;
+}
+.rebuy-all-btn:active { opacity: 0.8; }
+.rebuy-empty { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.rebuy-empty .rebuy-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.rebuy-empty p { font-size: 14px; line-height: 1.6; }
+.rebuy-badge {
+  position: relative;
+}
+.rebuy-badge::after {
+  content: ''; position: absolute; top: 2px; right: 2px;
+  width: 8px; height: 8px; background: var(--danger);
+  border-radius: 50%; border: 2px solid white;
+}
 </style>
 </head>
 <body>
@@ -298,8 +357,8 @@ img { max-width: 100%; display: block; }
     <div class="icon-nav-icon">🔥</div>
     <span class="icon-nav-label">热销</span>
   </div>
-  <div class="icon-nav-item" onclick="showToast('🔄 再次购买开发中')">
-    <div class="icon-nav-icon">🔄</div>
+  <div class="icon-nav-item" onclick="openRebuy()">
+    <div class="icon-nav-icon rebuy-badge" id="rebuyIcon">🔄</div>
     <span class="icon-nav-label">再次购买</span>
   </div>
 </div>
@@ -346,6 +405,17 @@ img { max-width: 100%; display: block; }
   <div class="nav-item" onclick="switchTab('profile',this)">
     <div class="nav-icon"></div>
     <span class="nav-label">我的</span>
+  </div>
+</div>
+
+<!-- Repurchase Modal -->
+<div class="rebuy-overlay" id="rebuyOverlay" onclick="closeRebuy(event)">
+  <div class="rebuy-panel" onclick="event.stopPropagation()">
+    <div class="rebuy-header">
+      <h3>🔄 再次购买 Riacquista</h3>
+      <div class="rebuy-close" onclick="closeRebuy()">✕</div>
+    </div>
+    <div id="rebuyContent"></div>
   </div>
 </div>
 
@@ -528,6 +598,139 @@ function rotateBanner() {
   dots[currentSlide].classList.add('active');
 }
 setInterval(rotateBanner, 4000);
+
+// ===== Repurchase (再次购买) =====
+function getPurchaseHistory() {
+  // Collect from localStorage orders
+  const localOrders = JSON.parse(localStorage.getItem('lq_orders') || '[]');
+  // Build a map: orderId -> { date, items[] }
+  const orderMap = {};
+  localOrders.forEach(o => {
+    const key = o.order_no || ('local_' + o.created_at);
+    if (!orderMap[key]) {
+      orderMap[key] = {
+        order_no: o.order_no || '',
+        date: o.created_at ? new Date(o.created_at).toLocaleDateString('zh-CN', {month:'short',day:'numeric'}) : '',
+        items: (o.items || []).map(it => ({
+          id: it.id, name: it.name, emoji: it.emoji || '📦',
+          price: it.price, qty: it.qty || 1, category: it.category || ''
+        }))
+      };
+    }
+  });
+  // If no local orders, create demo history from current products
+  if (Object.keys(orderMap).length === 0 && PRODUCTS.length > 0) {
+    const demoItems = PRODUCTS.filter(p => p.on_sale).slice(0, 5).map(p => ({
+      id: p.id, name: p.name, emoji: p.emoji || '📦',
+      price: p.price, qty: 1, category: p.category || ''
+    }));
+    orderMap['demo_1'] = {
+      order_no: 'LQ26102001ABC',
+      date: '10月20日',
+      items: demoItems
+    };
+    orderMap['demo_2'] = {
+      order_no: 'LQ26091502DEF',
+      date: '9月15日',
+      items: PRODUCTS.filter(p => p.price < 100).slice(0, 3).map(p => ({
+        id: p.id, name: p.name, emoji: p.emoji || '📦',
+        price: p.price, qty: 2, category: p.category || ''
+      }))
+    };
+  }
+  return Object.values(orderMap).sort((a, b) => (b.order_no > a.order_no ? 1 : -1));
+}
+
+function openRebuy() {
+  const history = getPurchaseHistory();
+  const content = document.getElementById('rebuyContent');
+
+  if (!history.length) {
+    content.innerHTML = `<div class="rebuy-empty">
+      <div class="rebuy-empty-icon">📦</div>
+      <p>还没有购买记录哦<br>Nessun ordine precedente<br><br>快去挑选心仪的商品吧！</p>
+    </div>`;
+    document.getElementById('rebuyOverlay').classList.add('open');
+    return;
+  }
+
+  // Count total items for badge
+  const totalItems = history.reduce((s, o) => s + o.items.length, 0);
+
+  let html = '';
+  history.forEach((order, oi) => {
+    html += `<div class="rebuy-order-group">
+      <div class="rebuy-order-label">
+        📋 <span class="rebuy-date">${order.date || '近期订单'}</span>
+        <span style="margin-left:auto;font-size:11px">${order.order_no}</span>
+      </div>`;
+    order.items.forEach(item => {
+      const inCart = cart.find(c => c.id === item.id);
+      const btnText = inCart ? '已在购物车' : '加入购物车';
+      const btnStyle = inCart ? 'background:var(--bg-soft);color:var(--text-light)' : '';
+      html += `<div class="rebuy-item">
+        <div class="rebuy-emoji">${item.emoji}</div>
+        <div class="rebuy-info">
+          <div class="rebuy-name">${item.name}</div>
+          <div class="rebuy-meta"><span class="rebuy-price">€${item.price}</span> · 已购${item.qty}件</div>
+        </div>
+        <button class="rebuy-add-btn" style="${btnStyle}" onclick="rebuyAdd(${item.id},this)">${btnText}</button>
+      </div>`;
+    });
+    html += `</div>`;
+    // Add all button for orders with multiple items
+    if (order.items.length > 1) {
+      const ids = order.items.map(i => i.id).join(',');
+      html += `<div class="rebuy-all-btn" onclick="rebuyAddAll('${ids}')">🛒 全部加入购物车 (${order.items.length}件)</div>`;
+    }
+  });
+
+  content.innerHTML = html;
+  document.getElementById('rebuyOverlay').classList.add('open');
+}
+
+function closeRebuy(e) {
+  if (e && e.target !== document.getElementById('rebuyOverlay')) return;
+  document.getElementById('rebuyOverlay').classList.remove('open');
+}
+
+function rebuyAdd(id, btnEl) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) { showToast('商品已下架'); return; }
+  const existing = cart.find(i => i.id === id);
+  if (existing) { existing.qty++; }
+  else { cart.push({ ...p, qty: 1 }); }
+  localStorage.setItem('lq_cart', JSON.stringify(cart));
+  updateCartBadge();
+  if (btnEl) {
+    btnEl.textContent = '已在购物车 ✓';
+    btnEl.style.background = 'var(--bg-soft)';
+    btnEl.style.color = 'var(--text-light)';
+  }
+  showToast('✅ 已加入购物车');
+}
+
+function rebuyAddAll(idsStr) {
+  const ids = idsStr.split(',').map(Number);
+  let added = 0;
+  ids.forEach(id => {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return;
+    const existing = cart.find(i => i.id === id);
+    if (existing) { existing.qty++; }
+    else { cart.push({ ...p, qty: 1 }); }
+    added++;
+  });
+  localStorage.setItem('lq_cart', JSON.stringify(cart));
+  updateCartBadge();
+  showToast(`✅ ${added} 件商品已加入购物车`);
+  // Update all buttons
+  document.querySelectorAll('.rebuy-add-btn').forEach(btn => {
+    btn.textContent = '已在购物车 ✓';
+    btn.style.background = 'var(--bg-soft)';
+    btn.style.color = 'var(--text-light)';
+  });
+}
 
 // ===== Init =====
 loadProducts();
