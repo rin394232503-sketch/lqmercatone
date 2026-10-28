@@ -30,7 +30,7 @@
 html { font-size: 16px; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
-  background: linear-gradient(180deg, #fff5f5 0%, #f0fff0 40%, #fff8f0 100%);
+  background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%);
   color: var(--text);
   max-width: 480px;
   margin: 0 auto;
@@ -79,7 +79,7 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   position: relative;
   aspect-ratio: 16/9;
-  background: linear-gradient(135deg, #ffe0e0 0%, #fff5e6 50%, #e0ffe0 100%);
+  background: linear-gradient(135deg, rgba(192,57,43,0.15) 0%, rgba(241,196,15,0.1) 50%, rgba(39,174,96,0.15) 100%);
 }
 .banner-slide {
   position: absolute; inset: 0;
@@ -137,7 +137,7 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: baseline; gap: 8px;
 }
 .section-title h2 { font-size: 17px; font-weight: 700; }
-.section-title .more { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+.section-title .more { font-size: 12px; color: rgba(255,255,255,0.5); margin-left: auto; }
 
 /* ===== Product Grid ===== */
 .product-grid {
@@ -147,7 +147,7 @@ img { max-width: 100%; display: block; }
   padding: 0 16px 16px;
 }
 .product-card {
-  background: linear-gradient(180deg, #fff5f5 0%, #f0fff0 40%, #fff8f0 100%);
+  background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%);
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border-light);
@@ -252,14 +252,14 @@ img { max-width: 100%; display: block; }
 }
 .rebuy-overlay.open { opacity: 1; visibility: visible; }
 .rebuy-panel {
-  background: linear-gradient(180deg, #fff5f5 0%, #f0fff0 40%, #fff8f0 100%); border-radius: 20px 20px 0 0;
+  background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%); border-radius: 20px 20px 0 0;
   width: 100%; max-width: 480px; max-height: 75vh;
   overflow-y: auto; padding: 0; transform: translateY(100%);
   transition: 0.35s cubic-bezier(.32,.72,0,1);
 }
 .rebuy-overlay.open .rebuy-panel { transform: translateY(0); }
 .rebuy-header {
-  position: sticky; top: 0; background: linear-gradient(180deg, #fff5f5 0%, #f0fff0 40%, #fff8f0 100%); z-index: 10;
+  position: sticky; top: 0; background: linear-gradient(180deg, #1a0a00 0%, #0d2818 30%, #0a1628 60%, #1a0a00 100%); z-index: 10;
   padding: 20px 20px 12px; display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border-light);
 }
@@ -323,6 +323,11 @@ body::before{
   pointer-events:none;z-index:0;
 }
 body>*{position:relative;z-index:1}
+
+/* ===== Christmas Tree Background ===== */
+.xmas-tree-bg{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:260px;z-index:0;pointer-events:none;opacity:0.12}
+.xmas-tree-bg svg{width:100%;height:100%}
+
 </style>
 </head>
 <body>
@@ -330,9 +335,35 @@ body>*{position:relative;z-index:1}
 <!-- Christmas Garland -->
 <div class="xmas-garland" id="xmasGarland"></div>
 <!-- Christmas Corner Decoration -->
-<div class="xmas-corner">🎄</div>
+<div class="xmas-corner" style="font-size:28px">🎄</div>
 <!-- Snow Container -->
 <div class="xmas-snow" id="xmasSnow"></div>
+<!-- Christmas Tree Background -->
+<div class="xmas-tree-bg">
+<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tree layers -->
+  <polygon points="100,10 60,80 140,80" fill="#1a5c2e"/>
+  <polygon points="100,40 50,120 150,120" fill="#1e6b35"/>
+  <polygon points="100,75 40,165 160,165" fill="#227a3c"/>
+  <polygon points="100,110 30,210 170,210" fill="#268a43"/>
+  <!-- Trunk -->
+  <rect x="85" y="210" width="30" height="30" fill="#5d4037" rx="3"/>
+  <!-- Star -->
+  <polygon points="100,0 103,8 111,8 105,13 107,21 100,16 93,21 95,13 89,8 97,8" fill="#ffd700"/>
+  <!-- Ornaments -->
+  <circle cx="80" cy="90" r="4" fill="#e74c3c"/>
+  <circle cx="120" cy="95" r="4" fill="#3498db"/>
+  <circle cx="90" cy="130" r="4" fill="#f1c40f"/>
+  <circle cx="115" cy="140" r="4" fill="#e74c3c"/>
+  <circle cx="75" cy="175" r="5" fill="#e74c3c"/>
+  <circle cx="130" cy="180" r="5" fill="#f1c40f"/>
+  <circle cx="100" cy="170" r="5" fill="#3498db"/>
+  <circle cx="60" cy="205" r="5" fill="#f1c40f"/>
+  <circle cx="140" cy="205" r="5" fill="#e74c3c"/>
+  <circle cx="100" cy="195" r="5" fill="#2ecc71"/>
+</svg>
+</div>
+
 
 
 
