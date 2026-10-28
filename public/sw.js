@@ -1,6 +1,9 @@
-const CACHE_NAME = 'lqmercatone-v1';
+const CACHE_NAME = 'lqmercatone-v2';
 const ASSETS = [
   '/manage.html',
+  '/staff.html',
+  '/index.html',
+  '/dashboard.html',
   '/manifest.json'
 ];
 

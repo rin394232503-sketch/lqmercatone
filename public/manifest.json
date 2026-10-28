@@ -1,7 +1,7 @@
 {
-  "name": "L&Qmercatone 管理",
-  "short_name": "L&Q管理",
-  "description": "L&Qmercatone 商品管理后台",
+  "name": "L&Qmercatone \u7ba1\u7406",
+  "short_name": "L&Q\u7ba1\u7406",
+  "description": "L&Qmercatone \u5546\u54c1\u7ba1\u7406\u540e\u53f0",
   "start_url": "/manage.html",
   "display": "standalone",
   "background_color": "#1a1a2e",
@@ -9,10 +9,11 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%231a1a2e' width='512' height='512' rx='80'/><text x='256' y='340' font-size='280' text-anchor='middle'>🛍️</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%231a1a2e' width='512' height='512' rx='80'/><text x='256' y='340' font-size='280' text-anchor='middle'>\ud83d\udecd\ufe0f</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "version": "2.0"
 }
