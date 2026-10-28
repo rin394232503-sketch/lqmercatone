@@ -311,7 +311,22 @@ input,select,textarea{font-family:inherit}
           <div class="sku-opt" onclick="toggleSize(this)" data-size="XXL" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)">XXL</div>
         </div>
       </div>
-    </div>
+    
+      <!-- 颜色选择 - 所有商品都显示 -->
+      <div class="form-group" style="margin-top:4px">
+        <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorOptions">
+          <div class="color-opt active" onclick="toggleColor(this)" data-color="Nero" style="padding:6px 12px;border:1.5px solid var(--accent);border-radius:8px;font-size:12px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">⚫ Nero</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Bianco" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">⚪ Bianco</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Grigio" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔘 Grigio</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Blu" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔵 Blu</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Rosso" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔴 Rosso</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Verde" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🟢 Verde</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Beige" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🟡 Beige</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Marrone" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🟤 Marrone</div>
+        </div>
+      </div>
+</div>
     <div class="form-section">
       <h3>价格与库存 Prezzo e Stock</h3>
       <div class="form-row">
@@ -721,6 +736,21 @@ async function quickRestock(id){
   renderDashboard();renderProducts();renderLowStock()
 }
 
+
+function toggleColor(el){
+  el.classList.toggle('active');
+  if(el.classList.contains('active')){
+    el.style.borderColor='var(--accent)';el.style.background='var(--accent-bg)';el.style.color='var(--accent)'
+  }else{
+    el.style.borderColor='var(--border)';el.style.background='transparent';el.style.color='var(--text2)'
+  }
+}
+function getSelectedColors(){
+  const colors=[];
+  document.querySelectorAll('#colorOptions .color-opt.active').forEach(el=>colors.push(el.dataset.color));
+  return colors;
+}
+
 // ===== Size Selector =====
 function toggleSize(el) {
   el.classList.toggle('active');
@@ -743,6 +773,7 @@ function getSelectedSizes() {
   document.querySelectorAll('#sizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
   return sizes;
 }
+function getEditColors(){const c=[];document.querySelectorAll('#editColorOptions .color-opt.active').forEach(el=>c.push(el.dataset.color));return c}
 function getEditSizes() {
   const sizes = [];
   document.querySelectorAll('#editSizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
@@ -769,7 +800,9 @@ async function saveNewProduct(){
   if(!name||isNaN(price)){showToast('⚠️ 请填写商品名称和价格');return}
   const desc = document.getElementById('npDesc').value.trim();
   const sizes = getSelectedSizes();
+  const colors = getSelectedColors();
   const sizeInfo = sizes.length > 0 ? ' Taglie: ' + sizes.join(', ') : '';
+  const colorInfo = colors.length > 0 ? ' Colori: ' + colors.join(', ') : '';
   const newP = {
     name,
     brand: document.getElementById('npBrand').value.trim(),
@@ -780,7 +813,7 @@ async function saveNewProduct(){
     tag: document.getElementById('npTag').value || null,
     on_sale: document.getElementById('npOnSale').value === '1',
     stock: parseInt(document.getElementById('npStock').value) || 99,
-    description: desc + sizeInfo
+    description: desc + sizeInfo + colorInfo
   };
   // Handle image upload - compress with canvas then store as base64
   const imgFile=document.getElementById('npImage').files[0];
@@ -1071,6 +1104,15 @@ function editProduct(id){
     return`<div class="sku-opt${isActive?' active':''}" onclick="toggleSize(this)" data-size="${s}" style="padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;${style}">${s}</div>`;
   }).join('');
   const showSizes=p.category==='Abbigliamento'?'block':'none';
+  const colorMatch=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒÙ,\s]+)/);
+  const existingColors=colorMatch?colorMatch[1].split(',').map(s=>s.trim()):['Nero'];
+  const allColors=['Nero','Bianco','Grigio','Blu','Rosso','Verde','Beige','Marrone'];
+  const colorBtns=allColors.map(c=>{
+    const isActive=existingColors.includes(c);
+    const style=isActive?'border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent)':'border:1.5px solid var(--border);color:var(--text2)';
+    const iconMap={Nero:'',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
+    return`<div class="color-opt${isActive?' active':''}" onclick="toggleColor(this)" data-color="${c}" style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;${style}">${iconMap[c]||''} ${c}</div>`;
+  }).join('');
 
   openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
     <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
@@ -1081,6 +1123,10 @@ function editProduct(id){
     <div class="form-row">
       <div class="form-group"><label>分类</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
       <div class="form-group"><label>上架状态</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
+    </div>
+    <div class="form-group">
+      <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="editColorOptions">${colorBtns}</div>
     </div>
     <div id="editSizeSelector" class="form-group" style="display:${showSizes}">
       <label>尺码 Taglie <span style="font-size:11px;color:var(--text2)">(点选可用尺码)</span></label>
@@ -1096,7 +1142,9 @@ function toggleEditSize(){
 }
 async function saveEditProduct(id){
   const sizes=getEditSizes();
+  const colors=getEditColors();
   const sizeInfo=sizes.length>0?' Taglie: '+sizes.join(', '):'';
+  const colorInfo=colors.length>0?' Colori: '+colors.join(', '):'';
   const desc=document.getElementById('epName').value.trim();
   const updates={
     name:document.getElementById('epName').value.trim(),
@@ -1104,7 +1152,7 @@ async function saveEditProduct(id){
     stock:parseInt(document.getElementById('epStock').value),
     category:document.getElementById('epCat').value,
     on_sale:document.getElementById('epSale').value==='1',
-    description:desc+sizeInfo
+    description:desc+sizeInfo+colorInfo
   };
   if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);

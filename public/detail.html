@@ -447,7 +447,14 @@ function renderProduct(){
 
   // Only update the size options, keep the rest of SKU section
   document.getElementById('skuSizes').innerHTML = sizeOptions;
-  // Hide color for non-clothing
+  // Dynamic colors
+  const colorMap={'Nero':'#2d3436','Bianco':'#f5f5f5','Grigio':'#636e72','Blu':'#2980b9','Rosso':'#c0392b','Verde':'#27ae60','Beige':'#d4a574','Marrone':'#6d4c41'};
+  const colorMatch2=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒÙ,\s]+)/);
+  let productColors=colorMatch2?colorMatch2[1].split(',').map(s=>s.trim()):['Nero'];
+  const colorDotsInner=document.getElementById('colorDotsInner');
+  if(colorDotsInner){
+    colorDotsInner.innerHTML=productColors.map((c,i)=>`<div class="color-dot${i===0?' active':''}" style="background:${colorMap[c]||'#999'}" title="${c}" onclick="selectColor(this)"></div>`).join('');
+  }
   document.getElementById('colorLabel').style.display = p.category === 'Abbigliamento' ? 'block' : 'none';
   document.getElementById('colorDots').style.display = p.category === 'Abbigliamento' ? 'flex' : 'none';
 
