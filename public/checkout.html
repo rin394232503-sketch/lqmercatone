@@ -476,6 +476,7 @@ async function submitOrder() {
   if (items.length === 0) { showToast('️ Carrello vuoto'); return; }
 
   const orderNo = 'LQ' + Date.now().toString().slice(-8) + Math.random().toString(36).slice(2,5).toUpperCase();
+  const pickupCode = selectedPayment === 'pickup' ? 'PK-' + Math.random().toString(36).substr(2,6).toUpperCase() : '';
   const total = parseFloat(document.getElementById('totalPrice').textContent.replace('€',''));
   const itemCount = items.reduce((s, i) => s + i.qty, 0);
 
@@ -485,6 +486,7 @@ async function submitOrder() {
     customer_phone: currentAddress.phone,
     customer_address: currentAddress.detail + (currentAddress.city ? ', '+currentAddress.city : '') + (currentAddress.zip ? ' '+currentAddress.zip : ''),
     payment_method: selectedPayment === 'sisal' ? 'Sisal' : selectedPayment === 'card' ? 'Carta' : selectedPayment === 'paypal' ? 'PayPal' : 'Ritiro in negozio',
+    pickup_code: pickupCode,
     note: document.getElementById('orderNote').value.trim(),
     admin_note: '' // 管理员内部备注，后台填写
     items: items.map(i => ({id:i.id, name:i.name, emoji:i.emoji||'', qty:i.qty, price:i.price, color:i.color||'', size:i.size||'', category:i.category||''})),
@@ -558,7 +560,12 @@ async function submitOrder() {
       <div style="font-size:64px;margin-bottom:16px;">🎉</div>
       <h2 style="font-size:20px;font-weight:600;margin-bottom:8px;">Ordine inviato!! Ordine inviato!</h2>
       <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">Numero ordine Order No.</p>
-      <p style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:16px;">${orderNo}</p>
+      <p style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px;">${orderNo}</p>
+      ${pickupCode ? `<div style="background:var(--success);color:white;padding:12px 20px;border-radius:12px;margin-bottom:16px;text-align:center">
+        <div style="font-size:12px;opacity:0.8">自提码 Codice di ritiro</div>
+        <div style="font-size:24px;font-weight:700;letter-spacing:4px">${pickupCode}</div>
+        <div style="font-size:11px;opacity:0.8;margin-top:4px">请出示此码取货 / Mostra questo codice per il ritiro</div>
+      </div>` : ''}
       <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">Totale Totale</p>
       <p style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:8px;">€${total.toFixed(2)}</p>
       <p style="font-size:12px;color:${sbOk?'var(--success)':'var(--warning)'};margin-bottom:16px;">${sbOk?'✅ Sincronizzato':'⚠️ Salvato localmente'}</p>
