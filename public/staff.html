@@ -897,15 +897,27 @@ function getEditSizes() {
 }
 
 
-function previewImage(input){
-  const file=input.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    document.getElementById('imgPreviewTag').src=e.target.result;
-    document.getElementById('imgPreview').style.display='block';
-  };
-  reader.readAsDataURL(file);
+let uploadedImages=[];
+function previewImages(input){
+  const files=input.files;
+  if(!files.length)return;
+  const container=document.getElementById('imgPreview');
+  for(let i=0;i<files.length;i++){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      uploadedImages.push(e.target.result);
+      const idx=uploadedImages.length-1;
+      const div=document.createElement('div');
+      div.style.cssText='position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)';
+      div.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><div onclick="removeImg(${idx},this)" style="position:absolute;top:2px;right:2px;width:20px;height:20px;background:var(--danger);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer"></div>`;
+      container.appendChild(div);
+    };
+    reader.readAsDataURL(files[i]);
+  }
+}
+function removeImg(idx,el){
+  uploadedImages[idx]=null;
+  el.parentElement.remove();
 }
 
 // ===== Save New Product =====
@@ -1337,7 +1349,7 @@ function showPage(page,navEl){
   const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
-  if(page==='products')renderProducts();
+  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
   if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
