@@ -461,10 +461,11 @@ async function loadData(){
   try{
     const{data:p}=await sb.from('products').select('*').order('id',{ascending:false});
     if(p&&p.length){allProducts=p.map(x=>({...x,price:parseFloat(x.price),old_price:x.old_price?parseFloat(x.old_price):null,on_sale:!!x.on_sale}))}
+    else{allProducts=[]}
     const{data:o}=await sb.from('orders').select('*').order('created_at',{ascending:false});
     if(o&&o.length)allOrders=o;
+    else{allOrders=[]}
   }catch(e){loadDemoData()}
-  if(!allProducts.length)loadDemoData();
   renderDashboard();renderProducts();renderOrders()
 }
 function loadDemoData(){
