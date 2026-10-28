@@ -732,7 +732,14 @@ let batchMode=false,batchSelected=new Set();
 function renderProducts(){
   const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
   let list=allProducts.filter(p=>{
-    if(q&&!p.name.toLowerCase().includes(q)&&!(p.category||'').toLowerCase().includes(q))return false;
+    if(q){
+      const name=(p.name||'').toLowerCase();
+      const cat=(p.category||'').toLowerCase();
+      const brand=(p.brand||'').toLowerCase();
+      const idStr=String(p.id);
+      // Match name, category, brand, ID number, or partial match
+      if(!name.includes(q)&&!cat.includes(q)&&!brand.includes(q)&&!idStr.includes(q)&&!q.split('').every(c=>p.name.toLowerCase().includes(c)))return false;
+    }
     if(currentProductFilter==='on'&&!p.on_sale)return false;
     if(currentProductFilter==='off'&&p.on_sale)return false;
     if(currentProductFilter==='oos'&&p.stock>0)return false;
@@ -1027,7 +1034,14 @@ function toggleBatchSelect(id){
 function toggleBatchAll(checked){
   const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
   let list=allProducts.filter(p=>{
-    if(q&&!p.name.toLowerCase().includes(q)&&!(p.category||'').toLowerCase().includes(q))return false;
+    if(q){
+      const name=(p.name||'').toLowerCase();
+      const cat=(p.category||'').toLowerCase();
+      const brand=(p.brand||'').toLowerCase();
+      const idStr=String(p.id);
+      // Match name, category, brand, ID number, or partial match
+      if(!name.includes(q)&&!cat.includes(q)&&!brand.includes(q)&&!idStr.includes(q)&&!q.split('').every(c=>p.name.toLowerCase().includes(c)))return false;
+    }
     if(currentProductFilter==='on'&&!p.on_sale)return false;
     if(currentProductFilter==='off'&&p.on_sale)return false;
     if(currentProductFilter==='oos'&&p.stock>0)return false;
@@ -1271,11 +1285,14 @@ function searchForDiscount(){
   const container=document.getElementById('discountResults');
   if(!q){container.innerHTML='';return}
 
-  const results=allProducts.filter(p=>
-    p.name.toLowerCase().includes(q)||
-    (p.brand||'').toLowerCase().includes(q)||
-    ('LQ-'+p.id).toLowerCase().includes(q)
-  ).slice(0,10);
+  const results=allProducts.filter(p=>{
+    const name=(p.name||'').toLowerCase();
+    const brand=(p.brand||'').toLowerCase();
+    const idStr='LQ-'+String(p.id);
+    const priceStr=String(p.price);
+    // Match: name, brand, ID, price, or any partial number match
+    return name.includes(q)||brand.includes(q)||idStr.includes(q)||priceStr.includes(q)||String(p.id).includes(q);
+  }).slice(0,15);
 
   container.innerHTML=results.map(p=>`
     <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px">
