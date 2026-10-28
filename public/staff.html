@@ -425,23 +425,23 @@ input,select,textarea{font-family:inherit}
       </div>
       <div class="form-row">
         <div class="form-group"><label>库存 Stock *</label><input type="number" id="npStock" value="99" min="0"></div>
-        <div class="form-group"><label>上架状态</label><select id="npOnSale"><option value="1">在售 On Sale</option><option value="0">下架 Off</option></select></div>
+        <div class="form-group"><label>上架/下架 Stato</label><select id="npOnSale"><option value="1">在售 On Sale</option><option value="0">下架 Off</option></select></div>
       </div>
     </div>
     <div class="form-section">
       <h3>商品图片</h3>
-      <div class="upload-area" onclick="document.getElementById('npImages').click()" style="cursor:pointer">
+      <div class="upload-area" onclick="document.getElementById('npImages').click()" style="cursor:pointer;padding:32px">
         <div class="upload-icon"></div>
-        <p>点击选择图片（可多选）<br>Seleziona immagini (multiple)</p>
+        <p>拍照/相册上传 图片+视频（可多选）<br>Foto/Video da galleria (multiple)</p>
       </div>
-      <input type="file" id="npImages" accept="image/*" multiple style="display:none" onchange="previewImages(this)">
+      <input type="file" id="npImages" accept="image/*,video/*" multiple style="display:none" onchange="previewImages(this)">
       <div id="imgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
     </div>
     <div class="form-section">
       <h3>描述 Descrizione</h3>
       <div class="form-group"><label>商品描述</label><textarea id="npDesc" rows="3" placeholder="简短描述商品特点..."></textarea></div>
     </div>
-    <button class="save-btn" onclick="saveNewProduct()">✅ 保存并发布 Salva</button>
+    <button class="save-btn" onclick="saveNewProduct()">✅ 上架保存 Pubblica</button>
     <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">取消 Annulla</button>
   </div>
 
@@ -1508,7 +1508,7 @@ function editProduct(id){
     </div>
     <div class="form-row">
       <div class="form-group"><label>分类</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
-      <div class="form-group"><label>上架状态</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
+      <div class="form-group"><label>上架/下架 Stato</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
     </div>
     <div class="form-group">
       <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
