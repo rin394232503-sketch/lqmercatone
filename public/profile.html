@@ -398,24 +398,138 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ===== Cart Badge =====
-const cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
-const cartCount = cart.reduce((s, i) => s + (i.qty || 1), 0);
-document.getElementById('cartBadge').textContent = cartCount;
+// ===== Supabase =====
+const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
+const SB_KEY='sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
+let sb=null; try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){}
+
+// ===== Data =====
+const cart=JSON.parse(localStorage.getItem('lq_cart')||'[]');
+const favs=JSON.parse(localStorage.getItem('lq_favs')||'[]');
+const orders=JSON.parse(localStorage.getItem('lq_orders')||'[]');
+let allOrders=[...orders];
+
+// ===== Init =====
+(async function(){
+  // Cart badge
+  const cartCount=cart.reduce((s,i)=>s+(i.qty||1),0);
+  document.getElementById('cartBadge').textContent=cartCount;
+  // Favorites
+  document.getElementById('favBadge')&&(document.getElementById('favBadge').textContent=favs.length);
+  // Load Supabase orders
+  if(sb){
+    try{
+      const{data}=await sb.from('orders').select('*').order('created_at',{ascending:false}).limit(20);
+      if(data&&data.length){
+        data.forEach(o=>{
+          if(!allOrders.find(x=>x.order_no===o.order_no)){
+            allOrders.push({
+              order_no:o.order_no,
+              status:o.status||'pending',
+              total_amount:parseFloat(o.total_amount),
+              items:typeof o.items==='string'?JSON.parse(o.items):(o.items||[]),
+              created_at:o.created_at
+            });
+          }
+        });
+      }
+    }catch(e){}
+  }
+  renderOrderStats();
+  renderRecentOrders();
+})();
+
+function renderOrderStats(){
+  const pending=allOrders.filter(o=>o.status==='pending').length;
+  const toship=allOrders.filter(o=>o.status==='toship').length;
+  const shipped=allOrders.filter(o=>o.status==='shipped').length;
+  // Update badges
+  const badges=document.querySelectorAll('.order-status-badge');
+  if(badges[0])badges[0].textContent=pending||'';
+  if(badges[1])badges[1].textContent=toship||'';
+  if(badges[2]&&shipped)badges[2].textContent=shipped;
+  if(badges[3])badges[3].textContent=allOrders.filter(o=>o.status==='done').length||'';
+  if(badges[4])badges[4].textContent=allOrders.filter(o=>o.status==='refund').length||'';
+}
+
+function renderRecentOrders(){
+  const container=document.querySelector('.recent-orders');
+  if(!allOrders.length){
+    container.innerHTML='<h3>最近订单 Ordini Recenti</h3><div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">暂无订单<br>Nessun ordine</div>';
+    return;
+  }
+  const statusMap={pending:['status-pending','待付款'],toship:['status-shipped','待发货'],shipped:['status-shipped','已发货'],done:['status-done','已完成'],refund:['status-pending','售后']};
+  let html='<h3>最近订单 Ordini Recenti</h3>';
+  allOrders.slice(0,3).forEach(o=>{
+    const[cls,label]=statusMap[o.status]||['status-pending',o.status||'pending'];
+    const items=o.items||[];
+    const total=typeof o.total_amount==='number'?o.total_amount:parseFloat(o.total_amount||0);
+    html+=`<div class="order-card">
+      <div class="order-card-top">
+        <span class="order-card-no">${o.order_no||'N/A'}</span>
+        <span class="order-card-status ${cls}">${label}</span>
+      </div>
+      <div class="order-card-items">${items.slice(0,3).map(i=>`<div class="order-card-img">${i.emoji||'📦'}</div>`).join('')}</div>
+      <div class="order-card-bottom">
+        <div class="order-card-total">合计: <strong>€${total.toFixed(2)}</strong></div>
+        ${o.status==='pending'?'<button class="order-card-btn primary">去付款</button>':''}
+        ${o.status==='shipped'?'<button class="order-card-btn">确认收货</button>':''}
+        ${o.status==='done'?'<button class="order-card-btn">去评价</button>':''}
+      </div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
 
 // ===== Order Filter =====
-function filterOrders(status) {
-  const names = { pending:'待付款', toship:'待发货', shipped:'已发货', done:'已完成', refund:'售后' };
-  showToast('查看: ' + names[status]);
+function filterOrders(status){
+  const names={pending:'待付款',toship:'待发货',shipped:'已发货',done:'已完成',refund:'售后'};
+  showToast('查看: '+names[status]);
+}
+
+// ===== Favorites Page =====
+function showFavorites(){
+  if(!favs.length){showToast('还没有收藏商品');return}
+  showToast('❤️ '+favs.length+' 件收藏商品');
+}
+
+// ===== Footprint =====
+function showFootprint(){
+  showToast(' 浏览足迹功能即将上线');
+}
+
+// ===== Coupons =====
+function showCoupons(){
+  showToast('🎫 优惠券功能即将上线');
+}
+
+// ===== Messages =====
+function showMessages(){
+  showToast('💬 消息中心功能即将上线');
+}
+
+// ===== Customer Service =====
+function showCS(){
+  showToast('🎧 客服热线: +39 02 1234 5678');
+}
+
+// ===== Address Management =====
+function showAddress(){
+  location.href='checkout.html';
+}
+
+// ===== Settings =====
+function showSettings(){
+  showToast('⚙️ 设置页面即将上线');
 }
 
 // ===== Toast =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
 }
 </script>
 </body>

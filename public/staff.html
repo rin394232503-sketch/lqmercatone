@@ -415,7 +415,7 @@ async function doLogin(){
   if(!u||!p){showToast('请输入账号密码');return}
   // Demo: admin/admin123 or staff/staff123
   const accounts={admin:{role:'admin',name:'管理员',permissions:'all'},staff:{role:'staff',name:'仓库员',permissions:'view_products,edit_stock,view_orders,ship_orders'}};
-  if(accounts[u]&&p==='admin123'||p==='staff123'){
+  if((accounts[u]&&p==='admin123')||(accounts[u]&&p==='staff123')){
     currentUser={username:u,...accounts[u]};
     localStorage.setItem('staff_session',JSON.stringify(currentUser));
     if(document.getElementById('loginRemember').checked)localStorage.setItem('staff_remember','1');
@@ -714,7 +714,34 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function toggleAppLang(){appLang=appLang==='zh'?'it':'zh';document.getElementById('currentLang').textContent=appLang==='zh'?'中文 >':'Italiano >';showToast(appLang==='zh'?'切换为中文':'Cambiato in Italiano')}
 
 // ===== Edit Product (placeholder) =====
-function editProduct(id){showToast('商品编辑功能开发中')}
+function editProduct(id){
+  const p=allProducts.find(x=>x.id===id);if(!p)return;
+  openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
+      <div class="form-group"><label>库存</label><input type="number" id="epStock" value="${p.stock||0}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>分类</label><select id="epCat"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
+      <div class="form-group"><label>上架状态</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
+    </div>
+    <button class="save-btn" onclick="saveEditProduct(${id})">💾 保存修改</button>
+    <button class="save-btn secondary" style="margin-top:8px;background:var(--danger);color:white" onclick="deleteProduct(${id})">🗑️ 删除商品</button>
+  `)
+}
+async function saveEditProduct(id){
+  const updates={name:document.getElementById('epName').value.trim(),price:parseFloat(document.getElementById('epPrice').value),stock:parseInt(document.getElementById('epStock').value),category:document.getElementById('epCat').value,on_sale:document.getElementById('epSale').value==='1'};
+  if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
+  const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
+  closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
+}
+async function deleteProduct(id){
+  if(!confirm('确定删除这个商品？'))return;
+  if(sb){try{await sb.from('products').delete().eq('id',id)}catch(e){}}
+  allProducts=allProducts.filter(x=>x.id!==id);
+  closeModal();showToast('🗑️ 已删除');renderProducts();renderDashboard()
+}
 </script>
 </body>
 </html>

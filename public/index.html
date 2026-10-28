@@ -574,8 +574,23 @@ function switchTab(tab, el) {
   if (tab === 'home') { window.scrollTo({ top: 0, behavior: 'smooth' }); }
   else if (tab === 'cart') { location.href = 'cart.html'; }
   else if (tab === 'profile') { location.href = 'profile.html'; }
-  else if (tab === 'category') { location.href = 'detail.html'; }
-  else { showToast('🔍 搜索功能开发中'); }
+  else if (tab === 'category') { showCategoryPage(); }
+  else if (tab === 'search') { document.getElementById('searchInput').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+
+// ===== Category Page (inline) =====
+function showCategoryPage() {
+  const cats = {};
+  PRODUCTS.forEach(p => { if (!cats[p.category]) cats[p.category] = []; cats[p.category].push(p); });
+  const grid = document.getElementById('productGrid');
+  document.getElementById('productCount').textContent = PRODUCTS.length + ' 件';
+  let html = '';
+  Object.entries(cats).forEach(([cat, items]) => {
+    html += `<div style="grid-column:1/-1;font-size:15px;font-weight:700;padding:8px 0;border-bottom:1px solid var(--border-light);margin-bottom:8px">${cat} <span style="font-size:12px;color:var(--text-muted);font-weight:400">(${items.length})</span></div>`;
+    html += items.map(renderCard).join('');
+  });
+  grid.innerHTML = html;
+  grid.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ===== Toast =====

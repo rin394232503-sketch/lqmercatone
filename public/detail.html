@@ -336,64 +336,236 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ===== Carousel =====
-let currentSlide = 0;
-const track = document.getElementById('carouselTrack');
-const dots = document.querySelectorAll('.carousel-dot');
-const slides = document.querySelectorAll('.carousel-slide');
+// ===== Config =====
+const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
+const SB_KEY='sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
+let sb=null; try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){}
+let product=null, allProducts=[], qty=1, isFav=false;
+const cart=JSON.parse(localStorage.getItem('lq_cart')||'[]');
+const favs=JSON.parse(localStorage.getItem('lq_favs')||'[]');
 
-function goToSlide(n) {
-  dots[currentSlide].classList.remove('active');
-  currentSlide = (n + slides.length) % slides.length;
-  track.style.transform = `translateX(-${currentSlide * 100}%)`;
-  dots[currentSlide].classList.add('active');
+// ===== Get product ID from URL =====
+const urlParams=new URLSearchParams(location.search);
+const productId=parseInt(urlParams.get('id'))||1;
+
+// ===== Load Product =====
+async function loadProduct(){
+  let p=null;
+  // Try Supabase first
+  if(sb){
+    try{
+      const{data}=await sb.from('products').select('*').eq('id',productId).single();
+      if(data) p=data;
+    }catch(e){}
+  }
+  // Fallback
+  if(!p){
+    const fallback=[
+      {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:true,stock:15,description:"经典款羊绒大衣，意大利进口纯羊绒"},
+      {id:2,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"👖",tag:"sale",on_sale:true,stock:23,description:"高腰修身牛仔裤"},
+      {id:3,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:true,stock:7,description:"真皮夹克"},
+      {id:4,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"🧴",tag:"sale",on_sale:true,stock:50,description:"洗衣液3升装"},
+      {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"🍳",tag:"hot",on_sale:true,stock:5,description:"锅具5件套"},
+    ];
+    p=fallback.find(x=>x.id===productId)||fallback[0];
+  }
+  product={
+    id:p.id, name:p.name, brand:p.brand||'', category:p.category||'',
+    price:parseFloat(p.price), old_price:p.old_price?parseFloat(p.old_price):null,
+    emoji:p.emoji||'📦', tag:p.tag||'', on_sale:p.on_sale!==false,
+    stock:parseInt(p.stock)||99, description:p.description||'',
+    image_url:p.image_url||''
+  };
+  isFav=favs.includes(productId);
+  renderProduct();
+  loadRelated();
 }
 
-setInterval(() => goToSlide(currentSlide + 1), 4000);
+async function loadRelated(){
+  if(!sb) return;
+  try{
+    const{data}=await sb.from('products').select('*').neq('id',productId).limit(4);
+    if(data&&data.length) allProducts=data.map(p=>({id:p.id,name:p.name,emoji:p.emoji||'📦',price:parseFloat(p.price),category:p.category}));
+  }catch(e){}
+  renderRelated();
+}
 
-// Touch swipe
-let touchStartX = 0;
-document.getElementById('carousel').addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
-document.getElementById('carousel').addEventListener('touchend', e => {
-  const diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) goToSlide(currentSlide + (diff > 0 ? 1 : -1));
+// ===== Render =====
+function renderProduct(){
+  if(!product)return;
+  const p=product;
+  const discount=p.old_price?Math.round((1-p.price/p.old_price)*100):0;
+  const stockText=p.stock>20?'现货 Disponibile':p.stock>5?'现货 Disponibile':'仅剩 '+p.stock+' 件';
+  const stockClass=p.stock<=5?'style="color:var(--danger)"':'';
+
+  // Carousel
+  document.getElementById('carouselTrack').innerHTML=
+    `<div class="carousel-slide">${p.image_url?`<img src="${p.image_url}">`:p.emoji}</div>`+
+    `<div class="carousel-slide">${p.emoji}</div>`+
+    `<div class="carousel-slide" style="font-size:48px;background:linear-gradient(135deg,var(--accent-bg),#f8f7ff)">${p.emoji}<br><span style="font-size:14px;color:var(--text-light)">${p.brand}</span></div>`;
+
+  // Product info
+  document.querySelector('.product-info').innerHTML=`
+    <div class="price-row">
+      <span class="price-current">${p.price}</span>
+      ${p.old_price?`<span class="price-original">${p.old_price}</span><span class="price-discount">-${discount}%</span>`:''}
+    </div>
+    <h1 class="product-title">${p.name}</h1>
+    <div class="product-tags">
+      <span class="tag ${p.stock>0?'tag-stock':'tag" style="background:#ffebee;color:var(--danger)'}">${stockText}</span>
+      <span class="tag tag-ships">🚚 预计 3-5 天送达</span>
+      ${p.tag==='hot'?'<span class="tag" style="background:#fff0f0;color:var(--danger)">🔥 热销</span>':''}
+      ${p.tag==='new'?'<span class="tag" style="background:#e8f5e9;color:var(--success)">✨ 新品</span>':''}
+      ${p.tag==='sale'?'<span class="tag" style="background:#fff8e1;color:#e65100">⚡ 特价</span>':''}
+    </div>
+    <div class="delivery-info">📍 配送至：Italia · Spedizione gratuita sopra €99</div>`;
+
+  // SKU section
+  document.querySelector('.sku-section').innerHTML=`
+    <div class="sku-label">颜色 Colore</div>
+    <div class="sku-color">
+      <div class="color-dot active" style="background:#2d3436" onclick="selectColor(this)"></div>
+      <div class="color-dot" style="background:#dfe6e9" onclick="selectColor(this)"></div>
+      <div class="color-dot" style="background:#636e72" onclick="selectColor(this)"></div>
+      <div class="color-dot" style="background:#b2bec3" onclick="selectColor(this)"></div>
+    </div>
+    <div class="sku-label" style="margin-top:16px">尺码 Taglia</div>
+    <div class="sku-options">
+      ${p.category==='Abbigliamento'?
+        '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>'
+        :'<div class="sku-option active" onclick="selectSku(this)">标准 Taglia unica</div>'}
+    </div>
+    <div class="sku-label">数量 Quantità</div>
+    <div class="sku-options" style="align-items:center">
+      <button onclick="changeQty(-1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">−</button>
+      <span id="qty" style="min-width:32px;text-align:center;font-weight:600">1</span>
+      <button onclick="changeQty(1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">+</button>
+      <span style="font-size:12px;color:var(--text-muted);margin-left:8px" ${stockClass}>库存 ${p.stock} 件</span>
+    </div>`;
+
+  // Detail section
+  document.querySelectorAll('.detail-section')[0].innerHTML=`
+    <div class="detail-title">商品参数 Parametri</div>
+    <div class="detail-params">
+      <div class="param-item"><span class="param-label">品牌 Brand</span><span class="param-value">${p.brand||'L&Qmercatone'}</span></div>
+      <div class="param-item"><span class="param-label">分类 Categoria</span><span class="param-value">${p.category}</span></div>
+      <div class="param-item"><span class="param-label">产地 Origine</span><span class="param-value">Italia</span></div>
+      <div class="param-item"><span class="param-label">货号 Codice</span><span class="param-value">LQ-${p.id}</span></div>
+    </div>`;
+
+  // Description
+  document.querySelectorAll('.detail-section')[1].innerHTML=`
+    <div class="detail-title">商品描述 Descrizione</div>
+    <p class="detail-desc">${p.description||p.name+' — '+p.brand+'，品质保证。'}</p>
+    <div class="detail-images">
+      <div class="detail-img">${p.emoji}</div>
+    </div>`;
+
+  // Update favorite button
+  document.querySelector('.top-nav-actions').innerHTML=`
+    <button onclick="toggleFav()" id="favBtn">${isFav?'❤️':'♡'}</button>
+    <button onclick="shareProduct()">📤</button>`;
+
+  // Update title
+  document.querySelector('.top-nav-title').textContent=p.name.substring(0,12);
+  document.title='L&Qmercatone - '+p.name;
+
+  // JSON-LD
+  let ld=document.getElementById('productJsonLd');
+  if(!ld){ld=document.createElement('script');ld.type='application/ld+json';ld.id='productJsonLd';document.head.appendChild(ld)}
+  ld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":p.name,"image":"","brand":{"@type":"Brand","name":p.brand||"L&Qmercatone"},"offers":{"@type":"Offer","price":p.price,"priceCurrency":"EUR","availability":p.stock>0?"https://schema.org/InStock":"https://schema.org/OutOfStock"}});
+}
+
+function renderRelated(){
+  if(!allProducts.length)return;
+  document.querySelector('.related-grid').innerHTML=allProducts.map(rp=>
+    `<div class="related-card" onclick="location.href='detail.html?id=${rp.id}'">
+      <div class="related-img">${rp.emoji}</div>
+      <div class="related-info">
+        <div class="related-name">${rp.name}</div>
+        <div class="related-price">€${rp.price}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===== Carousel =====
+let currentSlide=0;
+const track=document.getElementById('carouselTrack');
+function goToSlide(n){
+  const dots=document.querySelectorAll('.carousel-dot');
+  const slides=document.querySelectorAll('.carousel-slide');
+  if(!dots.length||!slides.length)return;
+  dots[currentSlide].classList.remove('active');
+  currentSlide=(n+slides.length)%slides.length;
+  track.style.transform=`translateX(-${currentSlide*100}%)`;
+  dots[currentSlide].classList.add('active');
+}
+setInterval(()=>goToSlide(currentSlide+1),4000);
+let touchStartX=0;
+document.getElementById('carousel').addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});
+document.getElementById('carousel').addEventListener('touchend',e=>{
+  const diff=touchStartX-e.changedTouches[0].clientX;
+  if(Math.abs(diff)>50)goToSlide(currentSlide+(diff>0?1:-1));
 });
 
 // ===== SKU =====
-let qty = 1;
-function selectColor(el) {
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-  el.classList.add('active');
-}
-function selectSku(el) {
-  document.querySelectorAll('.sku-option').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-}
-function changeQty(delta) {
-  qty = Math.max(1, Math.min(23, qty + delta));
-  document.getElementById('qty').textContent = qty;
+function selectColor(el){document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active')}
+function selectSku(el){document.querySelectorAll('.sku-option').forEach(o=>o.classList.remove('active'));el.classList.add('active')}
+function changeQty(delta){
+  qty=Math.max(1,Math.min(product?product.stock:99,qty+delta));
+  document.getElementById('qty').textContent=qty;
 }
 
-// ===== Actions =====
-function addToCart() {
-  showToast('✅ 已加入购物车');
+// ===== Cart =====
+function addToCart(){
+  if(!product)return;
+  const existing=cart.find(i=>i.id===product.id);
+  if(existing)existing.qty+=qty;
+  else cart.push({...product,qty});
+  localStorage.setItem('lq_cart',JSON.stringify(cart));
+  showToast('✅ 已加入购物车 Aggiunto al carrello');
 }
-function buyNow() {
-  showToast('⚡ 跳转到结算页面');
+function buyNow(){
+  if(!product)return;
+  // Add to cart first
+  const existing=cart.find(i=>i.id===product.id);
+  if(existing)existing.qty+=qty;
+  else cart.push({...product,qty,selected:true});
+  localStorage.setItem('lq_cart',JSON.stringify(cart));
+  // Go to checkout
+  location.href='checkout.html';
+}
+
+// ===== Favorites =====
+function toggleFav(){
+  const idx=favs.indexOf(productId);
+  if(idx>=0){favs.splice(idx,1);isFav=false;showToast('已取消收藏')}
+  else{favs.push(productId);isFav=true;showToast('❤️ 已收藏')}
+  localStorage.setItem('lq_favs',JSON.stringify(favs));
+  const btn=document.getElementById('favBtn');
+  if(btn)btn.textContent=isFav?'❤️':'♡';
+}
+
+// ===== Share =====
+function shareProduct(){
+  if(navigator.share){
+    navigator.share({title:product.name,text:product.name+' €'+product.price,url:location.href});
+  }else{
+    navigator.clipboard.writeText(location.href).then(()=>showToast('🔗 链接已复制'));
+  }
 }
 
 // ===== Toast =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.opacity = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
-  setTimeout(() => {
-    t.style.opacity = '0';
-    t.style.transform = 'translateX(-50%) translateY(100px)';
-  }, 2000);
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(100px)'},2000);
 }
+
+// ===== Init =====
+loadProduct();
 </script>
 </body>
 </html>

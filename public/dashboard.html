@@ -371,222 +371,67 @@ tr:hover td { background: var(--bg); }
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== Sample Data =====
-const weekDays = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
-const weekSales = [320, 450, 380, 520, 680, 890, 750];
-const maxSale = Math.max(...weekSales);
+// ===== Supabase =====
+const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
+const SB_KEY='sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
+let sb=null;try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){}
+let allProducts=[],allOrders=[];
 
-const categories = [
-  { name: 'Abbigliamento 衣服', value: 45, color: '#6c5ce7' },
-  { name: 'Detersivi 洗洁剂', value: 30, color: '#00b894' },
-  { name: 'Casa 家用品', value: 25, color: '#e17055' }
-];
-
-const topProducts = [
-  { name: 'Cappotto in Cashmere', emoji: '🧥', sales: 48, revenue: '€62,352', trend: '↑ 23%' },
-  { name: 'Set Pentole 5pz', emoji: '', sales: 36, revenue: '€3,240', trend: '↑ 15%' },
-  { name: 'Detersivo Lavatrice', emoji: '', sales: 124, revenue: '€2,355', trend: '↑ 8%' },
-  { name: 'Jeans Slim', emoji: '👖', sales: 28, revenue: '€9,212', trend: '↓ 3%' },
-  { name: 'Set Asciugamani', emoji: '', sales: 22, revenue: '€879', trend: '↑ 12%' }
-];
-
-const recentOrders = [
-  { no: 'LQ29100001', customer: 'Mario R.', amount: '€1,299', status: 'green', statusText: '已完成' },
-  { no: 'LQ29100002', customer: 'Laura B.', amount: '€329', status: 'blue', statusText: '已发货' },
-  { no: 'LQ29100003', customer: 'Giuseppe V.', amount: '€89.97', status: 'orange', statusText: '待发货' },
-  { no: 'LQ29100004', customer: 'Anna M.', amount: '€459', status: 'green', statusText: '已完成' }
-];
-
-const products = [
-  { name: 'Cappotto Classico in Cashmere', emoji: '', cat: 'Abbigliamento', price: '€1,299', stock: 15, status: 'green' },
-  { name: 'Abito Floreale Francese', emoji: '', cat: 'Abbigliamento', price: '€459', stock: 8, status: 'green' },
-  { name: 'Detersivo Lavatrice 3L', emoji: '', cat: 'Detersivi', price: '€18.99', stock: 50, status: 'green' },
-  { name: 'Set Pentole 5pz', emoji: '', cat: 'Casa', price: '€89.99', stock: 3, status: 'orange' },
-  { name: 'Aspirapolvere Portatile', emoji: '🧹', cat: 'Casa', price: '€49.99', stock: 0, status: 'red' }
-];
-
-// ===== Render Charts =====
-function renderWeeklyChart() {
-  const container = document.getElementById('weeklyChart');
-  container.innerHTML = weekDays.map((day, i) => {
-    const height = (weekSales[i] / maxSale) * 140;
-    const color = i === 5 ? 'var(--blue)' : 'var(--accent-bg)';
-    return `<div class="bar-col">
-      <div class="bar-value">€${weekSales[i]}</div>
-      <div class="bar" style="height:${height}px;background:${color};"></div>
-      <div class="bar-label">${day}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderDonut() {
-  const total = categories.reduce((s, c) => s + c.value, 0);
-  let gradient = '';
-  let offset = 0;
-  categories.forEach(c => {
-    const pct = (c.value / total) * 100;
-    gradient += `${c.color} ${offset}% ${offset + pct}%, `;
-    offset += pct;
-  });
-  gradient = gradient.slice(0, -2);
-
-  document.getElementById('donutChart').style.background = `conic-gradient(${gradient})`;
-  document.getElementById('donutChart').innerHTML = `<div class="donut-center"><div class="val">${total}%</div><div class="lbl">总销售</div></div>`;
-
-  document.getElementById('donutLegend').innerHTML = categories.map(c =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div><span>${c.name}</span><span class="legend-val">${c.value}%</span></div>`
-  ).join('');
-}
-
-function renderTopProducts() {
-  document.getElementById('topProductsTable').innerHTML = topProducts.map(p =>
-    `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span>${p.name}</span></div></td><td>${p.sales}</td><td>${p.revenue}</td><td style="color:${p.trend.startsWith('↑') ? 'var(--green)' : 'var(--red)'};font-size:12px;">${p.trend}</td></tr>`
-  ).join('');
-}
-
-function renderRecentOrders() {
-  document.getElementById('recentOrdersTable').innerHTML = recentOrders.map(o =>
-    `<tr><td style="font-weight:600;font-size:12px;">${o.no}</td><td>${o.customer}</td><td style="font-weight:600;">${o.amount}</td><td><span class="status-dot ${o.status}"></span>${o.statusText}</td></tr>`
-  ).join('');
-}
-
-function renderProducts() {
-  document.getElementById('productsTable').innerHTML = products.map(p =>
-    `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span style="font-size:13px;">${p.name}</span></div></td><td>${p.cat}</td><td style="font-weight:600;">${p.price}</td><td>${p.stock}</td><td><span class="status-dot ${p.status}"></span>${p.status === 'green' ? '在售' : p.status === 'orange' ? '低库存' : '缺货'}</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">编辑</button> <button style="font-size:12px;color:var(--red);cursor:pointer;">删除</button></td></tr>`
-  ).join('');
-}
-
-function renderOrders() {
-  document.getElementById('ordersTableBody').innerHTML = [
-    ...recentOrders,
-    { no: 'LQ29100005', customer: 'Carlo F.', amount: '€24.99', status: 'gray', statusText: '待付款' },
-    { no: 'LQ29100006', customer: 'Sofia L.', amount: '€189', status: 'blue', statusText: '已发货' }
-  ].map(o => `<tr><td style="font-weight:600;font-size:12px;">${o.no}</td><td>${o.customer}</td><td>2件</td><td style="font-weight:600;">${o.amount}</td><td><span class="status-dot ${o.status}"></span>${o.statusText}</td><td style="font-size:12px;color:var(--text-light);">今天</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">详情</button></td></tr>`).join('');
-}
-
-// ===== Navigation =====
-function showPage(page, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  if (el) el.classList.add('active');
-
-  const titles = {
-    dashboard: '数据看板 Dashboard',
-    products: '商品管理 Prodotti',
-    orders: '订单管理 Ordini',
-    marketing: '营销活动 Marketing',
-    reviews: '评价管理 Recensioni',
-    settings: '系统设置 Impostazioni'
-  };
-  document.getElementById('pageTitle').textContent = titles[page] || page;
-  document.getElementById('breadcrumb').textContent = '首页 / ' + (titles[page] || page);
-}
-
-// ===== Toast =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 24px;border-radius:10px;font-size:14px;z-index:200;opacity:1;transition:0.3s;';
-  setTimeout(() => { t.style.opacity = '0'; }, 2500);
-}
-
-// ===== Init =====
-renderWeeklyChart();
-renderDonut();
-renderTopProducts();
-renderRecentOrders();
-renderProducts();
-renderOrders();
-
-// ===== Supabase Connection (same DB as APP and website) =====
-const SB_URL = 'https://yiyydikfpgbmtdypiggc.supabase.co';
-const SB_KEY = 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
-let supabase = null;
-
-async function initSupabase() {
-  try {
-    supabase = window.supabase.createClient(SB_URL, SB_KEY);
-    await loadRealData();
-  } catch (e) {
-    console.log('Supabase init error:', e);
+(async function(){
+  if(sb){
+    try{
+      const{data:p}=await sb.from('products').select('*').order('id');
+      if(p&&p.length)allProducts=p;
+      const{data:o}=await sb.from('orders').select('*').order('created_at',{ascending:false});
+      if(o&&o.length)allOrders=o.map(x=>({...x,items:typeof x.items==='string'?JSON.parse(x.items):(x.items||[])}));
+    }catch(e){}
   }
+  renderDashboard();
+})();
+
+function renderDashboard(){
+  const today=new Date().toISOString().slice(0,10);
+  const todayOrders=allOrders.filter(o=>o.created_at&&o.created_at.startsWith(today));
+  const todaySales=todayOrders.reduce((s,o)=>s+parseFloat(o.total_amount||0),0);
+  const statCards=document.querySelectorAll('.stat-card .stat-value');
+  if(statCards[0])statCards[0].textContent='€'+todaySales.toFixed(0);
+  if(statCards[1])statCards[1].textContent=todayOrders.length||allOrders.length;
+  if(statCards[3])statCards[3].textContent=allProducts.length;
+
+  // Weekly chart
+  const wd=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'],ws=[0,0,0,0,0,0,0];
+  allOrders.forEach(o=>{if(!o.created_at)return;const d=new Date(o.created_at).getDay();ws[(d+6)%7]+=parseFloat(o.total_amount||0)});
+  const mx=Math.max(...ws,1);
+  document.getElementById('weeklyChart').innerHTML=wd.map((d,i)=>{const h=(ws[i]/mx)*140;return'<div class="bar-col"><div class="bar-value">€'+ws[i].toFixed(0)+'</div><div class="bar" style="height:'+Math.max(4,h)+'px;background:'+(i===5?'var(--blue)':'var(--accent-bg)')+'"></div><div class="bar-label">'+d+'</div></div>'}).join('');
+
+  // Category donut
+  const cm={};allProducts.forEach(p=>{cm[p.category||'Altro']=(cm[p.category||'Altro']||0)+1});
+  const cc=['#6c5ce7','#00b894','#e17055','#fdcb6e','#a29bfe'];
+  const cats=Object.entries(cm).map(([n,v],i)=>({name:n,value:v,color:cc[i%cc.length]}));
+  if(cats.length){const total=cats.reduce((s,c)=>s+c.value,0);let g='',o=0;cats.forEach(c=>{const p=(c.value/total)*100;g+=c.color+' '+o+'% '+(o+p)+'%, ';o+=p});
+  document.getElementById('donutChart').style.background='conic-gradient('+g.slice(0,-2)+')';
+  document.getElementById('donutChart').innerHTML='<div class="donut-center"><div class="val">'+total+'</div><div class="lbl">商品</div></div>';
+  document.getElementById('donutLegend').innerHTML=cats.map(c=>'<div class="legend-item"><div class="legend-dot" style="background:'+c.color+'"></div><span>'+c.name+'</span><span class="legend-val">'+c.value+'</span></div>').join('')}
+
+  // Top products from orders
+  const ps={};allOrders.forEach(o=>{(o.items||[]).forEach(it=>{const k=it.name||'?';if(!ps[k])ps[k]={name:k,emoji:it.emoji||'',sales:0,revenue:0};ps[k].sales+=it.qty||1;ps[k].revenue+=(it.qty||1)*parseFloat(it.price||0)})});
+  const tp=Object.values(ps).sort((a,b)=>b.sales-a.sales).slice(0,5);
+  document.getElementById('topProductsTable').innerHTML=tp.length?tp.map(p=>'<tr><td><div class="product-mini"><div class="product-mini-img">'+(p.emoji||'📦')+'</div><span>'+p.name+'</span></div></td><td>'+p.sales+'</td><td>€'+p.revenue.toFixed(0)+'</td><td style="color:var(--green);font-size:12px">↑</td></tr>').join(''):'<tr><td colspan=4 style="text-align:center;color:var(--text-light)">暂无数据</td></tr>';
+
+  // Recent orders
+  const sm={pending:['orange','待付款'],toship:['blue','待发货'],shipped:['blue','已发货'],done:['green','已完成']};
+  const ro=allOrders.slice(0,5);
+  document.getElementById('recentOrdersTable').innerHTML=ro.length?ro.map(o=>{const[s,t]=sm[o.status]||['gray',o.status||'pending'];return'<tr><td style="font-weight:600;font-size:12px">'+o.order_no+'</td><td>'+(o.customer_name||'N/A')+'</td><td style="font-weight:600">€'+parseFloat(o.total_amount||0).toFixed(2)+'</td><td><span class="status-dot '+s+'"></span>'+t+'</td></tr>'}).join(''):'<tr><td colspan=4 style="text-align:center;color:var(--text-light)">暂无订单</td></tr>';
+
+  // Products table
+  document.getElementById('productsTable').innerHTML=allProducts.length?allProducts.map(p=>{const s=p.stock<=0?'red':p.stock<=5?'orange':'green';const st=p.stock<=0?'缺货':p.stock<=5?'低库存':'在售';return'<tr><td><div class="product-mini"><div class="product-mini-img">'+(p.emoji||'')+'</div><span style="font-size:13px">'+p.name+'</span></div></td><td>'+(p.category||'')+'</td><td style="font-weight:600">€'+parseFloat(p.price).toFixed(2)+'</td><td>'+p.stock+'</td><td><span class="status-dot '+s+'"></span>'+st+'</td><td><button onclick="showToast(\'edit '+p.id+'\')" style="font-size:12px;color:var(--blue);cursor:pointer;background:none;border:none">编辑</button></td></tr>'}).join(''):'<tr><td colspan=6 style="text-align:center;color:var(--text-light)">暂无商品</td></tr>';
+
+  // Orders table
+  document.getElementById('ordersTableBody').innerHTML=ro.length?ro.map(o=>{const[s,t]=sm[o.status]||['gray','pending'];return'<tr><td style="font-weight:600;font-size:12px">'+o.order_no+'</td><td>'+(o.customer_name||'N/A')+'</td><td>'+(o.item_count||1)+'件</td><td style="font-weight:600">€'+parseFloat(o.total_amount||0).toFixed(2)+'</td><td><span class="status-dot '+s+'"></span>'+t+'</td><td style="font-size:12px;color:var(--text-light)">'+(o.created_at?o.created_at.slice(0,10):'')+'</td><td><button onclick="showToast(\'order '+o.order_no+'\')" style="font-size:12px;color:var(--blue);cursor:pointer;background:none;border:none">详情</button></td></tr>'}).join(''):'';
 }
 
-async function loadRealData() {
-  if (!supabase) return;
-
-  // Load products
-  const { data: products } = await supabase.from('products').select('*');
-  if (products && products.length > 0) {
-    renderProductsTable(products);
-    renderTopProducts(products);
-  }
-
-  // Load orders
-  const { data: orders } = await supabase.from('orders').select('*').order('created_at', {ascending: false});
-  if (orders && orders.length > 0) {
-    renderOrdersTable(orders);
-    renderRecentOrders(orders);
-    updateStats(orders, products);
-  }
-}
-
-function updateStats(orders, products) {
-  const today = new Date().toISOString().slice(0,10);
-  const todayOrders = orders.filter(o => o.created_at && o.created_at.startsWith(today));
-  const todaySales = todayOrders.reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
-  document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = '€' + todaySales.toFixed(0);
-  document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = todayOrders.length;
-  document.querySelector('.stat-card:nth-child(1) .stat-label').textContent = '今日销售额 Vendite Oggi';
-  document.querySelector('.stat-card:nth-child(2) .stat-label').textContent = '今日订单 Ordini Oggi';
-}
-
-function renderProductsTable(products) {
-  const tbody = document.getElementById('productsTable');
-  if (!tbody) return;
-  tbody.innerHTML = products.slice(0, 20).map(p => {
-    const statusClass = p.stock > 10 ? 'green' : p.stock > 0 ? 'orange' : 'red';
-    const statusText = p.stock > 10 ? '在售' : p.stock > 0 ? '低库存' : '缺货';
-    return `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span style="font-size:13px;">${p.name}</span></div></td><td>${p.category || ''}</td><td style="font-weight:600;">€${p.price}</td><td>${p.stock || 0}</td><td><span class="status-dot ${statusClass}"></span>${statusText}</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">编辑</button> <button style="font-size:12px;color:var(--red);cursor:pointer;">删除</button></td></tr>`;
-  }).join('');
-}
-
-function renderOrdersTable(orders) {
-  const tbody = document.getElementById('ordersTableBody');
-  if (!tbody) return;
-  const statusMap = { pending: ['orange','待付款'], confirmed: ['blue','已确认'], shipping: ['blue','已发货'], delivered: ['green','已完成'], cancelled: ['red','已取消'] };
-  tbody.innerHTML = orders.slice(0, 20).map(o => {
-    const [dot, label] = statusMap[o.status] || ['gray', o.status];
-    return `<tr><td style="font-weight:600;font-size:12px;">${o.order_no}</td><td>${o.customer_name}</td><td>${o.item_count}件</td><td style="font-weight:600;">€${parseFloat(o.total_amount).toFixed(2)}</td><td><span class="status-dot ${dot}"></span>${label}</td><td style="font-size:12px;color:var(--text-light);">${o.created_at ? o.created_at.slice(5,16) : ''}</td><td><button style="font-size:12px;color:var(--blue);cursor:pointer;">详情</button></td></tr>`;
-  }).join('');
-}
-
-function renderTopProducts(products) {
-  const tbody = document.getElementById('topProductsTable');
-  if (!tbody) return;
-  const sorted = [...products].sort((a,b) => (b.on_sale ? 1 : 0) - (a.on_sale ? 1 : 0)).slice(0, 5);
-  tbody.innerHTML = sorted.map(p =>
-    `<tr><td><div class="product-mini"><div class="product-mini-img">${p.emoji || '📦'}</div><span style="font-size:13px;">${p.name}</span></div></td><td>${p.stock || 0}</td><td>€${p.price}</td><td style="color:var(--green);font-size:12px;">${p.on_sale ? '促销中' : '正常'}</td></tr>`
-  ).join('');
-}
-
-function renderRecentOrders(orders) {
-  const tbody = document.getElementById('recentOrdersTable');
-  if (!tbody) return;
-  const statusMap = { pending: ['orange','待付款'], confirmed: ['blue','已确认'], shipping: ['blue','已发货'], delivered: ['green','已完成'] };
-  tbody.innerHTML = orders.slice(0, 4).map(o => {
-    const [dot, label] = statusMap[o.status] || ['gray', o.status];
-    return `<tr><td style="font-weight:600;font-size:12px;">${o.order_no}</td><td>${o.customer_name}</td><td style="font-weight:600;">€${parseFloat(o.total_amount).toFixed(2)}</td><td><span class="status-dot ${dot}"></span>${label}</td></tr>`;
-  }).join('');
-}
-
-// Init when page loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSupabase);
-} else {
-  initSupabase();
-}
+function showPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');const t={dashboard:'数据看板 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',settings:'系统设置 Impostazioni'};document.getElementById('pageTitle').textContent=t[page]||page;document.getElementById('breadcrumb').textContent='首页 / '+(t[page]||page)}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 24px;border-radius:10px;font-size:14px;z-index:200;opacity:1;transition:0.3s';setTimeout(()=>{t.style.opacity='0'},2500)}
 </script>
 </body>
 </html>
