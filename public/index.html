@@ -529,7 +529,7 @@ async function loadProducts() {
         id: p.id, name: p.name, brand: p.brand, category: p.category,
         price: parseFloat(p.price), old_price: p.old_price ? parseFloat(p.old_price) : null,
         emoji: p.emoji || '', tag: p.tag, on_sale: p.on_sale ? 1 : 0,
-        stock: p.stock || 99, image_url: p.image_url || ''
+        stock: p.stock || 99, image_url: p.image_url || '', description: p.description || ''
       }));
     } else {
       // Supabase 正常但商品为空 = 管理员确实删除了所有商品
@@ -584,9 +584,10 @@ function renderCard(p) {
   const discount = p.old_price ? Math.round((1 - p.price/p.old_price) * 100) : 0;
   const stockText = p.stock > 20 ? t('available') : p.stock > 5 ? t('available') : t('low_stock') + p.stock;
   const stockClass = p.stock <= 5 ? 'low' : '';
+  const hasImage=p.image_url&&p.image_url.startsWith('data:');
   return `<div class="product-card" onclick="goToDetail(${p.id})">
     <div class="product-img">
-      ${p.emoji || '📦'}
+      ${hasImage?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover">`:(p.emoji||'')}
       <span class="stock-tag ${stockClass}">${stockText}</span>
       ${discount > 0 ? `<span class="discount-tag">-${discount}%</span>` : ''}
       <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
