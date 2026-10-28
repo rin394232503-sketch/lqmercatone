@@ -200,7 +200,8 @@ tr:hover td{background:var(--bg2)}
     <div class="menu-item" onclick="showPage('reviews',this)"><span class="icon">⭐</span><span>评价管理</span></div>
     <div class="menu-item" onclick="showPage('notifications',this)"><span class="icon">🔔</span><span>通知</span><span class="badge" id="notifBadge" style="display:none">0</span></div>
     <div class="menu-label">系统</div>
-    <div class="menu-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span><span>设置</span></div>
+    <div class="menu-item" onclick="showPage('logs',this)"><span class="icon">📋</span><span>操作日志</span></div>
+      <div class="menu-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span><span>设置</span></div>
     <div class="menu-item" onclick="window.open('staff.html','_blank')"><span class="icon">📱</span><span>手机后台</span></div>
     <div class="menu-item" onclick="window.open('/','_blank')"><span class="icon">🌐</span><span>查看商城</span></div>
   </div>
@@ -403,6 +404,24 @@ tr:hover td{background:var(--bg2)}
     <div class="page" id="page-lowstock"><div id="lowStockList"></div></div>
     <!-- After Sales Page -->
     <div class="page" id="page-aftersales"><div id="aftersalesList"></div></div>
+
+    <!-- Logs Page -->
+    <div class="page" id="page-logs">
+      <div class="chart-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h3>📋 操作日志 Log operazioni</h3>
+          <button onclick="clearDashLogs()" style="padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;border:none;cursor:pointer">️ 清空</button>
+        </div>
+        <div class="filter-tabs" style="margin-bottom:12px">
+          <div class="ftab active" onclick="filterDashLogs('all',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--accent);color:white;cursor:pointer;border:none">全部</div>
+          <div class="ftab" onclick="filterDashLogs('product',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">商品</div>
+          <div class="ftab" onclick="filterDashLogs('order',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">订单</div>
+          <div class="ftab" onclick="filterDashLogs('import',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">导入</div>
+        </div>
+        <div id="dashLogsList"></div>
+      </div>
+    </div>
+
     <!-- Reviews Page -->
     <div class="page" id="page-reviews"><div class="chart-card"><h3>⭐ 评价管理</h3><div style="text-align:center;padding:40px;color:var(--text2)">暂无评价</div></div></div>
     <!-- Notifications Page -->
@@ -647,11 +666,26 @@ c.innerHTML=results.length?'<table style="width:100%;border-collapse:collapse;fo
 async function dashApplyDiscount(id){const newPrice=parseFloat(document.getElementById('ddisc_'+id).value);if(!newPrice||newPrice<=0){showToast('请输入有效价格');return}const p=allProducts.find(x=>x.id===id);if(!p)return;const oldPrice=p.price;if(sb)try{await sb.from('products').update({price:newPrice,old_price:oldPrice}).eq('id',id)}catch(e){}p.price=newPrice;p.old_price=oldPrice;p.tag='sale';showToast('✅ '+p.name.substring(0,15)+' €'+oldPrice.toFixed(2)+' → €'+newPrice.toFixed(2));dashSearchDiscount();renderDashboard()}
 function dashSearchDiscount2(){dashSearchDiscount()}
 
+
+// ===== Log Functions =====
+function renderDashLogs(filter='all'){
+  const logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  const c=document.getElementById('dashLogsList');
+  const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
+  if(!filtered.length){c.innerHTML='<p style="text-align:center;padding:20px;color:var(--text-light)">暂无日志记录</p>';return}
+  const al={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量导入',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
+  const ai={create_product:'➕',edit_product:'✏️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'',import_products:'📂',discount:'️',update_stock:'📊',restock:'📦'};
+  c.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:var(--bg)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">时间</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">操作</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">目标</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">账号</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">设备</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">变更</th></tr>'+
+    filtered.slice(0,100).map(l=>{const t=new Date(l.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});return'<tr><td style="padding:8px;border-bottom:1px solid var(--border)">'+t+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+(ai[l.action]||'📋')+' '+(al[l.action]||l.action)+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.target_type+' #'+l.target_id+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.account+'('+l.role+')</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px">'+(l.device_info||'').substring(0,25)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px;font-family:monospace">'+(l.before_value&&l.after_value?'前→后':'—')+'</td></tr>'}).join('')+'</table>';
+}
+function filterDashLogs(type,el){document.querySelectorAll('#page-logs .ftab').forEach(t=>{t.style.background='var(--card)';t.style.color='var(--text2)'});el.style.background='var(--accent)';el.style.color='white';renderDashLogs(type)}
+function clearDashLogs(){if(confirm('确定清空所有日志？')){localStorage.removeItem('staff_logs');renderDashLogs();showToast('🗑️ 日志已清空')}}
+
 // ===== Navigation =====
 function showPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');else{const map={dashboard:0,products:1,orders:2,quickadd:3,import:4,addproduct:5,lowstock:6,discount:7,aftersales:8,reviews:9,notifications:10,settings:11};const items=document.querySelectorAll('.menu-item');if(items[map[page]])items[map[page]].classList.add('active')}
 const t={dashboard:'数据看板 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',addproduct:'新增商品 Nuovo Prodotto',quickadd:'快速入库 Aggiunta Rapida',import:'批量导入 Importa',lowstock:'库存预警 Stock Alert',discount:'快速打折 Sconto Rapido',aftersales:'售后管理 Resi',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'系统设置 Impostazioni'};
 document.getElementById('pageTitle').textContent=t[page]||page;document.getElementById('breadcrumb').textContent='首页 / '+(t[page]||page);
-if(page==='products')renderProducts();if(page==='orders')renderOrders();if(page==='lowstock')renderLowStock();if(page==='quickadd')renderQuickAdd();if(page==='notifications')renderNotifications();if(page==='aftersales')renderAfterSales()}
+if(page==='products')renderProducts();if(page==='orders')renderOrders();if(page==='lowstock')renderLowStock();if(page==='quickadd')renderQuickAdd();if(page==='logs')renderDashLogs();if(page==='notifications')renderNotifications();if(page==='aftersales')renderAfterSales()}
 
 function renderLowStock(){const low=allProducts.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);const c=document.getElementById('lowStockList');if(!low.length){c.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)">✅ 库存充足</div>';return}c.innerHTML=low.map(p=>'<div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:var(--radius);margin-bottom:10px;border-left:3px solid '+(p.stock===0?'var(--danger)':'var(--warning)')+'"><div style="font-size:28px">'+(p.emoji||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:500">'+p.name+'</div><div style="font-size:12px;color:'+(p.stock===0?'var(--danger)':'var(--warning)')+'">'+(p.stock===0?'缺货 Esaurito':'库存不足: '+p.stock+' 件')+'</div></div><button onclick="quickRestock('+p.id+')" style="padding:6px 14px;background:var(--accent);color:white;border-radius:12px;font-size:12px;border:none;cursor:pointer">补货</button></div>').join('')}
 async function quickRestock(id){const p=allProducts.find(x=>x.id===id);if(!p)return;const qty=prompt('补货数量？(当前: '+p.stock+')','50');if(!qty||isNaN(qty))return;const newStock=(parseInt(p.stock)||0)+parseInt(qty);if(sb)try{await sb.from('products').update({stock:newStock}).eq('id',id)}catch(e){}p.stock=newStock;showToast('✅ 补货至 '+newStock);renderProducts();renderLowStock();renderDashboard()}

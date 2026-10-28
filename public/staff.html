@@ -470,6 +470,22 @@ input,select,textarea{font-family:inherit}
     </div>
   </div>
 
+
+  <!-- Logs Page -->
+  <div class="page" id="page-logs">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600">操作日志 Log operazioni</span>
+      <button onclick="clearLogs()" style="padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;border:none;cursor:pointer">🗑️ 清空日志</button>
+    </div>
+    <div class="filter-tabs" style="margin-bottom:12px">
+      <div class="ftab active" onclick="filterLogs('all',this)">全部</div>
+      <div class="ftab" onclick="filterLogs('product',this)">商品</div>
+      <div class="ftab" onclick="filterLogs('order',this)">订单</div>
+      <div class="ftab" onclick="filterLogs('login',this)">登录</div>
+    </div>
+    <div id="logsList"></div>
+  </div>
+
   <!-- Low Stock Page -->
   <div class="page" id="page-lowstock">
     <div id="lowStockList"></div>
@@ -607,10 +623,10 @@ async function doLogin(){
     currentUser={username:u,...accounts[u]};
     localStorage.setItem('staff_session',JSON.stringify(currentUser));
     if(document.getElementById('loginRemember').checked)localStorage.setItem('staff_remember','1');
-    showApp();showToast('✅ 登录成功');
+    showApp();showToast('✅ 登录成功');logOperation('login','user',currentUser.username,null,{account:currentUser.username,role:currentUser.role});
   }else if(sb){
     const{data,error}=await sb.from('staff_accounts').select('*').eq('username',u).single();
-    if(!error&&data){currentUser={username:data.username,role:data.role,name:data.real_name||data.username,permissions:data.permissions};localStorage.setItem('staff_session',JSON.stringify(currentUser));showApp();showToast('✅ 登录成功')}
+    if(!error&&data){currentUser={username:data.username,role:data.role,name:data.real_name||data.username,permissions:data.permissions};localStorage.setItem('staff_session',JSON.stringify(currentUser));showApp();showToast('✅ 登录成功');logOperation('login','user',currentUser.username,null,{account:currentUser.username,role:currentUser.role})}
     else showToast('账号或密码错误')
   }else{showToast('账号或密码错误\n演示: admin/admin123')}
 }
@@ -699,6 +715,29 @@ async function quickAddProduct(idx){
   }
   showToast('✅ '+t.name+' 已入库! €'+finalPrice+' × '+finalStock);
   renderDashboard();renderProducts();renderQuickAdd();
+}
+
+
+// ===== Operation Log System =====
+function logOperation(action, targetType, targetId, beforeVal, afterVal){
+  const logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  const entry={
+    id:Date.now(),
+    account:currentUser?currentUser.username:'unknown',
+    role:currentUser?currentUser.role:'unknown',
+    action:action,
+    target_type:targetType||'',
+    target_id:targetId||'',
+    before_value:beforeVal||null,
+    after_value:afterVal||null,
+    device_info:navigator.userAgent.substring(0,80),
+    screen:screen.width+'x'+screen.height,
+    created_at:new Date().toISOString()
+  };
+  logs.unshift(entry);
+  // Keep only last 500 logs
+  if(logs.length>500)logs.length=500;
+  localStorage.setItem('staff_logs',JSON.stringify(logs));
 }
 
 // ===== Data Loading =====
@@ -849,7 +888,7 @@ async function confirmShip(id){
   if(!tracking){showToast('请输入物流单号');return}
   if(sb){await sb.from('orders').update({status:'shipped',tracking_number:tracking,shipped_at:new Date().toISOString()}).eq('id',id)}
   const o=allOrders.find(x=>x.id===id);if(o){o.status='shipped';o.tracking_number=tracking}
-  closeModal();showToast('✅ 发货成功');renderDashboard();renderOrders()
+  const shipOrder=allOrders.find(x=>x.id===id);logOperation('ship_order','order',id,{status:shipOrder?.status},{status:'shipped',tracking:tracking});closeModal();showToast('✅ 发货成功');renderDashboard();renderOrders()
 }
 
 // ===== Low Stock Page =====
@@ -1059,7 +1098,7 @@ async function saveNewProduct(){
     newP.id=Math.floor(Math.random()*10000)+100;
     allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
   }
-  showToast('✅ 商品已发布! €'+price);
+  showToast('✅ 商品已发布! €'+price);logOperation('create_product','product',newP.id||'new',null,newP);
   renderDashboard();renderProducts();
   showPage('products');
   document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));
@@ -1167,7 +1206,7 @@ async function batchDelete(){
   document.getElementById('batchBtn').textContent='批量管理';
   document.getElementById('batchBtn').style.background='var(--card)';
   document.getElementById('batchBtn').style.color='var(--text2)';
-  showToast('🗑️ 已删除 '+ids.length+' 件商品');
+  logOperation('batch_delete','product',ids.join(','),{count:ids.length},null);showToast('🗑️ 已删除 '+ids.length+' 件商品');
   renderProducts();renderDashboard()
 }
 function cancelBatch(){
@@ -1449,6 +1488,33 @@ function saveBanner(idx){
 
 document.addEventListener('click',e=>{if(!e.target.closest('#npBarcode')&&!e.target.closest('#barcodeResults')){const c=document.getElementById('barcodeResults');if(c)c.style.display='none'}});
 
+
+// ===== Log Functions =====
+function renderLogs(filter='all'){
+  const logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
+  const container=document.getElementById('logsList');
+  const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
+  if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>暂无日志记录<br>Nessun log</p></div>';return}
+  const actionLabels={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量导入',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
+  const actionIcons={create_product:'➕',edit_product:'️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'⚡',import_products:'📂',discount:'🏷️',update_stock:'📊',restock:'📦'};
+  container.innerHTML=filtered.slice(0,50).map(l=>{
+    const time=new Date(l.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const label=actionLabels[l.action]||l.action;
+    const icon=actionIcons[l.action]||'📋';
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;border-left:3px solid ${l.action.includes('delete')?'var(--danger)':l.action.includes('ship')?'var(--success)':'var(--accent)'}">
+      <span style="font-size:18px">${icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${label} ${l.target_id?'<span style="color:var(--text2);font-weight:400">#'+l.target_id+'</span>':''}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${l.account}(${l.role}) · ${l.device_info.substring(0,30)}... · ${l.screen}</div>
+        ${l.before_value&&l.after_value?'<div style="font-size:10px;color:var(--text2);margin-top:4px;font-family:monospace;background:var(--bg);padding:4px 8px;border-radius:4px;max-height:40px;overflow:hidden">前: '+JSON.stringify(l.before_value).substring(0,100)+' → 后: '+JSON.stringify(l.after_value).substring(0,100)+'</div>':''}
+      </div>
+      <div style="font-size:10px;color:var(--text2);white-space:nowrap">${time}</div>
+    </div>`;
+  }).join('');
+}
+function filterLogs(type,el){document.querySelectorAll('#page-logs .ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderLogs(type)}
+function clearLogs(){if(confirm('确定清空所有日志？/ Eliminare tutti i log?')){localStorage.removeItem('staff_logs');renderLogs();showToast('️ 日志已清空')}}
+
 // ===== Navigation =====
 function showPage(page,navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1462,7 +1528,7 @@ function showPage(page,navEl){
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs')renderLogs();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
@@ -1544,7 +1610,7 @@ async function saveEditProduct(id){
   };
   if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
-  closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
+  const oldP=allProducts.find(x=>x.id===id);logOperation('edit_product','product',id,oldP,{...updates});closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
 }
 async function deleteProduct(id){
   if(!confirm('确定删除这个商品？'))return;
