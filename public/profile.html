@@ -401,7 +401,87 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ===== Email Subscription (GDPR) =====
+let emailPrefs = {
+  order: true,        // 必需，不可取消
+  aftersale: true,    // 必需，不可取消
+  marketing: false,   // 可选，默认关闭
+  price_alert: false  // 可选，默认关闭
+};
+
+// 页面加载时读取偏好
+function loadEmailPrefs() {
+  const saved = localStorage.getItem('email_prefs');
+  if (saved) {
+    emailPrefs = JSON.parse(saved);
+  }
+  updateToggleUI();
+}
+
+// 更新开关 UI
+function updateToggleUI() {
+  const marketingBg = document.getElementById('marketingToggleBg');
+  const marketingDot = document.getElementById('marketingToggleDot');
+  const marketingCheckbox = document.getElementById('email_marketing');
+  const priceAlertBg = document.getElementById('priceAlertToggleBg');
+  const priceAlertDot = document.getElementById('priceAlertToggleDot');
+  const priceAlertCheckbox = document.getElementById('email_price_alert');
+  
+  if (marketingBg && marketingDot) {
+    if (emailPrefs.marketing) {
+      marketingBg.style.background = 'var(--accent)';
+      marketingDot.style.transform = 'translateX(20px)';
+    } else {
+      marketingBg.style.background = 'var(--border)';
+      marketingDot.style.transform = 'translateX(0)';
+    }
+    if (marketingCheckbox) marketingCheckbox.checked = emailPrefs.marketing;
+  }
+  
+  if (priceAlertBg && priceAlertDot) {
+    if (emailPrefs.price_alert) {
+      priceAlertBg.style.background = 'var(--accent)';
+      priceAlertDot.style.transform = 'translateX(20px)';
+    } else {
+      priceAlertBg.style.background = 'var(--border)';
+      priceAlertDot.style.transform = 'translateX(0)';
+    }
+    if (priceAlertCheckbox) priceAlertCheckbox.checked = emailPrefs.price_alert;
+  }
+}
+
+// 切换营销邮件
+function toggleMarketingEmail() {
+  emailPrefs.marketing = !emailPrefs.marketing;
+  updateEmailPrefs();
+}
+
+// 切换降价提醒
+function togglePriceAlert() {
+  emailPrefs.price_alert = !emailPrefs.price_alert;
+  updateEmailPrefs();
+}
+
+// 保存偏好到服务器
+async function updateEmailPrefs() {
+  updateToggleUI();
+  localStorage.setItem('email_prefs', JSON.stringify(emailPrefs));
+  
+  // TODO: 同步到服务器
+  // await fetch('/api/user/email-prefs', {
+  //   method: 'PUT',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(emailPrefs)
+  // });
+  
+  showToast(emailPrefs.marketing ? '✅ 已订阅营销邮件' : '✅ 已取消营销邮件');
+}
+
+// 页面加载时初始化
+loadEmailPrefs();
+
+</script>
 <script>
 // ===== Supabase =====
 const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
@@ -534,6 +614,86 @@ function showToast(msg){
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2000);
 }
+
+// ===== Email Subscription (GDPR) =====
+let emailPrefs = {
+  order: true,        // 必需，不可取消
+  aftersale: true,    // 必需，不可取消
+  marketing: false,   // 可选，默认关闭
+  price_alert: false  // 可选，默认关闭
+};
+
+// 页面加载时读取偏好
+function loadEmailPrefs() {
+  const saved = localStorage.getItem('email_prefs');
+  if (saved) {
+    emailPrefs = JSON.parse(saved);
+  }
+  updateToggleUI();
+}
+
+// 更新开关 UI
+function updateToggleUI() {
+  const marketingBg = document.getElementById('marketingToggleBg');
+  const marketingDot = document.getElementById('marketingToggleDot');
+  const marketingCheckbox = document.getElementById('email_marketing');
+  const priceAlertBg = document.getElementById('priceAlertToggleBg');
+  const priceAlertDot = document.getElementById('priceAlertToggleDot');
+  const priceAlertCheckbox = document.getElementById('email_price_alert');
+  
+  if (marketingBg && marketingDot) {
+    if (emailPrefs.marketing) {
+      marketingBg.style.background = 'var(--accent)';
+      marketingDot.style.transform = 'translateX(20px)';
+    } else {
+      marketingBg.style.background = 'var(--border)';
+      marketingDot.style.transform = 'translateX(0)';
+    }
+    if (marketingCheckbox) marketingCheckbox.checked = emailPrefs.marketing;
+  }
+  
+  if (priceAlertBg && priceAlertDot) {
+    if (emailPrefs.price_alert) {
+      priceAlertBg.style.background = 'var(--accent)';
+      priceAlertDot.style.transform = 'translateX(20px)';
+    } else {
+      priceAlertBg.style.background = 'var(--border)';
+      priceAlertDot.style.transform = 'translateX(0)';
+    }
+    if (priceAlertCheckbox) priceAlertCheckbox.checked = emailPrefs.price_alert;
+  }
+}
+
+// 切换营销邮件
+function toggleMarketingEmail() {
+  emailPrefs.marketing = !emailPrefs.marketing;
+  updateEmailPrefs();
+}
+
+// 切换降价提醒
+function togglePriceAlert() {
+  emailPrefs.price_alert = !emailPrefs.price_alert;
+  updateEmailPrefs();
+}
+
+// 保存偏好到服务器
+async function updateEmailPrefs() {
+  updateToggleUI();
+  localStorage.setItem('email_prefs', JSON.stringify(emailPrefs));
+  
+  // TODO: 同步到服务器
+  // await fetch('/api/user/email-prefs', {
+  //   method: 'PUT',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(emailPrefs)
+  // });
+  
+  showToast(emailPrefs.marketing ? '✅ 已订阅营销邮件' : '✅ 已取消营销邮件');
+}
+
+// 页面加载时初始化
+loadEmailPrefs();
+
 </script>
 </body>
 </html>

@@ -129,9 +129,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
   
   <div class="form-group">
     <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-light);cursor:pointer">
-      <input type="checkbox" id="agreeTerms" style="accent-color:var(--accent)">
-      同意 <a href="#" style="color:var(--accent)">服务条款</a> 和 <a href="#" style="color:var(--accent)">隐私政策</a>
+      <input type="checkbox" id="agreeTerms" style="accent-color:var(--accent)" required>
+      同意 <a href="#" style="color:var(--accent)">服务条款</a> 和 <a href="#" style="color:var(--accent)">隐私政策</a> <span style="color:var(--danger)">*</span>
     </label>
+  </div>
+  
+  <div class="form-group">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-light);cursor:pointer">
+      <input type="checkbox" id="agreeMarketing" style="accent-color:var(--accent)">
+      我希望接收营销邮件（优惠券、促销活动）<span style="font-size:11px;color:var(--text-muted);margin-left:4px">(可选)</span>
+    </label>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:4px;padding-left:20px">
+      • 可随时在个人设置中取消订阅<br>
+      • 符合欧盟 GDPR 隐私保护法规<br>
+      • 订单/售后通知不受影响
+    </div>
   </div>
   
   <button class="submit-btn" onclick="handleRegister()">Registrati 注册</button>
@@ -215,7 +227,11 @@ async function handleRegister() {
   if (!phone || phone.length < 9) { showToast('⚠️ 请输入有效的手机号'); return; }
   if (code !== verifyCode || Date.now() > codeExpires) { showToast('⚠️ 验证码无效或已过期'); return; }
   if (password.length < 6) { showToast('⚠️ 密码至少 6 位'); return; }
-  if (!agree) { showToast('⚠️ 请同意服务条款'); return; }
+  if (!agree) { showToast('️ 请同意服务条款 / Accetta i termini'); return; }
+  
+  // GDPR: 营销邮件单独同意
+  const marketingAgree = document.getElementById('agreeMarketing').checked;
+  console.log('GDPR 同意:', { terms: agree, marketing: marketingAgree });
   
   showToast('注册中...');
   

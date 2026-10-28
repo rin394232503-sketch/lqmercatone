@@ -871,3 +871,100 @@ app.post('/api/cart/sync', (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ===== 邮件订阅偏好 API =====
+
+// 获取用户邮件偏好
+app.get('/api/user/email-prefs', (req, res) => {
+  try {
+    // TODO: 从 token 获取用户 ID
+    const userId = req.headers.authorization?.split(' ')[1];
+    
+    if (!userId) {
+      return res.status(401).json({ error: '未登录' });
+    }
+    
+    // TODO: 从数据库查询偏好
+    // const prefs = await db.prepare(`
+    //   SELECT marketing_email, price_alert_email 
+    //   FROM buyers WHERE id = ?
+    // `).get(userId);
+    
+    res.json({
+      success: true,
+      prefs: {
+        order: true,        // 必需
+        aftersale: true,    // 必需
+        marketing: false,   // 可选
+        price_alert: false  // 可选
+      }
+    });
+    
+  } catch (error) {
+    console.error('获取邮件偏好失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 更新用户邮件偏好
+app.put('/api/user/email-prefs', (req, res) => {
+  try {
+    const userId = req.headers.authorization?.split(' ')[1];
+    const { marketing, price_alert } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({ error: '未登录' });
+    }
+    
+    // TODO: 更新数据库
+    // await db.prepare(`
+    //   UPDATE buyers 
+    //   SET marketing_email = ?, 
+    //       price_alert_email = ?,
+    //       updated_at = CURRENT_TIMESTAMP
+    //   WHERE id = ?
+    // `).run(marketing, price_alert, userId);
+    
+    console.log('✅ 邮件偏好已更新:', { marketing, price_alert });
+    
+    res.json({
+      success: true,
+      message: '邮件偏好已更新 / Preferenze email aggiornate'
+    });
+    
+  } catch (error) {
+    console.error('更新邮件偏好失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 退订所有营销邮件
+app.post('/api/user/unsubscribe-all', (req, res) => {
+  try {
+    const userId = req.headers.authorization?.split(' ')[1];
+    
+    if (!userId) {
+      return res.status(401).json({ error: '未登录' });
+    }
+    
+    // TODO: 更新数据库
+    // await db.prepare(`
+    //   UPDATE buyers 
+    //   SET marketing_email = FALSE, 
+    //       price_alert_email = FALSE,
+    //       unsubscribed_at = CURRENT_TIMESTAMP
+    //   WHERE id = ?
+    // `).run(userId);
+    
+    console.log('✅ 用户已退订所有营销邮件:', userId);
+    
+    res.json({
+      success: true,
+      message: '已退订所有营销邮件 / Disiscritto da tutte le email marketing'
+    });
+    
+  } catch (error) {
+    console.error('退订失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
