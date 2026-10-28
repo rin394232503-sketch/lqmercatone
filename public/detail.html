@@ -525,10 +525,13 @@ function renderProduct(){
 }
 
 function renderRelated(){
-  if(!allProducts.length)return;
+  if(!allProducts.length){
+    document.querySelector('.related-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Nessun prodotto simile</div>';
+    return;
+  }
   document.querySelector('.related-grid').innerHTML=allProducts.map(rp=>
     `<div class="related-card" onclick="location.href='detail.html?id=${rp.id}'">
-      <div class="related-img">${rp.emoji}</div>
+      <div class="related-img">${rp.image_url&&rp.image_url.startsWith('data:')?`<img src="${rp.image_url}" style="width:100%;height:100%;object-fit:cover">`:rp.emoji}</div>
       <div class="related-info">
         <div class="related-name">${rp.name}</div>
         <div class="related-price">€${rp.price}</div>
