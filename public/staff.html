@@ -99,6 +99,13 @@ input,select,textarea{font-family:inherit}
 .p-price::before{content:'€';font-size:11px}
 .p-stock{font-size:11px;color:var(--text2);margin-top:2px}
 .p-stock.low{color:var(--danger)}
+
+/* ===== Batch Selection ===== */
+.p-card.selected{border:2px solid var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+.p-card .p-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;font-size:12px;color:white;z-index:5}
+.p-card.selected .p-check{display:flex;background:var(--accent);border-color:var(--accent)}
+.batch-bar{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;z-index:60;align-items:center;gap:10px}
+.batch-bar.show{display:flex}
 .fab{position:fixed;bottom:80px;right:calc(50% - 220px);width:52px;height:52px;border-radius:50%;background:var(--accent);color:white;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(108,92,231,.4);z-index:50;transition:.15s}
 .fab:active{transform:scale(.9)}
 @media(max-width:500px){.fab{right:20px}}
@@ -245,6 +252,7 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-products">
     <div class="search-bar">
       <input class="search-input" type="text" placeholder="🔍 搜索商品..." id="productSearch" oninput="filterProducts()">
+      <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap">批量管理</button>
     </div>
     <div class="filter-tabs" id="productFilterTabs">
       <div class="ftab active" onclick="setProductFilter('all',this)">全部</div>
@@ -253,6 +261,12 @@ input,select,textarea{font-family:inherit}
       <div class="ftab" onclick="setProductFilter('oos',this)">缺货</div>
     </div>
     <div class="product-grid" id="productGrid"></div>
+    <div class="batch-bar" id="batchBar">
+      <input type="checkbox" id="batchSelectAll" onchange="toggleBatchAll(this.checked)" style="width:18px;height:18px;accent-color:var(--accent)">
+      <span style="font-size:13px;color:var(--text2)" id="batchCount">已选 0 件</span>
+      <button onclick="batchDelete()" style="margin-left:auto;padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;font-weight:600;border:none;cursor:pointer">🗑️ 删除选中</button>
+      <button onclick="cancelBatch()" style="padding:6px 14px;background:var(--card2);color:var(--text);border-radius:16px;font-size:12px;border:none;cursor:pointer">取消</button>
+    </div>
     <button class="fab" onclick="showPage('addproduct')" id="addProductFab">+</button>
   </div>
 
@@ -494,6 +508,7 @@ function renderDashboard(){
 }
 
 // ===== Products =====
+let batchMode=false,batchSelected=new Set();
 function renderProducts(){
   const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
   let list=allProducts.filter(p=>{
@@ -507,15 +522,19 @@ function renderProducts(){
   if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon"></div><p>暂无商品</p></div>';return}
   grid.innerHTML=list.map(p=>{
     const tag=p.stock===0?'oos':p.on_sale?'on':'off';
-    const tagText=p.stock===0?'缺货':p.on_sale?'在售':'下架';
+    const tagText=p.stock===0?'缺货 Esaurito':p.on_sale?'在售':'下架';
     const stockClass=p.stock<=5&&p.stock>0?'low':'';
-    return`<div class="p-card" onclick="editProduct(${p.id})">
+    const sel=batchSelected.has(p.id)?'selected':'';
+    const clickAction=batchMode?`onclick="toggleBatchSelect(${p.id})"`:`onclick="editProduct(${p.id})"`;
+    return`<div class="p-card ${sel}" ${clickAction}>
+      <div class="p-check">${batchSelected.has(p.id)?'✓':''}</div>
       <div class="p-img">${p.emoji||'📦'}</div>
       <span class="p-tag ${tag}">${tagText}</span>
       <div class="p-info"><div class="p-name">${p.name}</div>
       <div class="p-price">${p.price}</div>
-      <div class="p-stock ${stockClass}">库存: ${p.stock} 件${p.stock<=5&&p.stock>0?' ⚠️':''}</div></div></div>`
-  }).join('')
+      <div class="p-stock ${stockClass}">Stock: ${p.stock}${p.stock<=5&&p.stock>0?' ⚠️':''}</div></div></div>`
+  }).join('');
+  updateBatchCount()
 }
 function setProductFilter(f,el){currentProductFilter=f;document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderProducts()}
 function filterProducts(){renderProducts()}
@@ -726,6 +745,68 @@ function startAutoRefresh(){
       renderDashboard();renderProducts();renderOrders()
     }catch(e){}
   },30000)
+}
+
+
+// ===== Batch Operations =====
+function toggleBatchMode(){
+  batchMode=!batchMode;
+  batchSelected.clear();
+  document.getElementById('batchBar').classList.toggle('show',batchMode);
+  document.getElementById('batchBtn').textContent=batchMode?'取消批量':'批量管理';
+  document.getElementById('batchBtn').style.background=batchMode?'var(--accent)':'var(--card)';
+  document.getElementById('batchBtn').style.color=batchMode?'white':'var(--text2)';
+  renderProducts()
+}
+function toggleBatchSelect(id){
+  if(batchSelected.has(id))batchSelected.delete(id);
+  else batchSelected.add(id);
+  renderProducts()
+}
+function toggleBatchAll(checked){
+  const q=(document.getElementById('productSearch')?.value||'').toLowerCase();
+  let list=allProducts.filter(p=>{
+    if(q&&!p.name.toLowerCase().includes(q)&&!(p.category||'').toLowerCase().includes(q))return false;
+    if(currentProductFilter==='on'&&!p.on_sale)return false;
+    if(currentProductFilter==='off'&&p.on_sale)return false;
+    if(currentProductFilter==='oos'&&p.stock>0)return false;
+    return true
+  });
+  if(checked)list.forEach(p=>batchSelected.add(p.id));
+  else batchSelected.clear();
+  renderProducts()
+}
+function updateBatchCount(){
+  document.getElementById('batchCount').textContent='已选 '+batchSelected.size+' 件';
+  const cb=document.getElementById('batchSelectAll');
+  if(cb)cb.checked=false
+}
+async function batchDelete(){
+  if(batchSelected.size===0){showToast('请先选择商品');return}
+  if(!confirm('确定删除选中的 '+batchSelected.size+' 件商品？'))return;
+  const ids=[...batchSelected];
+  if(sb){
+    for(const id of ids){
+      try{await sb.from('products').delete().eq('id',id)}catch(e){}
+    }
+  }
+  allProducts=allProducts.filter(p=>!batchSelected.has(p.id));
+  batchSelected.clear();
+  batchMode=false;
+  document.getElementById('batchBar').classList.remove('show');
+  document.getElementById('batchBtn').textContent='批量管理';
+  document.getElementById('batchBtn').style.background='var(--card)';
+  document.getElementById('batchBtn').style.color='var(--text2)';
+  showToast('🗑️ 已删除 '+ids.length+' 件商品');
+  renderProducts();renderDashboard()
+}
+function cancelBatch(){
+  batchMode=false;batchSelected.clear();
+  document.getElementById('batchBar').classList.remove('show');
+  document.getElementById('batchBtn').textContent='批量管理';
+  document.getElementById('batchBtn').style.background='var(--card)';
+  document.getElementById('batchBtn').style.color='var(--text2)';
+  renderProducts()
 }
 
 // ===== Navigation =====
