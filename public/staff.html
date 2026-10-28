@@ -575,6 +575,11 @@ input,select,textarea{font-family:inherit}
 // ===== Config =====
 const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
 const SB_KEY='sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
+
+// Request notification permission
+if('Notification' in window && Notification.permission==='default'){
+  Notification.requestPermission();
+}
 let sb=null,currentUser=null,allProducts=[],allOrders=[],currentProductFilter='all',currentOrderFilter='all',appLang='zh';
 
 // ===== Init =====
@@ -1025,7 +1030,9 @@ function setupRealtime(){
         const newOrder=payload.new;
         newOrder.items=typeof newOrder.items==='string'?JSON.parse(newOrder.items):(newOrder.items||[]);
         allOrders.unshift(newOrder);
-        renderDashboard();renderOrders();
+        renderDashboard();renderOrders();renderNotifications();
+        // Play notification sound
+        try{const audio=new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnkpBSl+zPDajzsKElyp5+q2XxwJPJLb88l3KQUuhM/z2YU2BxZnv+3mnEoODVGm4O+0XxYJ');audio.volume=0.5;audio.play()}catch(e){}
         showToast('🔔 新订单! '+newOrder.customer_name+' €'+parseFloat(newOrder.total_amount).toFixed(2))
       })
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders'},payload=>{
