@@ -399,7 +399,8 @@ input,select,textarea{font-family:inherit}
       <div class="form-group" style="margin-top:4px">
         <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorOptions">
-          <div class="color-opt active" onclick="toggleColor(this)" data-color="Nero" style="padding:6px 12px;border:1.5px solid var(--accent);border-radius:8px;font-size:12px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">⚫ Nero</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">无 Nessun</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="Nero" style="padding:6px 12px;border:1.5px solid var(--accent);border-radius:8px;font-size:12px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">⚫ Nero</div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Bianco" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">⚪ Bianco</div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Grigio" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔘 Grigio</div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Blu" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔵 Blu</div>
@@ -862,7 +863,7 @@ function toggleColor(el){
 }
 function getSelectedColors(){
   const colors=[];
-  document.querySelectorAll('#colorOptions .color-opt.active').forEach(el=>colors.push(el.dataset.color));
+  document.querySelectorAll('#colorOptions .color-opt.active').forEach(el=>{if(el.dataset.color)colors.push(el.dataset.color)});
   return colors;
 }
 
@@ -888,7 +889,7 @@ function getSelectedSizes() {
   document.querySelectorAll('#sizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
   return sizes;
 }
-function getEditColors(){const c=[];document.querySelectorAll('#editColorOptions .color-opt.active').forEach(el=>c.push(el.dataset.color));return c}
+function getEditColors(){const c=[];document.querySelectorAll('#editColorOptions .color-opt.active').forEach(el=>{if(el.dataset.color)c.push(el.dataset.color)});return c}
 function getEditSizes() {
   const sizes = [];
   document.querySelectorAll('#editSizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
