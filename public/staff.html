@@ -272,11 +272,22 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-addproduct">
     <div class="form-section">
       <h3>基本信息 Informazioni</h3>
-      <div class="form-group"><label>商品名称 Nome *</label><input type="text" id="npName" placeholder="例: Detersivo Lavatrice 3L"></div>
-      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="例: PulitoMax"></div>
+      <div class="form-group"><label>商品名称 Nome *</label><input type="text" id="npName" placeholder="例: Cappotto in Lana"></div>
+      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="例: L&Q Collection"></div>
       <div class="form-row">
-        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory"><option value="Abbigliamento">衣服 Abbigliamento</option><option value="Detersivi">洗洁剂 Detersivi</option><option value="Casa">家用品 Casa</option></select></div>
+        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">衣服 Abbigliamento</option><option value="Detersivi">洗洁剂 Detersivi</option><option value="Casa">家用品 Casa</option></select></div>
         <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">无</option><option value="new">新品</option><option value="hot">热销</option><option value="sale">特价</option></select></div>
+      </div>
+      <!-- 尺码选择 - 仅衣服类显示 -->
+      <div id="sizeSelector" class="form-group" style="margin-top:4px">
+        <label>尺码 Taglie <span style="font-size:11px;color:var(--text2)">(点选可用尺码)</span></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="sku-opt active" onclick="toggleSize(this)" data-size="S" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">S</div>
+          <div class="sku-opt active" onclick="toggleSize(this)" data-size="M" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">M</div>
+          <div class="sku-opt active" onclick="toggleSize(this)" data-size="L" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">L</div>
+          <div class="sku-opt active" onclick="toggleSize(this)" data-size="XL" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">XL</div>
+          <div class="sku-opt" onclick="toggleSize(this)" data-size="XXL" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)">XXL</div>
+        </div>
       </div>
     </div>
     <div class="form-section">
@@ -594,23 +605,49 @@ async function quickRestock(id){
   renderDashboard();renderProducts();renderLowStock()
 }
 
+// ===== Size Selector =====
+function toggleSize(el) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) {
+    el.style.borderColor = 'var(--accent)';
+    el.style.background = 'var(--accent-bg)';
+    el.style.color = 'var(--accent)';
+  } else {
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'transparent';
+    el.style.color = 'var(--text2)';
+  }
+}
+function toggleSizeSelector() {
+  const cat = document.getElementById('npCategory').value;
+  document.getElementById('sizeSelector').style.display = cat === 'Abbigliamento' ? 'block' : 'none';
+}
+function getSelectedSizes() {
+  const sizes = [];
+  document.querySelectorAll('#sizeSelector .sku-opt.active').forEach(el => sizes.push(el.dataset.size));
+  return sizes;
+}
+
 // ===== Save New Product =====
 async function saveNewProduct(){
   const name=document.getElementById('npName').value.trim();
   const price=parseFloat(document.getElementById('npPrice').value);
   const category=document.getElementById('npCategory').value;
   if(!name||isNaN(price)){showToast('⚠️ 请填写商品名称和价格');return}
-  const newP={
+  const desc = document.getElementById('npDesc').value.trim();
+  const sizes = getSelectedSizes();
+  const sizeInfo = sizes.length > 0 ? ' Taglie: ' + sizes.join(', ') : '';
+  const newP = {
     name,
-    brand:document.getElementById('npBrand').value.trim(),
+    brand: document.getElementById('npBrand').value.trim(),
     category,
     price,
-    old_price:parseFloat(document.getElementById('npOldPrice').value)||null,
-    emoji:document.getElementById('npEmoji').value||'📦',
-    tag:document.getElementById('npTag').value||null,
-    on_sale:document.getElementById('npOnSale').value==='1',
-    stock:parseInt(document.getElementById('npStock').value)||99,
-    description:document.getElementById('npDesc').value.trim()
+    old_price: parseFloat(document.getElementById('npOldPrice').value) || null,
+    emoji: document.getElementById('npEmoji').value || '📦',
+    tag: document.getElementById('npTag').value || null,
+    on_sale: document.getElementById('npOnSale').value === '1',
+    stock: parseInt(document.getElementById('npStock').value) || 99,
+    description: desc + sizeInfo
   };
   // Handle image upload
   const imgFile=document.getElementById('npImage').files[0];

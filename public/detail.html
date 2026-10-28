@@ -430,10 +430,17 @@ function renderProduct(){
     </div>
     <div class="delivery-info"> Spedizione in Italia · Gratis sopra €99</div>`;
 
-  // SKU section - always render sizes for Abbigliamento
-  const sizeOptions = p.category === 'Abbigliamento'
-    ? '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>'
-    : '<div class="sku-option active" onclick="selectSku(this)">Taglia unica</div>';
+  // Parse sizes from description (e.g. "Taglie: S, M, L, XL")
+  const sizeMatch = (p.description || '').match(/Taglie:\s*([A-Z,\s]+)/i);
+  let sizeOptions;
+  if (sizeMatch) {
+    const sizes = sizeMatch[1].split(',').map(s => s.trim()).filter(s => s);
+    sizeOptions = sizes.map((s, i) => `<div class="sku-option${i === 0 ? ' active' : ''}" onclick="selectSku(this)">${s}</div>`).join('');
+  } else if (p.category === 'Abbigliamento') {
+    sizeOptions = '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>';
+  } else {
+    sizeOptions = '<div class="sku-option active" onclick="selectSku(this)">Taglia unica</div>';
+  }
 
   document.querySelector('.sku-section').innerHTML = `
     <div class="sku-label">Colore</div>
