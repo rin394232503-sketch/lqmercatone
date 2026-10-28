@@ -79,11 +79,7 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   position: relative;
   aspect-ratio: 16/9;
-  background: linear-gradient(135deg, rgba(201,169,110,0.12) 0%, rgba(232,213,163,0.08) 50%, rgba(201,169,110,0.12) 100%);
-  background-image: url('https://images.unsplash.com/photo-1544979590-37e9b47eb705?w=500&q=70');
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: overlay;
+  background: linear-gradient(135deg, rgba(201,169,110,0.10) 0%, rgba(30,25,20,0.95) 50%, rgba(201,169,110,0.08) 100%);
 }
 .banner-slide {
   position: absolute; inset: 0;
@@ -308,7 +304,10 @@ img { max-width: 100%; display: block; }
 }
 
 /* ===== Luxury Gold Decorations ===== */
-.xmas-garland{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;pointer-events:none;background:linear-gradient(90deg,transparent 0%,#c9a96e 20%,#e8d5a3 50%,#c9a96e 80%,transparent 100%);opacity:0.6}
+.xmas-garland{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;display:flex;overflow:hidden;pointer-events:none}
+.xmas-garland span{flex:1;height:2px}
+.xmas-garland span:nth-child(odd){background:#c9a96e}
+.xmas-garland span:nth-child(even){background:#e8d5a3}
 .xmas-snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:150;overflow:hidden}
 .xmas-snowflake{position:absolute;top:-10px;color:white;text-shadow:0 0 4px rgba(255,255,255,0.8);animation:snowfall linear infinite;pointer-events:none}
 @keyframes snowfall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0.3}}
@@ -335,14 +334,8 @@ body>*{position:relative;z-index:1}
 <body>
 
 <!-- Christmas Garland -->
-<div class="xmas-garland" id="xmasGarland" style="height:3px;background:linear-gradient(90deg,transparent,#c9a96e,#e8d5a3,#c9a96e,transparent);opacity:0.5"></div>
-<!-- Side Photo Accents -->
-<div style="position:fixed;left:0;top:30%;width:40px;height:200px;z-index:0;pointer-events:none;opacity:0.08">
-<img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=100&q=60" style="width:100%;height:100%;object-fit:cover;filter:sepia(0.5) brightness(0.4)" alt="">
-</div>
-<div style="position:fixed;right:0;top:40%;width:40px;height:200px;z-index:0;pointer-events:none;opacity:0.08">
-<img src="https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=100&q=60" style="width:100%;height:100%;object-fit:cover;filter:sepia(0.5) brightness(0.4)" alt="">
-</div>
+<div class="xmas-garland" id="xmasGarland"></div>
+
 <!-- Christmas Corner Decoration -->
 <div class="xmas-corner" style="font-size:20px;opacity:0.4;letter-spacing:4px">✦ ✦ ✦</div>
 <!-- Snow Container -->
@@ -493,7 +486,7 @@ body>*{position:relative;z-index:1}
     setTimeout(()=>f.remove(),12000);
   }
   // Garland
-  const g=document.getElementById('xmasGarland');
+  const g=document.getElementById('xmasGarland');for(let i=0;i<80;i++){const s=document.createElement('span');g.appendChild(s)}
   
   // Snow loop
   setInterval(createFlake,400);
@@ -924,7 +917,7 @@ loadProducts();
     setTimeout(()=>f.remove(),12000);
   }
   // Garland
-  const g=document.getElementById('xmasGarland');
+  const g=document.getElementById('xmasGarland');for(let i=0;i<80;i++){const s=document.createElement('span');g.appendChild(s)}
   
   // Snow loop
   setInterval(createFlake,400);
