@@ -532,8 +532,25 @@ input,select,textarea{font-family:inherit}
       <div class="settings-item" onclick="showToast('员工管理开发中')" id="staffMenuItem"><div class="settings-left"><span class="sicon">👥</span><span class="slbl">员工管理</span></div><span class="settings-right">></span></div>
       <div class="settings-item" onclick="showToast('关于 L&Qmercatone v2.0')"><div class="settings-left"><span class="sicon">ℹ️</span><span class="slbl">关于</span></div><span class="settings-right">v2.0 ></span></div>
     </div>
+    <!-- Banner 管理 -->
+    <div class="settings-list" style="margin-top:12px">
+      <div style="padding:14px 16px;font-size:14px;font-weight:600">🖼️ 轮播管理 Banner</div>
+      <div class="settings-item" onclick="editBanner(0)">
+        <div class="settings-left"><span class="sicon">1️⃣</span><span class="slbl" id="banner0Label">Offerte di Natale</span></div>
+        <span class="settings-right">编辑 ></span>
+      </div>
+      <div class="settings-item" onclick="editBanner(1)">
+        <div class="settings-left"><span class="sicon">2️⃣</span><span class="slbl" id="banner1Label">Fiori Artificiali</span></div>
+        <span class="settings-right">编辑 ></span>
+      </div>
+      <div class="settings-item" onclick="editBanner(2)">
+        <div class="settings-left"><span class="sicon">3️⃣</span><span class="slbl" id="banner2Label">Decorazioni Casa</span></div>
+        <span class="settings-right">编辑 ></span>
+      </div>
+    </div>
+
     <div style="padding:20px;text-align:center">
-      <button onclick="doLogout()" style="padding:12px 32px;background:var(--danger);color:white;border-radius:20px;font-size:14px;font-weight:600">退出登录</button>
+      <button onclick="doLogout()" style="padding:12px 32px;background:var(--danger);color:white;border-radius:20px;font-size:14px;font-weight:600;border:none;cursor:pointer">退出登录</button>
     </div>
   </div>
 
@@ -587,7 +604,7 @@ async function doLogin(){
   }else{showToast('账号或密码错误\n演示: admin/admin123')}
 }
 function doLogout(){localStorage.removeItem('staff_session');currentUser=null;document.getElementById('app').classList.remove('show');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUser').value='';document.getElementById('loginPass').value=''}
-function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh()}
+function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh();setTimeout(updateBannerLabels,500)}
 function applyPermissions(){if(!currentUser)return;const p=currentUser.permissions||'all';const isStaff=p!=='all';document.getElementById('addProductFab').style.display=isStaff?'none':'block';document.getElementById('logMenuItem').style.display=isStaff?'none':'flex';document.getElementById('staffMenuItem').style.display=isStaff?'none':'flex'}
 
 
@@ -1334,6 +1351,33 @@ async function applyDiscount(id){
   p.tag='sale';
   showToast(`✅ ${p.name.substring(0,15)} €${oldPrice} → €${newPrice}`);
   renderProducts();searchForDiscount();
+}
+
+
+// ===== Banner Management =====
+let banners=JSON.parse(localStorage.getItem('staff_banners')||'null')||[
+  {emoji:'🎄',title:'Offerte di Natale',desc:'Sconti fino al 50% su articoli natalizi'},
+  {emoji:'🌸',title:'Fiori Artificiali',desc:'Nuova collezione primavera 2026'},
+  {emoji:'🏠',title:'Decorazioni Casa',desc:'Stile nordico, prezzi imbattibili'}
+];
+function saveBanners(){localStorage.setItem('staff_banners',JSON.stringify(banners));updateBannerLabels()}
+function updateBannerLabels(){for(let i=0;i<3;i++){const el=document.getElementById('banner'+i+'Label');if(el)el.textContent=banners[i].title}}
+function editBanner(idx){
+  const b=banners[idx];
+  openModal(`<div class="modal-header"><h3>编辑轮播 ${idx+1}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Emoji 图标</label><input type="text" id="bEmoji" value="${b.emoji}" maxlength="4"></div>
+    <div class="form-group"><label>标题 Titolo</label><input type="text" id="bTitle" value="${b.title}"></div>
+    <div class="form-group"><label>描述 Descrizione</label><input type="text" id="bDesc" value="${b.desc}"></div>
+    <button class="save-btn" onclick="saveBanner(${idx})">💾 保存</button>
+  `)
+}
+function saveBanner(idx){
+  banners[idx]={
+    emoji:document.getElementById('bEmoji').value||'📦',
+    title:document.getElementById('bTitle').value.trim(),
+    desc:document.getElementById('bDesc').value.trim()
+  };
+  saveBanners();closeModal();showToast('✅ 轮播已更新')
 }
 
 // ===== Navigation =====

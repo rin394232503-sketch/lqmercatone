@@ -361,20 +361,20 @@ body>*{position:relative;z-index:1}
 
 <!-- Banner Carousel -->
 <div class="banner" id="banner">
-  <div class="banner-slide active">
-    <div class="banner-emoji">🎄</div>
-    <h3 data-i18n="banner1_title">Offerte di Natale</h3>
-    <p data-i18n="banner1_desc">Sconti fino al 50% su articoli natalizi</p>
+  <div class="banner-slide active" id="bannerSlide0">
+    <div class="banner-emoji" id="bannerEmoji0">🎄</div>
+    <h3 id="bannerTitle0">Offerte di Natale</h3>
+    <p id="bannerDesc0">Sconti fino al 50% su articoli natalizi</p>
   </div>
-  <div class="banner-slide">
-    <div class="banner-emoji">🌸</div>
-    <h3 data-i18n="banner2_title">Fiori Artificiali</h3>
-    <p data-i18n="banner2_desc">Nuova collezione primavera 2026</p>
+  <div class="banner-slide" id="bannerSlide1">
+    <div class="banner-emoji" id="bannerEmoji1">🌸</div>
+    <h3 id="bannerTitle1">Fiori Artificiali</h3>
+    <p id="bannerDesc1">Nuova collezione primavera 2026</p>
   </div>
-  <div class="banner-slide">
-    <div class="banner-emoji">🏠</div>
-    <h3 data-i18n="banner3_title">Decorazioni Casa</h3>
-    <p data-i18n="banner3_desc">Stile nordico, prezzi imbattibili</p>
+  <div class="banner-slide" id="bannerSlide2">
+    <div class="banner-emoji" id="bannerEmoji2">🏠</div>
+    <h3 id="bannerTitle2">Decorazioni Casa</h3>
+    <p id="bannerDesc2">Stile nordico, prezzi imbattibili</p>
   </div>
   <div class="banner-dots">
     <div class="banner-dot active"></div>
@@ -892,6 +892,24 @@ function rebuyAddAll(idsStr) {
     btn.style.color = 'var(--text-light)';
   });
 }
+
+
+// ===== Load Custom Banners =====
+(function(){
+  try{
+    const sb=JSON.parse(localStorage.getItem('staff_banners')||'null');
+    if(sb&&sb.length===3){
+      for(let i=0;i<3;i++){
+        const e=document.getElementById('bannerEmoji'+i);
+        const t=document.getElementById('bannerTitle'+i);
+        const d=document.getElementById('bannerDesc'+i);
+        if(e)e.textContent=sb[i].emoji;
+        if(t)t.textContent=sb[i].title;
+        if(d)d.textContent=sb[i].desc;
+      }
+    }
+  }catch(e){}
+})();
 
 // ===== Init =====
 currentLang = localStorage.getItem('lq_lang') || 'it';
