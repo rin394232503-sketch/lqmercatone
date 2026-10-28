@@ -204,8 +204,8 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="color-dot" style="background:#00b894" onclick="selectColor(this)"></div>
   </div>
 
-  <div class="sku-label" style="margin-top:16px;">尺码 Taglia</div>
-  <div class="sku-options" id="skuSizes">
+  <div class="sku-label" style="margin-top:16px;" id="sizeLabel">尺码 Taglia</div>
+  <div class="sku-options" id="skuSizes" style="display:none">
     <span style="font-size:12px;color:var(--text-muted)">加载中...</span>
   </div>
 
@@ -427,16 +427,22 @@ function renderProduct(){
     </div>
     <div class="delivery-info"> Spedizione in Italia · Gratis sopra €99</div>`;
 
-  // Parse sizes from description (e.g. "Taglie: S, M, L, XL")
-  const sizeMatch = (p.description || '').match(/Taglie:\s*([A-Z,\s]+)/i);
-  let sizeOptions;
-  if (sizeMatch) {
-    const sizes = sizeMatch[1].split(',').map(s => s.trim()).filter(s => s);
-    sizeOptions = sizes.map((s, i) => `<div class="sku-option${i === 0 ? ' active' : ''}" onclick="selectSku(this)">${s}</div>`).join('');
-  } else if (p.category === 'Abbigliamento') {
-    sizeOptions = '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>';
+  // Only show sizes for clothing (Abbigliamento)
+  let sizeOptions = '';
+  if (p.category === 'Abbigliamento') {
+    const sizeMatch = (p.description || '').match(/Taglie:\s*([A-Z,\s]+)/i);
+    if (sizeMatch) {
+      const sizes = sizeMatch[1].split(',').map(s => s.trim()).filter(s => s);
+      sizeOptions = sizes.map((s, i) => `<div class="sku-option${i === 0 ? ' active' : ''}" onclick="selectSku(this)">${s}</div>`).join('');
+    } else {
+      sizeOptions = '<div class="sku-option" onclick="selectSku(this)">S</div><div class="sku-option active" onclick="selectSku(this)">M</div><div class="sku-option" onclick="selectSku(this)">L</div><div class="sku-option" onclick="selectSku(this)">XL</div>';
+    }
+    document.getElementById('sizeLabel').style.display = 'block';
+    document.getElementById('skuSizes').style.display = 'flex';
   } else {
-    sizeOptions = '<div class="sku-option active" onclick="selectSku(this)">Taglia unica</div>';
+    // Non-clothing: hide size section entirely
+    document.getElementById('sizeLabel').style.display = 'none';
+    document.getElementById('skuSizes').style.display = 'none';
   }
 
   // Only update the size options, keep the rest of SKU section
