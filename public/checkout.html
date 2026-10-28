@@ -469,26 +469,55 @@ async function submitOrder() {
   orders.push({...orderData, created_at: new Date().toISOString()});
   localStorage.setItem('lq_orders', JSON.stringify(orders));
 
-  // Save to Supabase
+  // Check stock before order (anti-oversell)
+  let stockOk = true;
+  if (sbClient) {
+    for (const item of items) {
+      if (item.id) {
+        try {
+          const { data: prod } = await sbClient.from('products').select('stock').eq('id', item.id).single();
+          if (prod && parseInt(prod.stock) < item.qty) {
+            stockOk = false;
+            showToast('️ ' + item.name + ' 库存不足 (仅剩' + prod.stock + '件) / Scorta insufficiente (solo ' + prod.stock + ' pz)');
+            break;
+          }
+        } catch(e) {}
+      }
+    }
+  }
+  if (!stockOk) { location.href = 'cart.html'; return; }
+
+  // Save to Supabase with stock deduction
   let sbOk = false;
   if (sbClient) {
     try {
       const { error } = await sbClient.from('orders').insert(orderData);
-      if (error) { console.error('SB order error:', error); }
-      else {
-        sbOk = true;
-        // Deduct stock in Supabase
-        for (const item of items) {
-          if (item.id) {
+      if (error) {
+        console.error('SB order error:', error);
+        showToast('⚠️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+        location.href = 'cart.html';
+        return;
+      }
+      sbOk = true;
+      // Deduct stock immediately (lock on order)
+      for (const item of items) {
+        if (item.id) {
+          try {
             const { data: prod } = await sbClient.from('products').select('stock').eq('id', item.id).single();
             if (prod) {
               const newStock = Math.max(0, (parseInt(prod.stock)||0) - item.qty);
-              await sbClient.from('products').update({stock: newStock}).eq('id', item.id);
+              const { error: stockErr } = await sbClient.from('products').update({stock: newStock}).eq('id', item.id);
+              if (stockErr) console.error('Stock update error:', stockErr);
             }
-          }
+          } catch(e) {}
         }
       }
-    } catch(e) { console.error('SB order exception:', e); }
+    } catch(e) {
+      console.error('SB order exception:', e);
+      showToast('⚠️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+      location.href = 'cart.html';
+      return;
+    }
   }
 
   // Clear cart

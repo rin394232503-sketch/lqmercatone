@@ -740,6 +740,13 @@ function logOperation(action, targetType, targetId, beforeVal, afterVal){
   localStorage.setItem('staff_logs',JSON.stringify(logs));
 }
 
+
+// ===== Sync Failure Handler =====
+function handleSyncError(action, err){
+  console.error('Sync failed:', action, err);
+  showToast('️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+}
+
 // ===== Data Loading =====
 async function loadData(){
   if(!sb){loadDemoData();return}
@@ -886,7 +893,12 @@ function openShipModal(id){
 async function confirmShip(id){
   const tracking=document.getElementById('shipTracking').value.trim();
   if(!tracking){showToast('请输入物流单号');return}
-  if(sb){await sb.from('orders').update({status:'shipped',tracking_number:tracking,shipped_at:new Date().toISOString()}).eq('id',id)}
+  if(sb){
+    try{
+      const{error}=await sb.from('orders').update({status:'shipped',tracking_number:tracking,shipped_at:new Date().toISOString()}).eq('id',id);
+      if(error){handleSyncError('ship_order',error);return}
+    }catch(e){handleSyncError('ship_order',e);return}
+  }else{handleSyncError('ship_order','no connection');return}
   const o=allOrders.find(x=>x.id===id);if(o){o.status='shipped';o.tracking_number=tracking}
   const shipOrder=allOrders.find(x=>x.id===id);logOperation('ship_order','order',id,{status:shipOrder?.status},{status:'shipped',tracking:tracking});closeModal();showToast('✅ 发货成功');renderDashboard();renderOrders()
 }
@@ -911,7 +923,10 @@ async function quickRestock(id){
   const qty=prompt('补货数量？(当前: '+p.stock+')','50');
   if(!qty||isNaN(qty))return;
   const newStock=(parseInt(p.stock)||0)+parseInt(qty);
-  if(sb){await sb.from('products').update({stock:newStock}).eq('id',id)}
+  if(sb){
+    try{const{error}=await sb.from('products').update({stock:newStock}).eq('id',id);if(error){handleSyncError('restock',error);return}}
+    catch(e){handleSyncError('restock',e);return}
+  }else{handleSyncError('restock','no connection');return}
   p.stock=newStock;
   showToast('✅ 已补货至 '+newStock+' 件');
   renderDashboard();renderProducts();renderLowStock()
@@ -1195,10 +1210,10 @@ async function batchDelete(){
   if(!confirm('确定删除选中的 '+batchSelected.size+' 件商品？'))return;
   const ids=[...batchSelected];
   if(sb){
-    for(const id of ids){
-      try{await sb.from('products').delete().eq('id',id)}catch(e){}
-    }
-  }
+    let failCount=0;
+    for(const id of ids){try{const{error}=await sb.from('products').delete().eq('id',id);if(error)failCount++}catch(e){failCount++}}
+    if(failCount>0){handleSyncError('batch_delete',{message:failCount+' items failed'});return}
+  }else{handleSyncError('batch_delete','no connection');return}
   allProducts=allProducts.filter(p=>!batchSelected.has(p.id));
   batchSelected.clear();
   batchMode=false;
@@ -1636,13 +1651,21 @@ async function saveEditProduct(id){
     on_sale:document.getElementById('epSale').value==='1',
     description:desc+sizeInfo+colorInfo+epBarcodeInfo
   };
-  if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
+  if(sb){
+    try{
+      const{error}=await sb.from('products').update(updates).eq('id',id);
+      if(error){handleSyncError('edit_product',error);return}
+    }catch(e){handleSyncError('edit_product',e);return}
+  }else{handleSyncError('edit_product','no connection');return}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
   const oldP=allProducts.find(x=>x.id===id);logOperation('edit_product','product',id,oldP,{...updates});closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
 }
 async function deleteProduct(id){
   if(!confirm('确定删除这个商品？'))return;
-  if(sb){try{await sb.from('products').delete().eq('id',id)}catch(e){}}
+  if(sb){
+    try{const{error}=await sb.from('products').delete().eq('id',id);if(error){handleSyncError('delete_product',error);return}}
+    catch(e){handleSyncError('delete_product',e);return}
+  }else{handleSyncError('delete_product','no connection');return}
   allProducts=allProducts.filter(x=>x.id!==id);
   closeModal();showToast('🗑️ 已删除');renderProducts();renderDashboard()
 }
