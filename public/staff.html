@@ -937,6 +937,7 @@ function removeImg(idx,el){
 
 // ===== Save New Product =====
 async function saveNewProduct(){
+  try{
   const name=document.getElementById('npName').value.trim();
   const price=parseFloat(document.getElementById('npPrice').value);
   const category=document.getElementById('npCategory').value;
@@ -1000,7 +1001,8 @@ async function saveNewProduct(){
   showPage('products');
   document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));
   document.querySelector('#productFilterTabs .ftab').classList.add('active');
-  currentProductFilter='all'
+  currentProductFilter='all';
+  }catch(e){console.error('Save error:',e);showToast('❌ 保存失败: '+e.message)}
 }
 
 // ===== Realtime Order Listener =====
@@ -1391,7 +1393,7 @@ function showPage(page,navEl){
   const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
-  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}{uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
+  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
   if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
