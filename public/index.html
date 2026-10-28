@@ -447,10 +447,12 @@ const FALLBACK_PRODUCTS = [
 
 // ===== Load Products =====
 async function loadProducts() {
+  let sbConnected = false;
   try {
     sbClient = window.supabase.createClient('https://yiyydikfpgbmtdypiggc.supabase.co', 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM');
     const { data, error } = await sbClient.from('products').select('*').order('id');
     if (error) throw error;
+    sbConnected = true;
     if (data && data.length > 0) {
       PRODUCTS = data.map(p => ({
         id: p.id, name: p.name, brand: p.brand, category: p.category,
@@ -459,7 +461,8 @@ async function loadProducts() {
         stock: p.stock || 99
       }));
     } else {
-      PRODUCTS = [...FALLBACK_PRODUCTS];
+      // Supabase 正常但商品为空 = 管理员确实删除了所有商品
+      PRODUCTS = [];
     }
     // Set up Realtime listener
     try {
@@ -471,7 +474,8 @@ async function loadProducts() {
         .subscribe();
     } catch(e) { console.log('Realtime subscribe error:', e); }
   } catch (e) {
-    PRODUCTS = [...FALLBACK_PRODUCTS];
+    // 只有连接失败时才用备用数据
+    if (!sbConnected) PRODUCTS = [...FALLBACK_PRODUCTS];
   }
   renderAll();
 }
@@ -486,18 +490,22 @@ function renderAll() {
 function renderFlashSale() {
   const grid = document.getElementById('flashSaleGrid');
   const sale = PRODUCTS.filter(p => p.on_sale && p.old_price);
-  grid.innerHTML = sale.slice(0, 4).map(renderCard).join('');
+  grid.innerHTML = sale.length ? sale.slice(0, 4).map(renderCard).join('') : '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Nessuna offerta al momento</div>';
 }
 
 function renderNew() {
   const grid = document.getElementById('newGrid');
   const newP = PRODUCTS.filter(p => p.tag === 'new');
-  grid.innerHTML = newP.slice(0, 4).map(renderCard).join('');
+  grid.innerHTML = newP.length ? newP.slice(0, 4).map(renderCard).join('') : '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Nessuna novità al momento</div>';
 }
 
 function renderProducts() {
   const grid = document.getElementById('productGrid');
-  document.getElementById('productCount').textContent = PRODUCTS.length + ' 件';
+  document.getElementById('productCount').textContent = PRODUCTS.length + (currentLang === 'it' ? ' prodotti' : ' 件');
+  if (!PRODUCTS.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px"><div style="font-size:48px;margin-bottom:12px;opacity:0.4">🏪</div><p style="color:var(--text-muted);font-size:15px">Nessun prodotto disponibile<br><span style="font-size:13px">I prodotti arriveranno presto!</span></p></div>';
+    return;
+  }
   grid.innerHTML = PRODUCTS.map(renderCard).join('');
 }
 
