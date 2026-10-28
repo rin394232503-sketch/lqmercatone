@@ -674,18 +674,17 @@ async function saveNewProduct(){
     stock: parseInt(document.getElementById('npStock').value) || 99,
     description: desc + sizeInfo
   };
-  // Handle image upload
+  // Handle image upload - convert to base64 and store in image_url
   const imgFile=document.getElementById('npImage').files[0];
-  if(imgFile&&sb){
+  if(imgFile){
     try{
-      const ext=imgFile.name.split('.').pop();
-      const imgPath='products/'+Date.now()+'.'+ext;
-      const{error:uploadErr}=await sb.storage.from('product-images').upload(imgPath,imgFile);
-      if(!uploadErr){
-        const{data:urlData}=sb.storage.from('product-images').getPublicUrl(imgPath);
-        newP.image_url=urlData.publicUrl;
-      }
-    }catch(e){console.log('Image upload error:',e)}
+      newP.image_url=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=e=>resolve(e.target.result);
+        reader.onerror=reject;
+        reader.readAsDataURL(imgFile);
+      });
+    }catch(e){console.log('Image read error:',e)}
   }
   let sbOk=false;
   if(sb){
