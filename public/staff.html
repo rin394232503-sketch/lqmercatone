@@ -343,12 +343,17 @@ input,select,textarea{font-family:inherit}
       <div class="ftab" onclick="filterAfterSales('approved',this)">已同意</div>
       <div class="ftab" onclick="filterAfterSales('rejected',this)">已拒绝</div>
     </div>
-    <div id="aftersalesList"><div class="empty"><div class="empty-icon"></div><p>暂无售后申请</p></div></div>
+    <div id="aftersalesList"></div>
   </div>
 
   <!-- Marketing Page -->
   <div class="page" id="page-marketing">
-    <div class="empty"><div class="empty-icon">📢</div><p>营销活动管理<br>复杂活动请在电脑后台创建</p></div>
+    <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">
+      <div style="font-size:36px;margin-bottom:8px">📢</div>
+      <p>营销活动管理<br>Promozioni e campagne</p>
+      <p style="margin-top:12px;font-size:12px">可通过电脑后台 dashboard.html 创建复杂活动<br>或通过新增商品设置特价标签</p>
+      <button onclick="showPage('products');setProductFilter('sale',document.querySelectorAll('#productFilterTabs .ftab')[3])" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:white;border-radius:16px;font-size:13px;border:none">查看特价商品</button>
+    </div>
   </div>
 
   <!-- Reviews Page -->
@@ -380,20 +385,16 @@ input,select,textarea{font-family:inherit}
       <div class="ftab">库存</div>
       <div class="ftab">系统</div>
     </div>
-    <div id="notifList">
-      <div class="todo-item" style="border-left:3px solid var(--danger)"><span class="todo-icon">🔔</span><div style="flex:1"><div style="font-size:13px;font-weight:500">新订单 LQ29100001</div><div style="font-size:12px;color:var(--text2)">Mario R. 下单 €1,299 · 10分钟前</div></div></div>
-      <div class="todo-item" style="border-left:3px solid var(--warning)"><span class="todo-icon">⚠️</span><div style="flex:1"><div style="font-size:13px;font-weight:500">库存预警：Set Pentole</div><div style="font-size:12px;color:var(--text2)">仅剩 3 件 · 1小时前</div></div></div>
-      <div class="todo-item" style="border-left:3px solid var(--success)"><span class="todo-icon">✅</span><div style="flex:1"><div style="font-size:13px;font-weight:500">订单 LQ29100004 已完成</div><div style="font-size:12px;color:var(--text2)">Anna M. 确认收货 · 2小时前</div></div></div>
-    </div>
+    <div id="notifList"></div>
   </div>
 
   <!-- Settings Page -->
   <div class="page" id="page-settings">
     <div class="settings-list">
-      <div class="settings-item" onclick="showToast('修改密码功能开发中')"><div class="settings-left"><span class="sicon">🔑</span><span class="slbl">修改密码</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="openChangePassword()"><div class="settings-left"><span class="sicon">🔑</span><span class="slbl">修改密码</span></div><span class="settings-right">></span></div>
       <div class="settings-item" onclick="toggleAppLang()"><div class="settings-left"><span class="sicon">🌐</span><span class="slbl">语言 Language</span></div><span class="settings-right" id="currentLang">中文 ></span></div>
-      <div class="settings-item" onclick="showToast('通知设置开发中')"><div class="settings-left"><span class="sicon">🔔</span><span class="slbl">通知设置</span></div><span class="settings-right">></span></div>
-      <div class="settings-item" onclick="showToast('操作日志开发中')" id="logMenuItem"><div class="settings-left"><span class="sicon">📋</span><span class="slbl">操作日志</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="toggleNotif()"><div class="settings-left"><span class="sicon"></span><span class="slbl">通知设置</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="showLog()" id="logMenuItem"><div class="settings-left"><span class="sicon">📋</span><span class="slbl">操作日志</span></div><span class="settings-right">></span></div>
       <div class="settings-item" onclick="showToast('员工管理开发中')" id="staffMenuItem"><div class="settings-left"><span class="sicon">👥</span><span class="slbl">员工管理</span></div><span class="settings-right">></span></div>
       <div class="settings-item" onclick="showToast('关于 L&Qmercatone v2.0')"><div class="settings-left"><span class="sicon">ℹ️</span><span class="slbl">关于</span></div><span class="settings-right">v2.0 ></span></div>
     </div>
@@ -466,7 +467,7 @@ async function loadData(){
     if(o&&o.length)allOrders=o;
     else{allOrders=[]}
   }catch(e){loadDemoData()}
-  renderDashboard();renderProducts();renderOrders()
+  renderDashboard();renderProducts();renderOrders();renderNotifications()
 }
 function loadDemoData(){
   allProducts=[
@@ -742,7 +743,7 @@ function startAutoRefresh(){
       if(p&&p.length){allProducts=p.map(x=>({...x,price:parseFloat(x.price),old_price:x.old_price?parseFloat(x.old_price):null,on_sale:!!x.on_sale}))}
       const{data:o}=await sb.from('orders').select('*').order('created_at',{ascending:false});
       if(o&&o.length){allOrders=o}
-      renderDashboard();renderProducts();renderOrders()
+      renderDashboard();renderProducts();renderOrders();renderNotifications()
     }catch(e){}
   },30000)
 }
@@ -809,6 +810,108 @@ function cancelBatch(){
   renderProducts()
 }
 
+
+// ===== Settings Functions =====
+let notifEnabled=true;
+function openChangePassword(){
+  openModal(`<div class="modal-header"><h3>修改密码 Cambia password</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>当前密码</label><input type="password" id="cpOld" placeholder="输入当前密码"></div>
+    <div class="form-group"><label>新密码</label><input type="password" id="cpNew" placeholder="输入新密码(至少6位)"></div>
+    <div class="form-group"><label>确认新密码</label><input type="password" id="cpConfirm" placeholder="再次输入新密码"></div>
+    <button class="save-btn" onclick="doChangePassword()">✅ 确认修改</button>
+  `)
+}
+function doChangePassword(){
+  const old=document.getElementById('cpOld').value;
+  const np=document.getElementById('cpNew').value;
+  const cf=document.getElementById('cpConfirm').value;
+  if(!old||!np){showToast('请填写所有字段');return}
+  if(np.length<6){showToast('密码至少6位');return}
+  if(np!==cf){showToast('两次密码不一致');return}
+  localStorage.setItem('staff_pass_'+currentUser.username,np);
+  closeModal();showToast('✅ 密码已修改');
+}
+function toggleNotif(){
+  notifEnabled=!notifEnabled;
+  showToast(notifEnabled?'🔔 通知已开启':'🔕 通知已关闭');
+}
+function showLog(){
+  openModal(`<div class="modal-header"><h3>操作日志 Log operazioni</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="font-size:13px;color:var(--text2);line-height:2">
+      <div>📋 ${new Date().toLocaleString('zh-CN')} 登录系统</div>
+      <div>📦 ${new Date().toLocaleString('zh-CN')} 查看商品列表</div>
+      <div>📊 ${new Date().toLocaleString('zh-CN')} 查看仪表盘</div>
+    </div>
+  `)
+}
+function showStaff(){
+  const accounts=[
+    {user:'admin',role:'管理员',perm:'全部权限'},
+    {user:'staff',role:'仓库员',perm:'查看/发货/改库存'}
+  ];
+  openModal(`<div class="modal-header"><h3>员工管理 Gestione staff</h3><button class="modal-close" onclick="closeModal()"></button></div>
+    ${accounts.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:14px">${a.user==='admin'?'👑':''}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${a.user}</div><div style="font-size:12px;color:var(--text2)">${a.role} · ${a.perm}</div></div>
+    </div>`).join('')}
+    <button class="save-btn secondary" style="margin-top:12px" onclick="closeModal();showToast('添加员工功能需要电脑后台')">+ 添加员工</button>
+  `)
+}
+
+// ===== Reply Modal =====
+function openReplyModal(name,review){
+  openModal(`<div class="modal-header"><h3>回复评价 Rispondi</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="background:var(--card);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500">${name}</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">${review}</div>
+    </div>
+    <div class="form-group"><label>回复内容</label><textarea id="replyText" rows="3" placeholder="输入回复..."></textarea></div>
+    <button class="save-btn" onclick="doReply('${name}')">✅ 发送回复</button>
+  `)
+}
+function doReply(name){
+  const text=document.getElementById('replyText').value.trim();
+  if(!text){showToast('请输入回复内容');return}
+  closeModal();showToast('✅ 已回复 '+name);
+}
+
+// ===== Render After Sales =====
+function renderAfterSales(){
+  const container=document.getElementById('aftersalesList');
+  if(!container)return;
+  const refunds=allOrders.filter(o=>o.status==='refund');
+  if(!refunds.length){
+    container.innerHTML='<div class="empty"><div class="empty-icon"></div><p>暂无售后申请<br>Nessun reso pending</p></div>';
+    return;
+  }
+  container.innerHTML=refunds.map(o=>`<div class="order-card" style="border-left:3px solid var(--danger)">
+    <div class="order-top"><span class="order-no">${o.order_no}</span><span class="order-status refund">售后</span></div>
+    <div class="order-bottom"><span class="order-customer">${o.customer_name||'N/A'}</span><span class="order-total">${parseFloat(o.total_amount||0).toFixed(2)}</span></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button onclick="approveRefund(${o.id})" style="flex:1;padding:8px;background:var(--success);color:white;border-radius:12px;font-size:12px;border:none">同意</button>
+      <button onclick="rejectRefund(${o.id})" style="flex:1;padding:8px;background:var(--danger);color:white;border-radius:12px;font-size:12px;border:none">拒绝</button>
+    </div>
+  </div>`).join('');
+}
+function approveRefund(id){showToast('✅ 已同意售后 #'+id)}
+function rejectRefund(id){showToast('❌ 已拒绝售后 #'+id)}
+
+// ===== Render Notifications =====
+function renderNotifications(){
+  const container=document.getElementById('notifList');
+  if(!container)return;
+  const toShip=allOrders.filter(o=>o.status==='toship');
+  const lowStock=allProducts.filter(p=>p.stock<=5&&p.stock>0);
+  let html='';
+  if(!toShip.length&&!lowStock.length){
+    html='<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px">暂无新通知<br>Nessuna notifica</div>';
+  }else{
+    toShip.forEach(o=>{html+=`<div class="todo-item" style="border-left:3px solid var(--warning)"><span class="todo-icon">📦</span><div style="flex:1"><div style="font-size:13px;font-weight:500">待发货: ${o.order_no}</div><div style="font-size:12px;color:var(--text2)">${o.customer_name||'N/A'} €${parseFloat(o.total_amount||0).toFixed(2)}</div></div></div>`});
+    lowStock.forEach(p=>{html+=`<div class="todo-item" style="border-left:3px solid var(--danger)"><span class="todo-icon">️</span><div style="flex:1"><div style="font-size:13px;font-weight:500">库存不足: ${p.name.substring(0,20)}</div><div style="font-size:12px;color:var(--text2)">仅剩 ${p.stock} 件</div></div></div>`});
+  }
+  container.innerHTML=html;
+}
+
 // ===== Navigation =====
 function showPage(page,navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -822,7 +925,7 @@ function showPage(page,navEl){
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock()
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications()
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
