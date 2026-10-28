@@ -526,3 +526,35 @@ app.post('/api/orders/auto-cancel-timeout', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+// ===== 运费计算 API =====
+app.post('/api/shipping/calculate', (req, res) => {
+  try {
+    const { cart, region, template } = req.body;
+    
+    if (!cart || !region) {
+      return res.status(400).json({ error: '缺少参数: cart, region' });
+    }
+    
+    // 引入运费配置
+    const { calculateShipping } = require('./shipping-config');
+    
+    const result = calculateShipping(cart, region, template || 'standard');
+    res.json(result);
+  } catch (error) {
+    console.error('运费计算失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== 获取所有运费模板 =====
+app.get('/api/shipping/templates', (req, res) => {
+  const { SHIPPING_TEMPLATES } = require('./shipping-config');
+  res.json(SHIPPING_TEMPLATES);
+});
+
+// ===== 获取所有区域 =====
+app.get('/api/shipping/regions', (req, res) => {
+  const { REGION_MAP } = require('./shipping-config');
+  res.json(REGION_MAP);
+});
