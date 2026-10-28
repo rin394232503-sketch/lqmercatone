@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>L&Qmercatone - Volantino Offerte</title>
+<style>
+.lang-switch{position:fixed;top:12px;right:16px;z-index:200;padding:6px 14px;border-radius:16px;
+  background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border:1px solid #e0e0e0;
+  font-size:12px;color:#666;cursor:pointer;font-weight:500}
+.lang-switch:active{opacity:0.7}
+[data-lang-zh]{display:none}
+body.lang-zh [data-lang-it]{display:none}
+body.lang-zh [data-lang-zh]{display:block}
+</style>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -70,6 +79,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 <!-- Top Nav -->
 <div class="top-nav">
   <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <button class="lang-switch" onclick="toggleLang()" id="langSwitchBtn">中/IT</button>
   <div class="top-nav-title">🎄 Volantino Offerte</div>
   <div class="top-nav-actions">
     <button onclick="shareFlyer()">📤</button>
@@ -98,7 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 
 <!-- CTA -->
 <div class="flyer-cta">
-  <a href="index.html">🛒 去购物 Vai allo Shopping</a>
+  <a href="index.html"><span data-lang-it>🛒 Vai allo Shopping</span><span data-lang-zh>🛒 去购物</span></a>
 </div>
 
 <!-- Toast -->
@@ -177,6 +187,17 @@ function shareFlyer(){
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+
+// ===== Language =====
+let currentLang=localStorage.getItem('lq_lang')||'it';
+if(currentLang==='zh'){document.body.classList.add('lang-zh');document.getElementById('langSwitchBtn').textContent='IT/中'}
+function toggleLang(){
+  currentLang=currentLang==='it'?'zh':'it';
+  localStorage.setItem('lq_lang',currentLang);
+  if(currentLang==='zh'){document.body.classList.add('lang-zh');document.getElementById('langSwitchBtn').textContent='IT/中'}
+  else{document.body.classList.remove('lang-zh');document.getElementById('langSwitchBtn').textContent='中/IT'}
 }
 
 loadPromos();
