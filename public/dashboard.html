@@ -535,6 +535,7 @@ function removeImg(idx,el){uploadedImages[idx]=null;el.parentElement.remove()}
 
 async function saveNewProduct(){
   try{
+    if(!document.getElementById('npName')){alert('表单未加载！请在左侧菜单点「新增商品」');return}
     const name=document.getElementById('npName').value.trim();
     const price=parseFloat(document.getElementById('npPrice').value);
     const category=document.getElementById('npCategory').value;
@@ -555,7 +556,7 @@ async function saveNewProduct(){
     else{newP.id=Math.floor(Math.random()*10000)+100;allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale})}
     showToast('✅ '+name+' 已发布! €'+price);
     renderDashboard();renderProducts();showPage('products');
-  }catch(e){showToast('❌ 保存失败: '+e.message)}
+  }catch(e){alert('保存失败: '+e.message);showToast('❌ 保存失败: '+e.message)}
 }
 
 // ===== Edit Product =====
