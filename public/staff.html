@@ -445,12 +445,12 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-import">
     <div class="form-section">
       <h3>📂 批量导入 Importa da File</h3>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">支持 Excel/CSV 文件，格式：名称,品牌,分类,价格,原价,库存,标签</p>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">支持 Excel / CSV / PDF / TXT / ODS，自动识别格式</p>
       <div class="upload-area" onclick="document.getElementById('importFile').click()">
         <div class="upload-icon"></div>
-        <p>点击选择 Excel/CSV 文件<br>格式: .xlsx .csv .tsv</p>
+        <p>点击选择 Excel/CSV 文件<br>格式: .xlsx .xls .csv .tsv .txt .pdf .ods</p>
       </div>
-      <input type="file" id="importFile" accept=".csv,.xlsx,.tsv" style="display:none" onchange="handleImport(event)">
+      <input type="file" id="importFile" accept=".csv,.xlsx,.xls,.tsv,.txt,.pdf,.ods" style="display:none" onchange="handleImport(event)">
       <div id="importPreview" style="margin-top:12px"></div>
       <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ 确认导入</button>
     </div>
@@ -1178,38 +1178,73 @@ let importData=[];
 async function handleImport(e){
   const file=e.target.files[0];
   if(!file)return;
-  const text=await file.text();
-  const lines=text.split(/\r?\n/).filter(l=>l.trim());
-  if(lines.length<2){showToast('文件格式错误');return}
-
-  // Parse CSV/TSV
-  const sep=lines[0].includes('\t')?'\t':',';
-  const headers=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  const ext=file.name.split('.').pop().toLowerCase();
   importData=[];
-  let html='<table style="width:100%;font-size:11px;border-collapse:collapse">';
-  html+='<tr style="background:var(--card2)"><th style="padding:6px;border:1px solid var(--border)">名称</th><th style="padding:6px;border:1px solid var(--border)">分类</th><th style="padding:6px;border:1px solid var(--border)">价格</th><th style="padding:6px;border:1px solid var(--border)">库存</th></tr>';
+  let rows=[];
 
-  for(let i=1;i<lines.length;i++){
-    const cells=lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,''));
-    if(cells.length<3)continue;
-    const item={
-      name:cells[0]||'',
-      brand:cells[1]||'L&Q Collection',
-      category:cells[2]||'Abbigliamento',
-      price:parseFloat(cells[3])||0,
-      old_price:parseFloat(cells[4])||null,
-      stock:parseInt(cells[5])||99,
-      tag:cells[6]||'new',
-      on_sale:true,
-      emoji:'📦'
-    };
-    if(!item.name||!item.price)continue;
-    importData.push(item);
-    html+=`<tr><td style="padding:4px 6px;border:1px solid var(--border)">${item.name.substring(0,20)}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.category.substring(0,8)}</td><td style="padding:4px 6px;border:1px solid var(--border)">€${item.price}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.stock}</td></tr>`;
+  try{
+    if(ext==='xlsx'||ext==='xls'||ext==='ods'){
+      // Excel / ODS - use SheetJS
+      const buf=await file.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    }else if(ext==='csv'||ext==='tsv'||ext==='txt'){
+      // CSV / TSV / TXT
+      const text=await file.text();
+      const lines=text.split(/\r?\n/).filter(l=>l.trim());
+      const sep=lines[0].includes('\t')?'\t':(lines[0].includes(';')?';':',');
+      rows=lines.map(l=>l.split(sep).map(c=>c.trim().replace(/^"|"$/g,'')));
+    }else if(ext==='pdf'){
+      // PDF - extract text
+      const buf=await file.arrayBuffer();
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      let fullText='';
+      for(let i=1;i<=pdf.numPages;i++){
+        const page=await pdf.getPage(i);
+        const tc=await page.getTextContent();
+        fullText+=tc.items.map(it=>it.str).join(' ')+'\n';
+      }
+      const lines=fullText.split(/\r?\n/).filter(l=>l.trim());
+      const sep=lines[0].includes('\t')?'\t':(lines[0].includes(';')?';':',');
+      rows=lines.map(l=>l.split(sep).map(c=>c.trim().replace(/^"|"$/g,'')));
+    }else{
+      showToast('不支持的格式: .'+ext);
+      return;
+    }
+
+    if(rows.length<2){showToast('文件内容太少');return}
+
+    // Parse rows to products
+    let html='<table style="width:100%;font-size:11px;border-collapse:collapse">';
+    html+='<tr style="background:var(--card2)"><th style="padding:6px;border:1px solid var(--border)">名称</th><th style="padding:6px;border:1px solid var(--border)">分类</th><th style="padding:6px;border:1px solid var(--border)">价格</th><th style="padding:6px;border:1px solid var(--border)">库存</th></tr>';
+
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r||r.length<2)continue;
+      const item={
+        name:String(r[0]||'').trim(),
+        brand:String(r[1]||'L&Q Collection').trim(),
+        category:String(r[2]||'Abbigliamento').trim(),
+        price:parseFloat(r[3])||0,
+        old_price:parseFloat(r[4])||null,
+        stock:parseInt(r[5])||99,
+        tag:String(r[6]||'new').trim(),
+        on_sale:true,
+        emoji:'📦'
+      };
+      if(!item.name||!item.price)continue;
+      importData.push(item);
+      html+=`<tr><td style="padding:4px 6px;border:1px solid var(--border)">${item.name.substring(0,20)}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.category.substring(0,8)}</td><td style="padding:4px 6px;border:1px solid var(--border)">€${item.price}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.stock}</td></tr>`;
+    }
+    html+='</table>';
+    document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length} 件商品待导入 (格式: .${ext})</p>`;
+    document.getElementById('importBtn').style.display='block';
+  }catch(err){
+    console.error('Import error:',err);
+    showToast('文件解析失败: '+err.message);
   }
-  html+='</table>';
-  document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length} 件商品待导入</p>`;
-  document.getElementById('importBtn').style.display='block';
 }
 
 async function confirmImport(){
