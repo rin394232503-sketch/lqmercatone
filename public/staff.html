@@ -379,6 +379,11 @@ input,select,textarea{font-family:inherit}
       <h3>基本信息 Informazioni</h3>
       <div class="form-group"><label>商品名称 Nome *</label><input type="text" id="npName" placeholder="例: Cappotto in Lana"></div>
       <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="例: L&Q Collection"></div>
+      <div class="form-group" style="position:relative">
+        <label>条码 Barcode <span style="font-size:11px;color:var(--text2)">(输入条码自动填充)</span></label>
+        <input type="text" id="npBarcode" placeholder="扫描或输入条码" oninput="searchBarcode(this.value)" style="padding-right:80px">
+        <div id="barcodeResults" style="position:absolute;top:100%;left:0;right:0;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;z-index:100;display:none"></div>
+      </div>
       <div class="form-row">
         <div class="form-group"><label>分类 Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">衣服 Abbigliamento</option><option value="Detersivi">洗洁剂 Detersivi</option><option value="Casa">家用品 Casa</option></select></div>
         <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">无</option><option value="new">新品</option><option value="hot">热销</option><option value="sale">特价</option></select></div>
@@ -941,6 +946,47 @@ function removeImg(idx,el){
   el.parentElement.remove();
 }
 
+
+// ===== Barcode Search =====
+function searchBarcode(q){
+  const container=document.getElementById('barcodeResults');
+  if(!q||q.length<2){container.style.display='none';return}
+  const results=allProducts.filter(p=>{
+    const desc=p.description||'';
+    const m=desc.match(/Barcode:\s*(\S+)/);
+    return m&&m[1].toLowerCase().includes(q.toLowerCase());
+  });
+  if(!results.length){container.style.display='none';return}
+  container.style.display='block';
+  container.innerHTML=results.map(p=>`
+    <div onclick="fillFromBarcode(${p.id})" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
+      <span style="font-size:20px">${p.emoji||'📦'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--text2)">€${p.price} | ${p.category}</div></div>
+      <span style="font-size:11px;color:var(--accent)">点击填充</span>
+    </div>
+  `).join('');
+}
+
+function fillFromBarcode(id){
+  const p=allProducts.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('npName').value=p.name;
+  document.getElementById('npBrand').value=p.brand||'';
+  document.getElementById('npCategory').value=p.category;
+  document.getElementById('npPrice').value=p.price;
+  document.getElementById('npOldPrice').value=p.old_price||'';
+  document.getElementById('npStock').value=p.stock||99;
+  document.getElementById('npOnSale').value=p.on_sale?'1':'0';
+  document.getElementById('npTag').value=p.tag||'';
+  document.getElementById('npDesc').value=(p.description||'').replace(/Taglie:.*$/,'').replace(/Colori:.*$/,'').replace(/Barcode:.*$/,'').trim();
+  // Extract barcode from description
+  const bm=(p.description||'').match(/Barcode:\s*(\S+)/);
+  if(bm)document.getElementById('npBarcode').value=bm[1];
+  document.getElementById('barcodeResults').style.display='none';
+  showToast('✅ 已从条码 '+bm[1]+' 填充数据');
+  toggleSizeSelector();
+}
+
 // ===== Save New Product =====
 async function saveNewProduct(){
   try{
@@ -949,6 +995,8 @@ async function saveNewProduct(){
   const category=document.getElementById('npCategory').value;
   if(!name||isNaN(price)){showToast('⚠️ 请填写商品名称和价格');return}
   const desc = document.getElementById('npDesc').value.trim();
+  const barcode = document.getElementById('npBarcode').value.trim();
+  const barcodeInfo = barcode ? ' Barcode: ' + barcode : '';
   const sizes = getSelectedSizes();
   const colors = getSelectedColors();
   const sizeInfo = sizes.length > 0 ? ' Taglie: ' + sizes.join(', ') : '';
@@ -963,7 +1011,7 @@ async function saveNewProduct(){
     tag: document.getElementById('npTag').value || null,
     on_sale: document.getElementById('npOnSale').value === '1',
     stock: parseInt(document.getElementById('npStock').value) || 99,
-    description: desc + sizeInfo + colorInfo
+    description: desc + sizeInfo + colorInfo + barcodeInfo
   };
   // Handle multiple image uploads - compress each to ~2-3MB JPEG
   const imgFiles=document.getElementById('npImages').files;
@@ -1400,6 +1448,8 @@ function saveBanner(idx){
   saveBanners();closeModal();showToast('✅ 轮播已更新')
 }
 
+document.addEventListener('click',e=>{if(!e.target.closest('#npBarcode')&&!e.target.closest('#barcodeResults')){const c=document.getElementById('barcodeResults');if(c)c.style.display='none'}});
+
 // ===== Navigation =====
 function showPage(page,navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1452,6 +1502,7 @@ function editProduct(id){
 
   openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
     <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
+    <div class="form-group"><label>条码 Barcode</label><input type="text" id="epBarcode" value="${(p.description||'').match(/Barcode:\\s*(\\S+)/)?.[1]||''}" placeholder="扫描或输入条码"></div>
     <div class="form-row">
       <div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
       <div class="form-group"><label>库存</label><input type="number" id="epStock" value="${p.stock||0}"></div>
@@ -1482,13 +1533,15 @@ async function saveEditProduct(id){
   const sizeInfo=sizes.length>0?' Taglie: '+sizes.join(', '):'';
   const colorInfo=colors.length>0?' Colori: '+colors.join(', '):'';
   const desc=document.getElementById('epName').value.trim();
+  const epBarcode=document.getElementById('epBarcode')?.value.trim()||'';
+  const epBarcodeInfo=epBarcode?' Barcode: '+epBarcode:'';
   const updates={
     name:document.getElementById('epName').value.trim(),
     price:parseFloat(document.getElementById('epPrice').value),
     stock:parseInt(document.getElementById('epStock').value),
     category:document.getElementById('epCat').value,
     on_sale:document.getElementById('epSale').value==='1',
-    description:desc+sizeInfo+colorInfo
+    description:desc+sizeInfo+colorInfo+epBarcodeInfo
   };
   if(sb){try{await sb.from('products').update(updates).eq('id',id)}catch(e){}}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
