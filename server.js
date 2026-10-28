@@ -558,3 +558,162 @@ app.get('/api/shipping/regions', (req, res) => {
   const { REGION_MAP } = require('./shipping-config');
   res.json(REGION_MAP);
 });
+
+// ===== Supabase Storage 上传 API =====
+const multer = require('multer');
+const path = require('path');
+
+// 配置 multer 内存存储
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('仅支持 JPEG/PNG/WebP 格式'));
+    }
+  }
+});
+
+// 上传图片到 Supabase Storage
+app.post('/api/upload/image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: '未选择图片' });
+    }
+    
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || 'https://yiyydikfpgbmtdypiggc.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+    
+    // 生成文件名
+    const productId = req.body.productId || 'temp';
+    const fileExt = path.extname(req.file.originalname);
+    const fileName = `${productId}/${Date.now()}${fileExt}`;
+    
+    // 上传到 Storage
+    const { data, error } = await supabaseAdmin.storage
+      .from('product-images')
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        cacheControl: '3600',
+        upsert: false
+      });
+    
+    if (error) {
+      console.error('Storage 上传失败:', error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+    // 获取公开 URL
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+    
+    res.json({
+      success: true,
+      url: publicUrl,
+      fileName: fileName
+    });
+    
+  } catch (error) {
+    console.error('上传 API 错误:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 批量上传图片
+app.post('/api/upload/images', upload.array('images', 9), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: '未选择图片' });
+    }
+    
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || 'https://yiyydikfpgbmtdypiggc.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+    
+    const productId = req.body.productId || 'temp';
+    const urls = [];
+    
+    for (const file of req.files) {
+      const fileExt = path.extname(file.originalname);
+      const fileName = `${productId}/${Date.now()}_${Math.random().toString(36).substr(2, 6)}${fileExt}`;
+      
+      const { data, error } = await supabaseAdmin.storage
+        .from('product-images')
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) {
+        console.error('上传失败:', fileName, error.message);
+        continue;
+      }
+      
+      const { data: { publicUrl } } = supabaseAdmin.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+      
+      urls.push(publicUrl);
+    }
+    
+    res.json({
+      success: true,
+      urls: urls,
+      count: urls.length
+    });
+    
+  } catch (error) {
+    console.error('批量上传 API 错误:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 删除图片
+app.delete('/api/upload/image', async (req, res) => {
+  try {
+    const { imageUrl } = req.body;
+    
+    if (!imageUrl) {
+      return res.status(400).json({ error: '缺少 imageUrl 参数' });
+    }
+    
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || 'https://yiyydikfpgbmtdypiggc.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+    
+    // 从 URL 提取文件路径
+    const url = new URL(imageUrl);
+    const pathParts = url.pathname.split('/');
+    const fileName = pathParts.slice(pathParts.length - 2).join('/');
+    
+    const { error } = await supabaseAdmin.storage
+      .from('product-images')
+      .remove([fileName]);
+    
+    if (error) {
+      console.error('删除失败:', error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+    res.json({ success: true });
+    
+  } catch (error) {
+    console.error('删除 API 错误:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
