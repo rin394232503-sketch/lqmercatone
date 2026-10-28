@@ -450,13 +450,26 @@ function renderProduct(){
   // Dynamic colors
   const colorMap={'Nero':'#2d3436','Bianco':'#f5f5f5','Grigio':'#636e72','Blu':'#2980b9','Rosso':'#c0392b','Verde':'#27ae60','Beige':'#d4a574','Marrone':'#6d4c41'};
   const colorMatch2=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒÙ,\s]+)/);
-  let productColors=colorMatch2?colorMatch2[1].split(',').map(s=>s.trim()):['Nero'];
+  let productColors=colorMatch2?colorMatch2[1].split(',').map(s=>s.trim()):[];
+  const colorLabel=document.getElementById('colorLabel');
+  const colorDots=document.getElementById('colorDots');
   const colorDotsInner=document.getElementById('colorDotsInner');
-  if(colorDotsInner){
-    colorDotsInner.innerHTML=productColors.map((c,i)=>`<div class="color-dot${i===0?' active':''}" style="background:${colorMap[c]||'#999'}" title="${c}" onclick="selectColor(this)"></div>`).join('');
+  if(productColors.length>0){
+    // Has colors: show color dots
+    if(colorLabel)colorLabel.style.display='block';
+    if(colorDots)colorDots.style.display='flex';
+    if(colorDotsInner){
+      colorDotsInner.innerHTML=productColors.map((c,i)=>`<div class="color-dot${i===0?' active':''}" style="background:${colorMap[c]||'#999'}" title="${c}" onclick="selectColor(this)"></div>`).join('');
+    }
+  }else{
+    // No colors: show "没有颜色"
+    if(colorLabel)colorLabel.textContent='颜色 Colore';
+    if(colorLabel)colorLabel.style.display='block';
+    if(colorDots)colorDots.style.display='flex';
+    if(colorDotsInner){
+      colorDotsInner.innerHTML='<span style="font-size:12px;color:var(--text-muted)">没有颜色 Nessun colore</span>';
+    }
   }
-  document.getElementById('colorLabel').style.display = p.category === 'Abbigliamento' ? 'block' : 'none';
-  document.getElementById('colorDots').style.display = p.category === 'Abbigliamento' ? 'flex' : 'none';
 
   // Detail section
   document.querySelectorAll('.detail-section')[0].innerHTML = `

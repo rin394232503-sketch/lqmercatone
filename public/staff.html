@@ -1106,7 +1106,7 @@ function editProduct(id){
   }).join('');
   const showSizes=p.category==='Abbigliamento'?'block':'none';
   const colorMatch=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒÙ,\s]+)/);
-  const existingColors=colorMatch?colorMatch[1].split(',').map(s=>s.trim()):['Nero'];
+  const existingColors=colorMatch?colorMatch[1].split(',').map(s=>s.trim()):[];
   const allColors=['Nero','Bianco','Grigio','Blu','Rosso','Verde','Beige','Marrone'];
   const colorBtns=allColors.map(c=>{
     const isActive=existingColors.includes(c);
