@@ -448,11 +448,40 @@ tr:hover td{background:var(--bg2)}
       <div style="display:flex;gap:16px;flex-wrap:wrap">
         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_order" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)">  新订单</label>
         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_aftersale" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> 🔄 售后</label>
-        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_stock" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> ⚠️ 库存预警</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_stock" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> ️ 库存预警</label>
         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_review" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> ⭐ 评价</label>
       </div>
     </div>
     <button onclick="showToast('✅ 设置已保存');saveNotifPrefs()" style="padding:10px 24px;background:var(--accent);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">💾 保存</button>
+        </div>
+      </div>
+
+      <!-- Export Reports Section -->
+      <div class="chart-card" style="margin-top:20px">
+        <h3>📊 导出报表 Esporta Report</h3>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:13px">起始日期:</label>
+            <input type="date" id="exportDateFrom" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:13px">结束日期:</label>
+            <input type="date" id="exportDateTo" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+          <button onclick="exportOrdersCSV()" style="padding:14px;background:var(--accent);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">
+            📋 订单报表 Ordini<br><span style="font-size:11px;opacity:0.8">订单号/时间/商品/金额/支付/状态/客户</span>
+          </button>
+          <button onclick="exportAfterSalesCSV()" style="padding:14px;background:var(--success);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">
+            🔄 售后报表 Resi<br><span style="font-size:11px;opacity:0.8">订单号/售后类型/原因/状态/时间</span>
+          </button>
+          <button onclick="exportSalesCSV()" style="padding:14px;background:var(--warning);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">
+            📈 销量报表 Vendite<br><span style="font-size:11px;opacity:0.8">商品名/SKU/销量/收入/分类</span>
+          </button>
+          <button onclick="exportInventoryCSV()" style="padding:14px;background:var(--danger);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">
+            📦 库存表 Stock<br><span style="font-size:11px;opacity:0.8">商品名/SKU/库存/状态/分类</span>
+          </button>
         </div>
       </div>
     </div>
@@ -744,6 +773,121 @@ function exportDashLogsCSV(){
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='operation_logs_'+(dateFrom||'all')+'_to_'+(dateTo||'today')+'.csv';a.click();URL.revokeObjectURL(url);
   showToast('✅ 已导出 '+logs.length+' 条日志');
+}
+
+// ===== Export Reports =====
+function getDateRange(){
+  const from=document.getElementById('exportDateFrom')?.value;
+  const to=document.getElementById('exportDateTo')?.value;
+  return{from,to};
+}
+function downloadCSV(csv,filename){
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ 已导出 / Esportato');
+}
+
+// 1. 订单报表
+function exportOrdersCSV(){
+  const{from,to}=getDateRange();
+  let orders=allOrders.filter(o=>{
+    if(!o.created_at)return false;
+    const d=o.created_at.slice(0,10);
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+  if(!orders.length){showToast('无数据 / Nessun dato');return}
+  const statusMap={pending:'待付款',toship:'待发货',shipped:'已发货',done:'已完成',refund:'售后',cancelled:'已取消'};
+  const payMap={sisal:'Sisal',card:'Carta',paypal:'PayPal',pickup:'Ritiro'};
+  let csv='订单号,时间,商品明细,SKU,金额,运费,支付方式,状态,客户姓名,客户电话,客户地址,客户备注,内部备注\n';
+  orders.forEach(o=>{
+    const items=(o.items||[]).map(i=>`${i.name}(x${i.qty})`).join('; ');
+    const skus=(o.items||[]).map(i=>`${i.color||'-'}${i.size||'-'}`).join('; ');
+    const time=new Date(o.created_at).toLocaleString('zh-CN');
+    const status=statusMap[o.status]||o.status;
+    const payment=payMap[o.payment_method]||o.payment_method||'-';
+    const shipping=o.payment_method==='pickup'?0:(parseFloat(o.total_amount)>=99?0:4.99);
+    csv+=`"${o.order_no}","${time}","${items}","${skus}",${o.total_amount},${shipping},"${payment}","${status}","${o.customer_name||'-'}","${o.customer_phone||'-'}","${o.customer_address||'-'}","${o.note||'-'}","${o.admin_note||'-'}"\n`;
+  });
+  const fname=`订单报表_${from||'all'}_to_${to||'today'}.csv`;
+  downloadCSV(csv,fname);
+  logOperation('export_orders','report','orders',{from,to},{count:orders.length});
+}
+
+// 2. 售后报表
+function exportAfterSalesCSV(){
+  const{from,to}=getDateRange();
+  let refunds=allOrders.filter(o=>o.status==='refund').filter(o=>{
+    if(!o.created_at)return false;
+    const d=o.created_at.slice(0,10);
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+  if(!refunds.length){showToast('无售后数据 / Nessun dato reso');return}
+  let csv='订单号,时间,客户姓名,客户电话,金额,售后原因,状态,处理时间,内部备注\n';
+  refunds.forEach(o=>{
+    const time=new Date(o.created_at).toLocaleString('zh-CN');
+    csv+=`"${o.order_no}","${time}","${o.customer_name||'-'}","${o.customer_phone||'-'}",${o.total_amount},"${o.note||'-'}","售后","${o.shipped_at||'-'}","${o.admin_note||'-'}"\n`;
+  });
+  const fname=`售后报表_${from||'all'}_to_${to||'today'}.csv`;
+  downloadCSV(csv,fname);
+  logOperation('export_aftersales','report','aftersales',{from,to},{count:refunds.length});
+}
+
+// 3. 销量报表
+function exportSalesCSV(){
+  const{from,to}=getDateRange();
+  let orders=allOrders.filter(o=>o.status!=='cancelled').filter(o=>{
+    if(!o.created_at)return false;
+    const d=o.created_at.slice(0,10);
+    if(from&&d<from)return false;
+    if(to&&d>to)return false;
+    return true;
+  });
+  const productSales={};
+  orders.forEach(o=>{
+    (o.items||[]).forEach(i=>{
+      const key=i.name||'Unknown';
+      if(!productSales[key])productSales[key]={name:key,emoji:i.emoji||'',category:i.category||'',qty:0,revenue:0,skus:{}};
+      productSales[key].qty+=i.qty||1;
+      productSales[key].revenue+=(i.qty||1)*parseFloat(i.price||0);
+      const sku=`${i.color||'-'}${i.size||'-'}`;
+      productSales[key].skus[sku]=(productSales[key].skus[sku]||0)+(i.qty||1);
+    });
+  });
+  const products=Object.values(productSales).sort((a,b)=>b.qty-a.qty);
+  if(!products.length){showToast('无销量数据 / Nessun dato vendita');return}
+  let csv='商品名,Emoji,分类,SKU明细,总销量,总收入\n';
+  products.forEach(p=>{
+    const skuDetail=Object.entries(p.skus).map(([k,v])=>`${k}:${v}件`).join('; ');
+    csv+=`"${p.name}","${p.emoji}","${p.category}","${skuDetail}",${p.qty},${p.revenue.toFixed(2)}\n`;
+  });
+  const fname=`销量报表_${from||'all'}_to_${to||'today'}.csv`;
+  downloadCSV(csv,fname);
+  logOperation('export_sales','report','sales',{from,to},{count:products.length});
+}
+
+// 4. 库存报表
+function exportInventoryCSV(){
+  if(!allProducts.length){showToast('无商品数据 / Nessun prodotto');return}
+  const statusMap=p=>{
+    if(p.stock===0)return'缺货 Esaurito';
+    if(p.stock<=5)return'低库存 Scorta bassa';
+    return'充足 Sufficiente';
+  };
+  let csv='商品ID,商品名,品牌,分类,现价,原价,库存,状态,标签,上架时间\n';
+  allProducts.forEach(p=>{
+    const status=statusMap(p);
+    const created=p.created_at?new Date(p.created_at).toLocaleString('zh-CN'):'';
+    csv+=`${p.id},"${p.name}","${p.brand||'-'}","${p.category}",${p.price},${p.old_price||'-'},${p.stock},"${status}","${p.tag||'-'}","${created}"\n`;
+  });
+  const fname=`库存报表_${new Date().toISOString().slice(0,10)}.csv`;
+  downloadCSV(csv,fname);
+  logOperation('export_inventory','report','inventory',null,{count:allProducts.length});
 }
 
 // ===== Navigation =====
