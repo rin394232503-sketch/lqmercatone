@@ -324,7 +324,9 @@ input,select,textarea{font-family:inherit}
     <div class="quick-actions">
       <div class="quick-btn" onclick="showPage('addproduct')"><div class="qicon">📷</div><div class="qlbl">快速上新</div></div>
       <div class="quick-btn" onclick="showPage('orders');filterOrders('toship')"><div class="qicon">📋</div><div class="qlbl">打单发货</div></div>
-      <div class="quick-btn" onclick="showPage('lowstock')"><div class="qicon">📊</div><div class="qlbl">库存管理</div></div>
+      <div class="quick-btn" onclick="showPage('import')"><div class="qicon">📂</div><div class="qlbl">批量导入</div></div>
+      <div class="quick-btn" onclick="showPage('import');setTimeout(()=>document.getElementById('discountSearch').focus(),300)"><div class="qicon">⚡</div><div class="qlbl">快速打折</div></div>
+      <div class="quick-btn" onclick="showPage('lowstock')"><div class="qicon"></div><div class="qlbl">库存管理</div></div>
     </div>
   </div>
 
@@ -436,6 +438,31 @@ input,select,textarea{font-family:inherit}
     </div>
     <button class="save-btn" onclick="saveNewProduct()">✅ 保存并发布 Salva</button>
     <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">取消 Annulla</button>
+  </div>
+
+
+  <!-- Import Page -->
+  <div class="page" id="page-import">
+    <div class="form-section">
+      <h3>📂 批量导入 Importa da File</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">支持 Excel/CSV 文件，格式：名称,品牌,分类,价格,原价,库存,标签</p>
+      <div class="upload-area" onclick="document.getElementById('importFile').click()">
+        <div class="upload-icon"></div>
+        <p>点击选择 Excel/CSV 文件<br>格式: .xlsx .csv .tsv</p>
+      </div>
+      <input type="file" id="importFile" accept=".csv,.xlsx,.tsv" style="display:none" onchange="handleImport(event)">
+      <div id="importPreview" style="margin-top:12px"></div>
+      <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ 确认导入</button>
+    </div>
+
+    <!-- Quick Discount -->
+    <div class="form-section" style="margin-top:12px">
+      <h3>⚡ 快速打折 Sconto Rapido</h3>
+      <div class="search-bar" style="margin-bottom:0">
+        <input class="search-input" type="text" placeholder="🔍 搜索商品名称或条码..." id="discountSearch" oninput="searchForDiscount()">
+      </div>
+      <div id="discountResults" style="margin-top:12px"></div>
+    </div>
   </div>
 
   <!-- Low Stock Page -->
@@ -1145,6 +1172,107 @@ function renderNotifications(){
   container.innerHTML=html;
 }
 
+
+// ===== Batch Import =====
+let importData=[];
+async function handleImport(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const text=await file.text();
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){showToast('文件格式错误');return}
+
+  // Parse CSV/TSV
+  const sep=lines[0].includes('\t')?'\t':',';
+  const headers=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  importData=[];
+  let html='<table style="width:100%;font-size:11px;border-collapse:collapse">';
+  html+='<tr style="background:var(--card2)"><th style="padding:6px;border:1px solid var(--border)">名称</th><th style="padding:6px;border:1px solid var(--border)">分类</th><th style="padding:6px;border:1px solid var(--border)">价格</th><th style="padding:6px;border:1px solid var(--border)">库存</th></tr>';
+
+  for(let i=1;i<lines.length;i++){
+    const cells=lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,''));
+    if(cells.length<3)continue;
+    const item={
+      name:cells[0]||'',
+      brand:cells[1]||'L&Q Collection',
+      category:cells[2]||'Abbigliamento',
+      price:parseFloat(cells[3])||0,
+      old_price:parseFloat(cells[4])||null,
+      stock:parseInt(cells[5])||99,
+      tag:cells[6]||'new',
+      on_sale:true,
+      emoji:'📦'
+    };
+    if(!item.name||!item.price)continue;
+    importData.push(item);
+    html+=`<tr><td style="padding:4px 6px;border:1px solid var(--border)">${item.name.substring(0,20)}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.category.substring(0,8)}</td><td style="padding:4px 6px;border:1px solid var(--border)">€${item.price}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.stock}</td></tr>`;
+  }
+  html+='</table>';
+  document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length} 件商品待导入</p>`;
+  document.getElementById('importBtn').style.display='block';
+}
+
+async function confirmImport(){
+  if(!importData.length){showToast('没有数据');return}
+  let ok=0,fail=0;
+  for(const item of importData){
+    try{
+      if(sb){await sb.from('products').insert(item)}
+      allProducts.unshift({...item,id:Date.now()+ok});
+      ok++;
+    }catch(e){fail++}
+  }
+  showToast(`✅ 导入 ${ok} 件，失败 ${fail} 件`);
+  importData=[];
+  document.getElementById('importPreview').innerHTML='';
+  document.getElementById('importBtn').style.display='none';
+  document.getElementById('importFile').value='';
+  renderProducts();renderDashboard();
+}
+
+// ===== Quick Discount =====
+function searchForDiscount(){
+  const q=document.getElementById('discountSearch').value.toLowerCase().trim();
+  const container=document.getElementById('discountResults');
+  if(!q){container.innerHTML='';return}
+
+  const results=allProducts.filter(p=>
+    p.name.toLowerCase().includes(q)||
+    (p.brand||'').toLowerCase().includes(q)||
+    ('LQ-'+p.id).toLowerCase().includes(q)
+  ).slice(0,10);
+
+  container.innerHTML=results.map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px">
+      <div style="font-size:24px">${p.emoji||'📦'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+        <div style="font-size:12px;color:var(--text2)">原价: €${p.price} ${p.old_price?'→ 打折价: €'+p.old_price:''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="number" step="0.01" value="${(p.price*0.7).toFixed(2)}" id="disc_${p.id}" style="width:70px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none" placeholder="折扣价">
+        <button onclick="applyDiscount(${p.id})" style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px;border:none;cursor:pointer">打折</button>
+      </div>
+    </div>
+  `).join('')||'<p style="text-align:center;color:var(--text2);font-size:13px">未找到商品</p>';
+}
+
+async function applyDiscount(id){
+  const newPrice=parseFloat(document.getElementById('disc_'+id).value);
+  if(!newPrice||newPrice<=0){showToast('请输入有效价格');return}
+  const p=allProducts.find(x=>x.id===id);
+  if(!p)return;
+  const oldPrice=p.price;
+  if(sb){
+    try{await sb.from('products').update({price:newPrice,old_price:oldPrice}).eq('id',id)}catch(e){}
+  }
+  p.price=newPrice;
+  p.old_price=oldPrice;
+  p.tag='sale';
+  showToast(`✅ ${p.name.substring(0,15)} €${oldPrice} → €${newPrice}`);
+  renderProducts();searchForDiscount();
+}
+
 // ===== Navigation =====
 function showPage(page,navEl){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1158,7 +1286,7 @@ function showPage(page,navEl){
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd()
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
