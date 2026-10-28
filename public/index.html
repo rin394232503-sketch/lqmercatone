@@ -458,7 +458,7 @@ async function loadProducts() {
         id: p.id, name: p.name, brand: p.brand, category: p.category,
         price: parseFloat(p.price), old_price: p.old_price ? parseFloat(p.old_price) : null,
         emoji: p.emoji || '', tag: p.tag, on_sale: p.on_sale ? 1 : 0,
-        stock: p.stock || 99
+        stock: p.stock || 99, image_url: p.image_url || ''
       }));
     } else {
       // Supabase 正常但商品为空 = 管理员确实删除了所有商品
