@@ -205,11 +205,8 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   </div>
 
   <div class="sku-label" style="margin-top:16px;">尺码 Taglia</div>
-  <div class="sku-options">
-    <div class="sku-option" onclick="selectSku(this)">S</div>
-    <div class="sku-option active" onclick="selectSku(this)">M</div>
-    <div class="sku-option" onclick="selectSku(this)">L</div>
-    <div class="sku-option" onclick="selectSku(this)">XL</div>
+  <div class="sku-options" id="skuSizes">
+    <span style="font-size:12px;color:var(--text-muted)">加载中...</span>
   </div>
 
   <div class="sku-label">数量 Quantità</div>
@@ -442,25 +439,8 @@ function renderProduct(){
     sizeOptions = '<div class="sku-option active" onclick="selectSku(this)">Taglia unica</div>';
   }
 
-  document.querySelector('.sku-section').innerHTML = `
-    <div class="sku-label">Colore</div>
-    <div class="sku-color">
-      <div class="color-dot active" style="background:#2d3436" onclick="selectColor(this)"></div>
-      <div class="color-dot" style="background:#dfe6e9" onclick="selectColor(this)"></div>
-      <div class="color-dot" style="background:#636e72" onclick="selectColor(this)"></div>
-      <div class="color-dot" style="background:#b2bec3" onclick="selectColor(this)"></div>
-    </div>
-    <div class="sku-label" style="margin-top:16px">Taglia</div>
-    <div class="sku-options">
-      ${sizeOptions}
-    </div>
-    <div class="sku-label">Quantità</div>
-    <div class="sku-options" style="align-items:center">
-      <button onclick="changeQty(-1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">−</button>
-      <span id="qty" style="min-width:32px;text-align:center;font-weight:600">1</span>
-      <button onclick="changeQty(1)" style="width:32px;height:32px;border:1px solid var(--border);border-radius:var(--radius-xs);font-size:16px">+</button>
-      <span style="font-size:12px;color:var(--text-muted);margin-left:8px" ${stockClass}>Stock: ${p.stock} pz</span>
-    </div>`;
+  // Only update the size options, keep the rest of SKU section
+  document.getElementById('skuSizes').innerHTML = sizeOptions;
 
   // Detail section
   document.querySelectorAll('.detail-section')[0].innerHTML = `
