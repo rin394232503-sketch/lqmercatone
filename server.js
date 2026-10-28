@@ -717,3 +717,157 @@ app.delete('/api/upload/image', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ===== 买家认证 API =====
+
+// 发送验证码
+app.post('/api/auth/send-code', (req, res) => {
+  try {
+    const { phone } = req.body;
+    
+    if (!phone || !phone.startsWith('+39')) {
+      return res.status(400).json({ error: '无效的意大利手机号' });
+    }
+    
+    // 生成 6 位验证码
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // TODO: 存储验证码到 Redis 或数据库（5 分钟有效期）
+    // await redis.set(`verify_code:${phone}`, code, 'EX', 300);
+    
+    // TODO: 发送短信
+    // await sendSMS(phone, `L&Qmercatone 验证码：${code}，5 分钟内有效`);
+    
+    console.log(`验证码 ${phone}: ${code}`); // 开发时显示
+    
+    res.json({ success: true, message: '验证码已发送' });
+    
+  } catch (error) {
+    console.error('发送验证码失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 注册
+app.post('/api/auth/register', (req, res) => {
+  try {
+    const { name, phone, password, email } = req.body;
+    
+    if (!name || !phone || !password) {
+      return res.status(400).json({ error: '缺少必填字段' });
+    }
+    
+    if (password.length < 6) {
+      return res.status(400).json({ error: '密码至少 6 位' });
+    }
+    
+    // TODO: 检查手机号是否已注册
+    // const existingUser = await db.prepare('SELECT * FROM buyers WHERE phone = ?').get(phone);
+    // if (existingUser) {
+    //   return res.status(400).json({ error: '该手机号已注册' });
+    // }
+    
+    // TODO: 创建用户
+    // const result = await db.prepare(`
+    //   INSERT INTO buyers (name, phone, password_hash, email)
+    //   VALUES (?, ?, ?, ?)
+    // `).run(name, phone, hashPassword(password), email || null);
+    
+    // const userId = result.lastInsertRowid;
+    const userId = Date.now(); // 临时
+    
+    // TODO: 生成 JWT token
+    // const token = generateToken({ id: userId, phone });
+    
+    res.json({
+      success: true,
+      user: { id: userId, name, phone, email },
+      message: '注册成功'
+    });
+    
+  } catch (error) {
+    console.error('注册失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 登录
+app.post('/api/auth/login', (req, res) => {
+  try {
+    const { phone, password } = req.body;
+    
+    if (!phone || !password) {
+      return res.status(400).json({ error: '缺少手机号或密码' });
+    }
+    
+    // TODO: 查询用户
+    // const user = await db.prepare('SELECT * FROM buyers WHERE phone = ?').get(phone);
+    // if (!user) {
+    //   return res.status(401).json({ error: '用户不存在' });
+    // }
+    
+    // TODO: 验证密码
+    // if (!verifyPassword(password, user.password_hash)) {
+    //   return res.status(401).json({ error: '密码错误' });
+    // }
+    
+    // TODO: 生成 JWT token
+    // const token = generateToken({ id: user.id, phone: user.phone });
+    
+    res.json({
+      success: true,
+      user: { id: 123456, name: 'Mario Rossi', phone },
+      message: '登录成功'
+    });
+    
+  } catch (error) {
+    console.error('登录失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 获取当前用户信息
+app.get('/api/auth/me', (req, res) => {
+  try {
+    // TODO: 从 JWT token 解析用户 ID
+    // const token = req.headers.authorization?.split(' ')[1];
+    // const decoded = verifyToken(token);
+    // const user = await db.prepare('SELECT id, name, phone, email FROM buyers WHERE id = ?').get(decoded.id);
+    
+    res.json({
+      success: true,
+      user: { id: 123456, name: 'Mario Rossi', phone: '+39 333 123 4567' }
+    });
+    
+  } catch (error) {
+    res.status(401).json({ error: '未登录' });
+  }
+});
+
+// 登出
+app.post('/api/auth/logout', (req, res) => {
+  // TODO: 将 token 加入黑名单
+  res.json({ success: true, message: '已登出' });
+});
+
+// 同步购物车（登录后）
+app.post('/api/cart/sync', (req, res) => {
+  try {
+    const { items } = req.body;
+    
+    // TODO: 从 token 获取用户 ID
+    const userId = 123456; // 临时
+    
+    // TODO: 保存购物车到数据库
+    // await db.prepare(`
+    //   INSERT OR REPLACE INTO carts (user_id, items, updated_at)
+    //   VALUES (?, ?, CURRENT_TIMESTAMP)
+    // `).run(userId, JSON.stringify(items));
+    
+    res.json({ success: true, message: '购物车已同步' });
+    
+  } catch (error) {
+    console.error('同步购物车失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});

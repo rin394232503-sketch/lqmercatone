@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>L&Qmercatone - Accedi / Registrati</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#ffffff;--bg-soft:#f8f9fa;--text:#2d3436;--text-light:#636e72;--text-muted:#b2bec3;--accent:#6c5ce7;--accent-soft:#a29bfe;--accent-bg:#f0eeff;--border:#e9ecef;--border-light:#f1f3f5;--danger:#e17055;--success:#00b894;--radius:12px;--radius-sm:8px}
+html{font-size:16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg-soft);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.login-header{background:linear-gradient(135deg,var(--accent),#5a4bd1);color:white;padding:40px 20px;text-align:center;border-radius:0 0 24px 24px}
+.login-header h1{font-size:24px;font-weight:700;margin-bottom:8px}
+.login-header p{font-size:14px;opacity:0.9}
+
+/* Tabs */
+.login-tabs{display:flex;margin:20px 16px 0;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.tab-btn{flex:1;padding:14px;text-align:center;font-size:14px;font-weight:600;color:var(--text-light);cursor:pointer;transition:0.2s;border:none;background:none}
+.tab-btn.active{color:var(--accent);background:var(--accent-bg)}
+
+/* Form */
+.login-form{padding:20px 16px;flex:1}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:0.2s}
+.form-group input:focus{border-color:var(--accent)}
+.phone-input{display:flex;gap:8px}
+.phone-prefix{padding:12px;background:var(--bg-soft);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-weight:600;color:var(--text);white-space:nowrap}
+.verify-btn{padding:12px 16px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.verify-btn:disabled{background:var(--text-muted);cursor:not-allowed}
+
+.submit-btn{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;cursor:pointer;margin-top:8px}
+.submit-btn:active{opacity:0.85}
+.submit-btn:disabled{background:var(--text-muted)}
+
+.divider{text-align:center;margin:20px 0;color:var(--text-muted);font-size:12px;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+.divider::before{left:0}
+.divider::after{right:0}
+
+.social-login{display:flex;gap:12px;margin-top:16px}
+.social-btn{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:white;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* Footer */
+.login-footer{text-align:center;padding:20px;font-size:12px;color:var(--text-muted)}
+.login-footer a{color:var(--accent);text-decoration:none}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:white;padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity:0;transition:0.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="login-header">
+  <h1>🛍️ L&Qmercatone</h1>
+  <p>Accedi o Registrati per continuare</p>
+</div>
+
+<div class="login-tabs">
+  <button class="tab-btn active" onclick="switchTab('login')">Accedi 登录</button>
+  <button class="tab-btn" onclick="switchTab('register')">Registrati 注册</button>
+</div>
+
+<!-- 登录表单 -->
+<div class="login-form" id="loginForm">
+  <div class="form-group">
+    <label>手机号 Numero di telefono</label>
+    <div class="phone-input">
+      <span class="phone-prefix">+39</span>
+      <input type="tel" id="loginPhone" placeholder="333 123 4567" maxlength="10">
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>密码 Password</label>
+    <input type="password" id="loginPassword" placeholder="Inserisci la password">
+  </div>
+  
+  <button class="submit-btn" onclick="handleLogin()">Accedi 登录</button>
+  
+  <div class="divider">o</div>
+  
+  <div class="social-login">
+    <button class="social-btn" onclick="socialLogin('google')">🔍 Google</button>
+    <button class="social-btn" onclick="socialLogin('apple')">🍎 Apple</button>
+  </div>
+  
+  <div style="text-align:center;margin-top:16px">
+    <a href="#" onclick="showForgotPassword()" style="font-size:13px;color:var(--accent)">忘记密码？Password dimenticata?</a>
+  </div>
+</div>
+
+<!-- 注册表单 -->
+<div class="login-form" id="registerForm" style="display:none">
+  <div class="form-group">
+    <label>姓名 Nome e cognome</label>
+    <input type="text" id="regName" placeholder="Mario Rossi">
+  </div>
+  
+  <div class="form-group">
+    <label>手机号 Numero di telefono</label>
+    <div class="phone-input">
+      <span class="phone-prefix">+39</span>
+      <input type="tel" id="regPhone" placeholder="333 123 4567" maxlength="10">
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>验证码 Codice di verifica</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="regCode" placeholder="6 位验证码" maxlength="6" style="flex:1">
+      <button class="verify-btn" id="sendCodeBtn" onclick="sendVerificationCode()">Invia codice 发送验证码</button>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label>邮箱 Email (选填)</label>
+    <input type="email" id="regEmail" placeholder="mario@example.com">
+  </div>
+  
+  <div class="form-group">
+    <label>密码 Password</label>
+    <input type="password" id="regPassword" placeholder="至少 6 位">
+  </div>
+  
+  <div class="form-group">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-light);cursor:pointer">
+      <input type="checkbox" id="agreeTerms" style="accent-color:var(--accent)">
+      同意 <a href="#" style="color:var(--accent)">服务条款</a> 和 <a href="#" style="color:var(--accent)">隐私政策</a>
+    </label>
+  </div>
+  
+  <button class="submit-btn" onclick="handleRegister()">Registrati 注册</button>
+</div>
+
+<div class="login-footer">
+  继续即表示您同意我们的 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a><br>
+  Continuando accetti i nostri <a href="#">Termini di servizio</a> e <a href="#">Privacy Policy</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://yiyydikfpgbmtdypiggc.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
+
+let currentTab = 'login';
+let verifyCode = '';
+let codeExpires = 0;
+
+// 切换 Tab
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+// 发送验证码
+async function sendVerificationCode() {
+  const phone = document.getElementById('regPhone').value.trim();
+  
+  if (!phone || phone.length < 9) {
+    showToast('⚠️ 请输入有效的意大利手机号');
+    return;
+  }
+  
+  const btn = document.getElementById('sendCodeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Invio...';
+  
+  // 模拟发送验证码（实际应调用后端 API）
+  verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+  codeExpires = Date.now() + 5 * 60 * 1000; // 5 分钟有效期
+  
+  console.log('验证码:', verifyCode); // 开发时显示，生产环境删除
+  
+  // 倒计时
+  let countdown = 60;
+  const timer = setInterval(() => {
+    btn.textContent = `${countdown}s 后重试`;
+    countdown--;
+    if (countdown < 0) {
+      clearInterval(timer);
+      btn.disabled = false;
+      btn.textContent = 'Invia codice 发送验证码';
+    }
+  }, 1000);
+  
+  showToast('✅ 验证码已发送 / Codice inviato');
+  
+  // TODO: 实际发送短信
+  // await fetch('/api/auth/send-code', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ phone: '+39' + phone })
+  // });
+}
+
+// 注册
+async function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const code = document.getElementById('regCode').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const agree = document.getElementById('agreeTerms').checked;
+  
+  if (!name) { showToast('⚠️ 请输入姓名'); return; }
+  if (!phone || phone.length < 9) { showToast('⚠️ 请输入有效的手机号'); return; }
+  if (code !== verifyCode || Date.now() > codeExpires) { showToast('⚠️ 验证码无效或已过期'); return; }
+  if (password.length < 6) { showToast('⚠️ 密码至少 6 位'); return; }
+  if (!agree) { showToast('⚠️ 请同意服务条款'); return; }
+  
+  showToast('注册中...');
+  
+  // TODO: 调用注册 API
+  // const response = await fetch('/api/auth/register', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ name, phone: '+39' + phone, password })
+  // });
+  
+  // 模拟注册成功
+  setTimeout(() => {
+    const user = { id: Date.now(), name, phone: '+39' + phone, createdAt: new Date().toISOString() };
+    localStorage.setItem('buyer_user', JSON.stringify(user));
+    showToast('✅ 注册成功！');
+    
+    // 同步购物车
+    syncCartToServer();
+    
+    // 跳转到结算页
+    setTimeout(() => {
+      window.location.href = 'checkout.html';
+    }, 1000);
+  }, 1000);
+}
+
+// 登录
+async function handleLogin() {
+  const phone = document.getElementById('loginPhone').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  
+  if (!phone || phone.length < 9) { showToast('⚠️ 请输入有效的手机号'); return; }
+  if (!password) { showToast('⚠️ 请输入密码'); return; }
+  
+  showToast('登录中...');
+  
+  // TODO: 调用登录 API
+  // const response = await fetch('/api/auth/login', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ phone: '+39' + phone, password })
+  // });
+  
+  // 模拟登录成功
+  setTimeout(() => {
+    const user = { id: 123456, name: 'Mario Rossi', phone: '+39' + phone, createdAt: '2026-01-01' };
+    localStorage.setItem('buyer_user', JSON.stringify(user));
+    showToast('✅ 登录成功！');
+    
+    // 同步购物车
+    syncCartToServer();
+    
+    // 返回结算页或首页
+    const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+    setTimeout(() => {
+      window.location.href = returnUrl;
+    }, 1000);
+  }, 1000);
+}
+
+// 社交登录
+function socialLogin(provider) {
+  showToast(`${provider} 登录功能开发中`);
+  // TODO: 集成 Google/Apple OAuth
+}
+
+// 忘记密码
+function showForgotPassword() {
+  showToast('请联系客服重置密码 / Contatta il servizio clienti');
+}
+
+// 同步购物车（登录后）
+function syncCartToServer() {
+  const cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
+  if (cart.length === 0) return;
+  
+  // TODO: 发送到服务器
+  // fetch('/api/cart/sync', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ items: cart })
+  // });
+  
+  console.log('购物车已同步:', cart.length, '件商品');
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// 页面加载时检查是否已登录
+window.onload = function() {
+  const user = localStorage.getItem('buyer_user');
+  if (user) {
+    // 已登录，直接跳转
+    const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+    window.location.href = returnUrl;
+  }
+};
+</script>
+</body>
+</html>

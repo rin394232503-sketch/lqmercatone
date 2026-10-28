@@ -113,3 +113,50 @@ INSERT INTO products (name, brand, category, price, old_price, emoji, tag, on_sa
 -- 在 Supabase Storage 页面手动创建名为 "product-images" 的 bucket
 -- 然后运行：
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true);
+
+-- ===== 买家用户表 =====
+CREATE TABLE IF NOT EXISTS buyers (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL UNIQUE,
+  email TEXT,
+  password_hash TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ===== 买家购物车表 =====
+CREATE TABLE IF NOT EXISTS carts (
+  user_id BIGINT PRIMARY KEY REFERENCES buyers(id),
+  items JSONB NOT NULL DEFAULT '[]',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ===== 验证码表 =====
+CREATE TABLE IF NOT EXISTS verification_codes (
+  id BIGSERIAL PRIMARY KEY,
+  phone TEXT NOT NULL,
+  code TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_verification_codes_phone ON verification_codes(phone);
+CREATE INDEX IF NOT EXISTS idx_verification_codes_expires ON verification_codes(expires_at);
+
+-- RLS 策略
+ALTER TABLE buyers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE carts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE verification_codes ENABLE ROW LEVEL SECURITY;
+
+-- 买家只能查看自己的数据
+CREATE POLICY "Buyers can view own data" ON buyers FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Buyers can update own data" ON buyers FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can view own cart" ON carts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own cart" ON carts FOR ALL USING (auth.uid() = user_id);
+
+-- 验证码表仅后端访问
+CREATE POLICY "Service role only" ON verification_codes FOR ALL USING (false);
