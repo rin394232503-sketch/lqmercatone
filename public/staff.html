@@ -953,7 +953,7 @@ async function saveNewProduct(){
     category,
     price,
     old_price: parseFloat(document.getElementById('npOldPrice').value) || null,
-    emoji: document.getElementById('npEmoji').value || '📦',
+    emoji: '',
     tag: document.getElementById('npTag').value || null,
     on_sale: document.getElementById('npOnSale').value === '1',
     stock: parseInt(document.getElementById('npStock').value) || 99,
