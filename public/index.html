@@ -301,9 +301,29 @@ img { max-width: 100%; display: block; }
   width: 8px; height: 8px; background: var(--danger);
   border-radius: 50%; border: 2px solid white;
 }
+
+/* ===== Christmas Decorations ===== */
+.xmas-garland{position:fixed;top:0;left:0;right:0;height:6px;z-index:200;display:flex;overflow:hidden;pointer-events:none}
+.xmas-garland span{flex:1;height:6px}
+.xmas-garland span:nth-child(odd){background:#c0392b}
+.xmas-garland span:nth-child(even){background:#27ae60}
+.xmas-snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:150;overflow:hidden}
+.xmas-snowflake{position:absolute;top:-10px;color:white;text-shadow:0 0 4px rgba(255,255,255,0.8);animation:snowfall linear infinite;pointer-events:none}
+@keyframes snowfall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0.3}}
+.xmas-corner{position:fixed;top:10px;right:10px;font-size:24px;z-index:160;pointer-events:none;animation:swing 3s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
 </style>
 </head>
 <body>
+
+<!-- Christmas Garland -->
+<div class="xmas-garland" id="xmasGarland"></div>
+<!-- Christmas Corner Decoration -->
+<div class="xmas-corner">🎄</div>
+<!-- Snow Container -->
+<div class="xmas-snow" id="xmasSnow"></div>
+
+
 
 <!-- Top Bar -->
 <div class="top-bar">
@@ -422,7 +442,34 @@ img { max-width: 100%; display: block; }
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ===== Christmas Snow =====
+(function(){
+  const snow=document.getElementById('xmasSnow');
+  if(!snow)return;
+  const flakes=['❄','❅','❆','✦','•'];
+  const colors=['rgba(255,255,255,0.9)','rgba(255,255,255,0.7)','rgba(200,220,255,0.8)'];
+  function createFlake(){
+    const f=document.createElement('div');
+    f.className='xmas-snowflake';
+    f.textContent=flakes[Math.floor(Math.random()*flakes.length)];
+    f.style.left=Math.random()*100+'%';
+    f.style.fontSize=(Math.random()*14+6)+'px';
+    f.style.color=colors[Math.floor(Math.random()*colors.length)];
+    f.style.animationDuration=(Math.random()*6+4)+'s';
+    f.style.animationDelay=Math.random()*4+'s';
+    f.style.opacity=Math.random()*0.6+0.4;
+    snow.appendChild(f);
+    setTimeout(()=>f.remove(),12000);
+  }
+  // Garland
+  const g=document.getElementById('xmasGarland');
+  for(let i=0;i<60;i++){const s=document.createElement('span');g.appendChild(s)}
+  // Snow loop
+  setInterval(createFlake,400);
+  for(let i=0;i<15;i++)setTimeout(createFlake,i*200);
+})();
+</script>
 <script>
 // ===== Product Data (from Supabase or fallback) =====
 let PRODUCTS = [];
@@ -826,6 +873,33 @@ function rebuyAddAll(idsStr) {
 currentLang = localStorage.getItem('lq_lang') || 'it';
 applyLang();
 loadProducts();
+
+// ===== Christmas Snow =====
+(function(){
+  const snow=document.getElementById('xmasSnow');
+  if(!snow)return;
+  const flakes=['❄','❅','❆','✦','•'];
+  const colors=['rgba(255,255,255,0.9)','rgba(255,255,255,0.7)','rgba(200,220,255,0.8)'];
+  function createFlake(){
+    const f=document.createElement('div');
+    f.className='xmas-snowflake';
+    f.textContent=flakes[Math.floor(Math.random()*flakes.length)];
+    f.style.left=Math.random()*100+'%';
+    f.style.fontSize=(Math.random()*14+6)+'px';
+    f.style.color=colors[Math.floor(Math.random()*colors.length)];
+    f.style.animationDuration=(Math.random()*6+4)+'s';
+    f.style.animationDelay=Math.random()*4+'s';
+    f.style.opacity=Math.random()*0.6+0.4;
+    snow.appendChild(f);
+    setTimeout(()=>f.remove(),12000);
+  }
+  // Garland
+  const g=document.getElementById('xmasGarland');
+  for(let i=0;i<60;i++){const s=document.createElement('span');g.appendChild(s)}
+  // Snow loop
+  setInterval(createFlake,400);
+  for(let i=0;i<15;i++)setTimeout(createFlake,i*200);
+})();
 </script>
 </body>
 </html>
