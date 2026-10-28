@@ -419,6 +419,9 @@ function selectPayment(el, method) {
     if (p !== el) p.querySelector('.payment-check').textContent = '';
   });
   selectedPayment = method;
+    // Show/hide 3DS notice
+    const notice = document.getElementById('threesNotice');
+    if (notice) notice.style.display = method === 'card' ? 'block' : 'none';
   // Show/hide pickup info
   const pickupInfo = document.getElementById('pickupInfo');
   if (pickupInfo) pickupInfo.style.display = method === 'pickup' ? 'block' : 'none';
@@ -585,6 +588,11 @@ function showToast(msg) {
 
 // Init
 render();
+// Show 3DS notice if card payment is default
+if (selectedPayment === 'card') {
+  const notice = document.getElementById('threesNotice');
+  if (notice) notice.style.display = 'block';
+}
 </script>
 </body>
 </html>

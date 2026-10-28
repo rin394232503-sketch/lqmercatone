@@ -453,3 +453,76 @@ app.listen(PORT, '0.0.0.0', () => {
 
 // Vercel serverless export
 module.exports = app;
+
+// ===== 超时自动关单 API =====
+app.post('/api/orders/auto-cancel-timeout', async (req, res) => {
+  try {
+    const timeoutHours = 24;
+    const cutoffTime = new Date(Date.now() - timeoutHours * 60 * 60 * 1000).toISOString();
+    
+    // 查找超时订单
+    const timeoutOrders = db.prepare(`
+      SELECT * FROM orders 
+      WHERE status = 'pending' 
+      AND created_at < ?
+    `).all(cutoffTime);
+    
+    console.log(`🔍 找到 ${timeoutOrders.length} 个超时订单`);
+    
+    let successCount = 0;
+    let failCount = 0;
+    const results = [];
+    
+    for (const order of timeoutOrders) {
+      try {
+        // 解析商品
+        const items = JSON.parse(order.items_json || '[]');
+        
+        // 更新订单状态
+        db.prepare(`
+          UPDATE orders 
+          SET status = 'cancelled', 
+              cancelled_at = CURRENT_TIMESTAMP,
+              cancel_reason = 'timeout_unpaid'
+          WHERE id = ?
+        `).run(order.id);
+        
+        // 释放库存
+        for (const item of items) {
+          if (item.id) {
+            const qty = item.qty || 1;
+            db.prepare(`
+              UPDATE products 
+              SET stock = stock + ? 
+              WHERE id = ?
+            `).run(qty, item.id);
+          }
+        }
+        
+        successCount++;
+        results.push({
+          order_no: order.order_no,
+          customer: order.customer_name,
+          status: 'cancelled',
+          stock_released: items.reduce((sum, i) => sum + (i.qty || 1), 0)
+        });
+        
+        console.log(`✅ 订单 ${order.order_no} 已关闭，库存已释放`);
+      } catch (error) {
+        failCount++;
+        console.error(`❌ 订单 ${order.order_no} 处理失败:`, error.message);
+      }
+    }
+    
+    res.json({
+      success: true,
+      total: timeoutOrders.length,
+      success_count: successCount,
+      fail_count: failCount,
+      results
+    });
+  } catch (error) {
+    console.error('💥 自动关单失败:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
