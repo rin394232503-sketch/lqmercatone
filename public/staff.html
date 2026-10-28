@@ -546,6 +546,13 @@ input,select,textarea{font-family:inherit}
 
   <!-- Settings Page -->
   <div class="page" id="page-settings">
+        <div class="settings-list" style="margin-top:12px">
+      <div style="padding:14px 16px;font-size:14px;font-weight:600">🔔 推送通知 Notifiche</div>
+      <div class="settings-item" onclick="toggleNotifType('order',this)"><div class="settings-left"><span class="sicon">📦</span><span class="slbl">新订单提醒 Nuovi ordini</span></div><span class="settings-right" id="notif_order">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('aftersale',this)"><div class="settings-left"><span class="sicon">🔄</span><span class="slbl">售后申请 Richieste reso</span></div><span class="settings-right" id="notif_aftersale">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('stock',this)"><div class="settings-left"><span class="sicon">️</span><span class="slbl">库存预警 Allerta scorta</span></div><span class="settings-right" id="notif_stock">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('review',this)"><div class="settings-left"><span class="sicon">⭐</span><span class="slbl">客户评价 Recensioni</span></div><span class="settings-right" id="notif_review">✅ ></span></div>
+    </div>
     <div class="settings-list">
       <div class="settings-item" onclick="openChangePassword()"><div class="settings-left"><span class="sicon">🔑</span><span class="slbl">修改密码</span></div><span class="settings-right">></span></div>
       <div class="settings-item" onclick="toggleAppLang()"><div class="settings-left"><span class="sicon">🌐</span><span class="slbl">语言 Language</span></div><span class="settings-right" id="currentLang">中文 ></span></div>
@@ -1234,6 +1241,25 @@ function cancelBatch(){
 }
 
 
+
+function toggleNotifType(type,el){
+  const prefs=JSON.parse(localStorage.getItem('notif_prefs')||'{"order":true,"aftersale":true,"stock":true,"review":true}');
+  prefs[type]=!prefs[type];
+  localStorage.setItem('notif_prefs',JSON.stringify(prefs));
+  const statusEl=document.getElementById('notif_'+type);
+  if(statusEl)statusEl.textContent=prefs[type]?'✅ >':'🔕 >';
+  showToast(prefs[type]?'🔔 通知已开启':'🔕 通知已关闭');
+  // Update Realtime listener behavior
+  updateRealtimeFilter();
+}
+function getNotifPref(type){
+  const prefs=JSON.parse(localStorage.getItem('notif_prefs')||'{"order":true,"aftersale":true,"stock":true,"review":true}');
+  return prefs[type]!==false;
+}
+function updateRealtimeFilter(){
+  // Realtime always listens, but toast only shows if pref is on
+}
+
 // ===== Settings Functions =====
 let notifEnabled=true;
 function openChangePassword(){
@@ -1556,6 +1582,22 @@ function exportLogsCSV(){
   const a=document.createElement('a');a.href=url;a.download='operation_logs_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   URL.revokeObjectURL(url);
   showToast('✅ 日志已导出 / Log esportati');
+}
+
+
+function saveAdminNote(orderId){
+  const note=document.getElementById('adminNote_'+orderId).value.trim();
+  const o=allOrders.find(x=>x.id===orderId);
+  if(o)o.admin_note=note;
+  // Save to localStorage as backup
+  const orders=JSON.parse(localStorage.getItem('lq_orders')||'[]');
+  const idx=orders.findIndex(x=>x.order_no===o?.order_no);
+  if(idx>=0){orders[idx].admin_note=note;localStorage.setItem('lq_orders',JSON.stringify(orders))}
+  // Try Supabase
+  if(sb&&o){sb.from('orders').update({admin_note:note}).eq('id',orderId).then(({error})=>{
+    if(error)console.error('Admin note save error:',error);
+  }).catch(e=>console.error(e))}
+  showToast('✅ 内部备注已保存 / Nota interna salvata');
 }
 
 // ===== Navigation =====

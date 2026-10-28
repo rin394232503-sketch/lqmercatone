@@ -443,7 +443,16 @@ tr:hover td{background:var(--bg2)}
         <div style="max-width:400px;margin-top:16px">
           <div style="margin-bottom:16px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">店铺名称</label><input type="text" value="L&Qmercatone" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text)"></div>
           <div style="margin-bottom:16px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">联系邮箱</label><input type="email" value="info@lqmercatone.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text)"></div>
-          <button onclick="showToast('✅ 设置已保存')" style="padding:10px 24px;background:var(--accent);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">💾 保存</button>
+          <div style="margin-bottom:20px">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:10px"> 推送通知设置</label>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_order" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)">  新订单</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_aftersale" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> 🔄 售后</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_stock" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> ⚠️ 库存预警</label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="dashNotif_review" checked onchange="saveNotifPrefs()" style="accent-color:var(--accent)"> ⭐ 评价</label>
+      </div>
+    </div>
+    <button onclick="showToast('✅ 设置已保存');saveNotifPrefs()" style="padding:10px 24px;background:var(--accent);color:white;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer">💾 保存</button>
         </div>
       </div>
     </div>
@@ -684,6 +693,15 @@ c.innerHTML=results.length?'<table style="width:100%;border-collapse:collapse;fo
 async function dashApplyDiscount(id){const newPrice=parseFloat(document.getElementById('ddisc_'+id).value);if(!newPrice||newPrice<=0){showToast('请输入有效价格');return}const p=allProducts.find(x=>x.id===id);if(!p)return;const oldPrice=p.price;if(sb)try{await sb.from('products').update({price:newPrice,old_price:oldPrice}).eq('id',id)}catch(e){}p.price=newPrice;p.old_price=oldPrice;p.tag='sale';showToast('✅ '+p.name.substring(0,15)+' €'+oldPrice.toFixed(2)+' → €'+newPrice.toFixed(2));dashSearchDiscount();renderDashboard()}
 function dashSearchDiscount2(){dashSearchDiscount()}
 
+
+
+function saveAdminNote(orderId){
+  const note=document.getElementById('adminNote_'+orderId).value.trim();
+  const o=allOrders.find(x=>x.id===orderId);
+  if(o)o.admin_note=note;
+  if(sb&&o){sb.from('orders').update({admin_note:note}).eq('id',orderId).then(({error})=>{if(error)console.error(error)}).catch(e=>console.error(e))}
+  showToast('✅ 内部备注已保存');
+}
 
 // ===== Log Functions =====
 let currentDashLogFilter='all';

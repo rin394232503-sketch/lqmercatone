@@ -250,6 +250,20 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="payment-name">PayPal</div>
     <div class="payment-check"></div>
   </div>
+  <div class="payment-option" onclick="selectPayment(this,'pickup')">
+    <div class="payment-icon">🏪</div>
+    <div class="payment-name">到店自提 Ritiro in negozio <span style="font-size:11px;color:var(--success);margin-left:6px">运费 €0</span></div>
+    <div class="payment-check"></div>
+  </div>
+</div>
+
+<!-- Pickup Info (hidden by default) -->
+<div class="section-card" id="pickupInfo" style="display:none">
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px"> 自提信息 Informazioni ritiro</div>
+  <div style="font-size:14px;font-weight:600">L&Qmercatone</div>
+  <div style="font-size:13px;color:var(--text-light)">Via Roma 123, 20121 Milano</div>
+  <div style="font-size:12px;color:var(--text-muted);margin-top:4px">营业时间: Lun-Sab 9:00-19:00</div>
+  <div style="font-size:12px;color:var(--accent);margin-top:4px">自提有效期: 7天 dal pagamento</div>
 </div>
 
 <!-- Order Note -->
@@ -405,6 +419,20 @@ function selectPayment(el, method) {
     if (p !== el) p.querySelector('.payment-check').textContent = '';
   });
   selectedPayment = method;
+  // Show/hide pickup info
+  const pickupInfo = document.getElementById('pickupInfo');
+  if (pickupInfo) pickupInfo.style.display = method === 'pickup' ? 'block' : 'none';
+  // Update shipping cost
+  const shippingBar = document.getElementById('checkoutShipping');
+  if (shippingBar) {
+    if (method === 'pickup') {
+      shippingBar.textContent = '自提 Ritiro: €0';
+      // Recalculate total without shipping
+      const subtotal = cart.filter(i => i.selected).reduce((s, i) => s + i.price * i.qty, 0);
+      document.getElementById('totalPrice').textContent = subtotal.toFixed(2);
+      document.getElementById('submitTotal').textContent = subtotal.toFixed(2);
+    }
+  }
 }
 
 // ===== Address Modal =====
@@ -456,8 +484,9 @@ async function submitOrder() {
     customer_name: currentAddress.name,
     customer_phone: currentAddress.phone,
     customer_address: currentAddress.detail + (currentAddress.city ? ', '+currentAddress.city : '') + (currentAddress.zip ? ' '+currentAddress.zip : ''),
-    payment_method: selectedPayment === 'sisal' ? 'Sisal' : selectedPayment === 'card' ? 'Carta' : 'PayPal',
+    payment_method: selectedPayment === 'sisal' ? 'Sisal' : selectedPayment === 'card' ? 'Carta' : selectedPayment === 'paypal' ? 'PayPal' : 'Ritiro in negozio',
     note: document.getElementById('orderNote').value.trim(),
+    admin_note: '' // 管理员内部备注，后台填写
     items: items.map(i => ({id:i.id, name:i.name, emoji:i.emoji||'', qty:i.qty, price:i.price, color:i.color||'', size:i.size||'', category:i.category||''})),
     total_amount: total,
     item_count: itemCount,
