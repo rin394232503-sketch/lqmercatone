@@ -423,15 +423,13 @@ input,select,textarea{font-family:inherit}
       </div>
     </div>
     <div class="form-section">
-      <h3>图标/图片</h3>
-      <div class="form-row">
-        <div class="form-group"><label>Emoji 图标</label><input type="text" id="npEmoji" placeholder="📦" maxlength="4"></div>
-        <div class="form-group">
-        <label>上传图片 <span style="font-size:11px;color:var(--text2)">(自动压缩到2-3MB JPEG)</span></label>
-        <input type="file" id="npImage" accept="image/*" onchange="previewImage(this)">
-        <div id="imgPreview" style="margin-top:8px;display:none"><img id="imgPreviewTag" style="max-width:120px;max-height:120px;border-radius:8px;border:1px solid var(--border)"><div style="font-size:11px;color:var(--success);margin-top:4px">✅ 图片已选择，保存时自动上传</div></div>
+      <h3>商品图片</h3>
+      <div class="upload-area" onclick="document.getElementById('npImages').click()" style="cursor:pointer">
+        <div class="upload-icon"></div>
+        <p>点击选择图片（可多选）<br>Seleziona immagini (multiple)</p>
       </div>
-      </div>
+      <input type="file" id="npImages" accept="image/*" multiple style="display:none" onchange="previewImages(this)">
+      <div id="imgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
     </div>
     <div class="form-section">
       <h3>描述 Descrizione</h3>
@@ -1349,7 +1347,7 @@ function showPage(page,navEl){
   const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
-  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
+  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}{uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
   if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
