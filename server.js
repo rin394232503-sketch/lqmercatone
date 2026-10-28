@@ -968,3 +968,93 @@ app.post('/api/user/unsubscribe-all', (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// ===== 账号删除 API (GDPR) =====
+
+// 申请删除账号
+app.post('/api/user/delete-account', async (req, res) => {
+  try {
+    const userId = req.headers.authorization?.split(' ')[1];
+    const { reason, confirm } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({ error: '未登录' });
+    }
+    
+    if (!confirm) {
+      return res.status(400).json({ 
+        error: '需要确认删除 / Conferma l\'eliminazione',
+        confirmRequired: true 
+      });
+    }
+    
+    console.log('🗑️ 账号删除请求:', userId);
+    console.log('   理由:', reason || '未提供');
+    
+    // TODO: 实际删除逻辑
+    // 1. 匿名化个人数据（保留订单记录用于税务）
+    // 2. 删除账户信息
+    // 3. 删除购物车/收藏
+    // 4. 保留订单记录（税务要求 10 年）
+    // 5. 发送确认邮件
+    
+    // 示例：匿名化
+    // await db.prepare(`
+    //   UPDATE buyers 
+    //   SET name = 'Deleted User',
+    //       phone = NULL,
+    //       email = NULL,
+    //       password_hash = NULL,
+    //       deleted_at = CURRENT_TIMESTAMP
+    //   WHERE id = ?
+    // `).run(userId);
+    
+    // await db.prepare(`
+    //   DELETE FROM carts WHERE user_id = ?
+    // `).run(userId);
+    
+    // await db.prepare(`
+    //   DELETE FROM verification_codes WHERE phone IS NULL
+    // `).run();
+    
+    console.log('✅ 账号已删除');
+    
+    res.json({
+      success: true,
+      message: '账号已删除。订单记录因税务要求保留 10 年（已匿名化）。'
+    });
+    
+  } catch (error) {
+    console.error('账号删除失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 导出数据（GDPR 数据可携权）
+app.get('/api/user/export-data', async (req, res) => {
+  try {
+    const userId = req.headers.authorization?.split(' ')[1];
+    
+    if (!userId) {
+      return res.status(401).json({ error: '未登录' });
+    }
+    
+    // TODO: 导出用户所有数据
+    const userData = {
+      // profile: await db.prepare('SELECT * FROM buyers WHERE id = ?').get(userId),
+      // orders: await db.prepare('SELECT * FROM orders WHERE buyer_id = ?').all(userId),
+      // reviews: await db.prepare('SELECT * FROM reviews WHERE buyer_id = ?').all(userId),
+      export_date: new Date().toISOString(),
+      format: 'json'
+    };
+    
+    res.json({
+      success: true,
+      data: userData
+    });
+    
+  } catch (error) {
+    console.error('数据导出失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});

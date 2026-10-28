@@ -481,6 +481,50 @@ async function updateEmailPrefs() {
 // 页面加载时初始化
 loadEmailPrefs();
 
+
+// ===== Delete Account (GDPR) =====
+function confirmDeleteAccount() {
+  if (confirm('确定要删除账号吗？此操作不可恢复。\nSei sicuro di voler eliminare l\'account? Questa azione è irreversibile.')) {
+    document.getElementById('deleteAccountModal').classList.add('open');
+  }
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteAccountModal').classList.remove('open');
+}
+
+async function executeDeleteAccount() {
+  const reason = document.getElementById('deleteReason').value;
+  
+  try {
+    const response = await fetch('/api/user/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        reason, 
+        confirm: true,
+        token: localStorage.getItem('buyer_token')
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('✅ 账号已删除 / Account eliminato');
+      localStorage.removeItem('buyer_user');
+      localStorage.removeItem('buyer_token');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+    } else {
+      showToast('❌ 删除失败: ' + result.error);
+    }
+  } catch (error) {
+    console.error('删除账号失败:', error);
+    showToast(' 网络错误 / Errore di rete');
+  }
+}
+
 </script>
 <script>
 // ===== Supabase =====
@@ -693,6 +737,50 @@ async function updateEmailPrefs() {
 
 // 页面加载时初始化
 loadEmailPrefs();
+
+
+// ===== Delete Account (GDPR) =====
+function confirmDeleteAccount() {
+  if (confirm('确定要删除账号吗？此操作不可恢复。\nSei sicuro di voler eliminare l\'account? Questa azione è irreversibile.')) {
+    document.getElementById('deleteAccountModal').classList.add('open');
+  }
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteAccountModal').classList.remove('open');
+}
+
+async function executeDeleteAccount() {
+  const reason = document.getElementById('deleteReason').value;
+  
+  try {
+    const response = await fetch('/api/user/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        reason, 
+        confirm: true,
+        token: localStorage.getItem('buyer_token')
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('✅ 账号已删除 / Account eliminato');
+      localStorage.removeItem('buyer_user');
+      localStorage.removeItem('buyer_token');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+    } else {
+      showToast('❌ 删除失败: ' + result.error);
+    }
+  } catch (error) {
+    console.error('删除账号失败:', error);
+    showToast(' 网络错误 / Errore di rete');
+  }
+}
 
 </script>
 </body>

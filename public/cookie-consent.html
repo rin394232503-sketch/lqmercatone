@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie 设置</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;max-width:480px;margin:0 auto;background:#f8f9fa;color:#2d3436;padding:20px}
+.cookie-banner{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.15);padding:20px;z-index:1000;max-height:90vh;overflow-y:auto}
+.cookie-banner h2{font-size:18px;font-weight:700;margin-bottom:8px}
+.cookie-banner p{font-size:13px;color:#636e72;line-height:1.5;margin-bottom:16px}
+.cookie-categories{margin-bottom:20px}
+.cookie-category{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8f9fa;border-radius:8px;margin-bottom:8px}
+.cookie-category-info{flex:1}
+.cookie-category-info h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.cookie-category-info p{font-size:11px;color:#636e72}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#b2bec3;border-radius:12px;transition:0.2s}
+.toggle-slider:before{content:'';position:absolute;left:2px;top:2px;width:20px;height:20px;background:white;border-radius:50%;transition:0.2s}
+.toggle input:checked + .toggle-slider{background:#6c5ce7}
+.toggle input:checked + .toggle-slider:before{transform:translateX(20px)}
+.toggle input:disabled + .toggle-slider{opacity:0.5;cursor:not-allowed}
+.cookie-actions{display:flex;gap:12px}
+.cookie-btn{flex:1;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.cookie-btn-primary{background:#6c5ce7;color:white}
+.cookie-btn-secondary{background:#f0eeff;color:#6c5ce7}
+.cookie-btn:active{opacity:0.85}
+.cookie-link{text-align:center;margin-top:16px;font-size:12px}
+.cookie-link a{color:#6c5ce7;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="cookie-banner" id="cookieBanner">
+  <h2>🍪 Cookie 设置 Impostazioni Cookie</h2>
+  <p>
+    我们使用 Cookie 改善您的体验。请选择您同意的 Cookie 类型。<br>
+    Utilizziamo i cookie per migliorare la tua esperienza. Seleziona i tipi di cookie che accetti.
+  </p>
+  
+  <div class="cookie-categories">
+    <!-- 必要 Cookie（不可拒绝） -->
+    <div class="cookie-category">
+      <div class="cookie-category-info">
+        <h3> 必要 Cookie Necessari</h3>
+        <p>网站运行必需（登录/购物车/安全）<br>Essenziali per il funzionamento del sito</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+    <!-- 统计 Cookie -->
+    <div class="cookie-category">
+      <div class="cookie-category-info">
+        <h3> 统计 Cookie Statistici</h3>
+        <p>帮助我们了解网站使用情况<br>Ci aiutano a capire l'utilizzo del sito</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="cookie_stats" onchange="updateCookiePrefs()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+    <!-- 营销 Cookie -->
+    <div class="cookie-category">
+      <div class="cookie-category-info">
+        <h3> 营销 Cookie Marketing</h3>
+        <p>用于个性化广告和促销<br>Per pubblicità personalizzata e promozioni</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="cookie_marketing" onchange="updateCookiePrefs()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="cookie-actions">
+    <button class="cookie-btn cookie-btn-secondary" onclick="rejectAll()">拒绝所有 Rifiuta</button>
+    <button class="cookie-btn cookie-btn-primary" onclick="acceptSelected()">保存选择 Salva</button>
+  </div>
+  
+  <div class="cookie-link">
+    <a href="privacy.html">隐私政策 Privacy Policy</a> · 
+    <a href="terms.html">服务条款 Termini di Servizio</a>
+  </div>
+</div>
+
+<script>
+// Cookie 偏好
+let cookiePrefs = {
+  necessary: true,  // 必需，不可关闭
+  stats: false,
+  marketing: false
+};
+
+// 页面加载时检查已有偏好
+window.onload = function() {
+  const saved = localStorage.getItem('cookie_prefs');
+  if (saved) {
+    cookiePrefs = JSON.parse(saved);
+    document.getElementById('cookieBanner').style.display = 'none';
+    initAnalytics();
+  } else {
+    // 首次访问，显示弹窗
+    document.getElementById('cookieBanner').style.display = 'block';
+  }
+};
+
+// 更新偏好
+function updateCookiePrefs() {
+  cookiePrefs.stats = document.getElementById('cookie_stats').checked;
+  cookiePrefs.marketing = document.getElementById('cookie_marketing').checked;
+}
+
+// 拒绝所有
+function rejectAll() {
+  cookiePrefs = { necessary: true, stats: false, marketing: false };
+  saveCookiePrefs();
+}
+
+// 保存选择
+function acceptSelected() {
+  updateCookiePrefs();
+  saveCookiePrefs();
+}
+
+// 保存到 localStorage
+function saveCookiePrefs() {
+  localStorage.setItem('cookie_prefs', JSON.stringify(cookiePrefs));
+  document.getElementById('cookieBanner').style.display = 'none';
+  initAnalytics();
+  console.log('Cookie 偏好已保存:', cookiePrefs);
+}
+
+// 初始化分析工具（根据偏好）
+function initAnalytics() {
+  if (cookiePrefs.stats) {
+    // TODO: 初始化 Google Analytics / Matomo
+    console.log('✅ 统计 Cookie 已启用');
+  }
+  
+  if (cookiePrefs.marketing) {
+    // TODO: 初始化 Facebook Pixel / Google Ads
+    console.log('✅ 营销 Cookie 已启用');
+  }
+}
+
+// 导出偏好（供其他页面使用）
+window.getCookiePrefs = function() {
+  return cookiePrefs;
+};
+</script>
+
+</body>
+</html>
