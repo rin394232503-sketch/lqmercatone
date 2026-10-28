@@ -160,3 +160,36 @@ CREATE POLICY "Users can update own cart" ON carts FOR ALL USING (auth.uid() = u
 
 -- 验证码表仅后端访问
 CREATE POLICY "Service role only" ON verification_codes FOR ALL USING (false);
+
+-- ===== 退货地址配置表 =====
+CREATE TABLE IF NOT EXISTS return_addresses (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,          -- 收货人姓名
+  street TEXT NOT NULL,        -- 街道地址
+  postal_code TEXT NOT NULL,   -- 邮编 (CAP)
+  city TEXT NOT NULL,          -- 城市
+  province TEXT,               -- 省份
+  phone TEXT NOT NULL,         -- 联系电话
+  email TEXT,                  -- 联系邮箱
+  instructions TEXT,           -- 退货说明
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 插入默认退货地址（示例）
+INSERT INTO return_addresses (name, street, postal_code, city, province, phone, email, instructions)
+VALUES (
+  'L&Qmercatone Resi',
+  'Via Roma 123',
+  '20121',
+  'Milano',
+  'MI',
+  '+39 02 1234 5678',
+  'resi@lqmercatone.com',
+  '退货说明：请保持商品原包装完好，附上订单号。'
+) ON CONFLICT DO NOTHING;
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_return_addresses_active ON return_addresses(is_active);
+

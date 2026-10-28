@@ -890,6 +890,111 @@ function exportInventoryCSV(){
   logOperation('export_inventory','report','inventory',null,{count:allProducts.length});
 }
 
+
+// ===== Save Settings =====
+async function saveSettings() {
+  const settings = {
+    store_name: document.getElementById('setting_store_name').value,
+    email: document.getElementById('setting_email').value
+  };
+  
+  try {
+    if (sb) {
+      await sb.from('site_settings').upsert([
+        { key: 'store_name', value: settings.store_name },
+        { key: 'contact_email', value: settings.email }
+      ]);
+    }
+    showToast('✅ 设置已保存 / Impostazioni salvate');
+  } catch (error) {
+    showToast('❌ 保存失败: ' + error.message);
+  }
+}
+
+// ===== Save Return Address =====
+async function saveReturnAddress() {
+  const address = {
+    name: document.getElementById('return_name').value,
+    phone: document.getElementById('return_phone').value,
+    street: document.getElementById('return_street').value,
+    postal_code: document.getElementById('return_postal').value,
+    city: document.getElementById('return_city').value,
+    province: document.getElementById('return_province').value,
+    email: document.getElementById('return_email').value,
+    instructions: document.getElementById('return_instructions').value
+  };
+  
+  // 验证必填项
+  if (!address.name || !address.street || !address.postal_code || !address.city || !address.phone) {
+    showToast('⚠️ 请填写所有必填项 / Compila tutti i campi obbligatori');
+    return;
+  }
+  
+  // 验证意大利邮编格式（5 位数字）
+  if (!/^\d{5}$/.test(address.postal_code)) {
+    showToast('⚠️ 邮编格式错误（应为 5 位数字）/ CAP non valido (5 cifre)');
+    return;
+  }
+  
+  try {
+    if (sb) {
+      // 更新或插入退货地址
+      const { data, error } = await sb.from('return_addresses')
+        .upsert([{ ...address, is_active: true }], { onConflict: 'id' });
+      
+      if (error) throw error;
+      showToast('✅ 退货地址已保存 / Indirizzo di reso salvato');
+      logOperation('update_return_address', 'settings', 'return_address', null, address);
+    } else {
+      // 离线模式：保存到 localStorage
+      localStorage.setItem('return_address', JSON.stringify(address));
+      showToast('✅ 退货地址已保存（离线）/ Salvato offline');
+    }
+  } catch (error) {
+    showToast('❌ 保存失败: ' + error.message);
+  }
+}
+
+// Load return address on page load
+async function loadReturnAddress() {
+  try {
+    if (sb) {
+      const { data } = await sb.from('return_addresses')
+        .select('*')
+        .eq('is_active', true)
+        .limit(1);
+      
+      if (data && data[0]) {
+        const addr = data[0];
+        document.getElementById('return_name').value = addr.name || '';
+        document.getElementById('return_phone').value = addr.phone || '';
+        document.getElementById('return_street').value = addr.street || '';
+        document.getElementById('return_postal').value = addr.postal_code || '';
+        document.getElementById('return_city').value = addr.city || '';
+        document.getElementById('return_province').value = addr.province || '';
+        document.getElementById('return_email').value = addr.email || '';
+        document.getElementById('return_instructions').value = addr.instructions || '';
+      }
+    } else {
+      // 离线模式：从 localStorage 加载
+      const saved = localStorage.getItem('return_address');
+      if (saved) {
+        const addr = JSON.parse(saved);
+        document.getElementById('return_name').value = addr.name || '';
+        document.getElementById('return_phone').value = addr.phone || '';
+        document.getElementById('return_street').value = addr.street || '';
+        document.getElementById('return_postal').value = addr.postal_code || '';
+        document.getElementById('return_city').value = addr.city || '';
+        document.getElementById('return_province').value = addr.province || '';
+        document.getElementById('return_email').value = addr.email || '';
+        document.getElementById('return_instructions').value = addr.instructions || '';
+      }
+    }
+  } catch (error) {
+    console.error('加载退货地址失败:', error);
+  }
+}
+
 // ===== Navigation =====
 function showPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');else{const map={dashboard:0,products:1,orders:2,quickadd:3,import:4,addproduct:5,lowstock:6,discount:7,aftersales:8,reviews:9,notifications:10,settings:11};const items=document.querySelectorAll('.menu-item');if(items[map[page]])items[map[page]].classList.add('active')}
 const t={dashboard:'数据看板 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',addproduct:'新增商品 Nuovo Prodotto',quickadd:'快速入库 Aggiunta Rapida',import:'批量导入 Importa',lowstock:'库存预警 Stock Alert',discount:'快速打折 Sconto Rapido',aftersales:'售后管理 Resi',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'系统设置 Impostazioni'};
