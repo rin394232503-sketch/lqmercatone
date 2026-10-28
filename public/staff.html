@@ -1187,11 +1187,11 @@ function editProduct(id){
   const showSizes=p.category==='Abbigliamento'?'block':'none';
   const colorMatch=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒÙ,\s]+)/);
   const existingColors=colorMatch?colorMatch[1].split(',').map(s=>s.trim()):[];
-  const allColors=['Nero','Bianco','Grigio','Blu','Rosso','Verde','Beige','Marrone'];
+  const allColors=['','Nero','Bianco','Grigio','Blu','Rosso','Verde','Beige','Marrone'];
   const colorBtns=allColors.map(c=>{
     const isActive=existingColors.includes(c);
     const style=isActive?'border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent)':'border:1.5px solid var(--border);color:var(--text2)';
-    const iconMap={Nero:'',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
+    const iconMap={'':'无',Nero:'',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
     return`<div class="color-opt${isActive?' active':''}" onclick="toggleColor(this)" data-color="${c}" style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;${style}">${iconMap[c]||''} ${c}</div>`;
   }).join('');
 
