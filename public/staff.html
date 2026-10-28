@@ -1095,7 +1095,7 @@ async function saveNewProduct(){
     }catch(e){console.log('Image compress error:',e)}
   }
   // Also use preview uploaded images
-  const validUploaded=uploadedImages.filter(u=>u);
+  const validUploaded=uploadedMedia.filter(u=>u&&u.type==='image');
   if(validUploaded.length>0){
     if(!newP.image_url)newP.image_url=validUploaded[0];
     
@@ -1569,7 +1569,7 @@ function showPage(page,navEl){
   const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
-  if(page==='products')renderProducts();if(page==='addproduct'){uploadedImages=[];document.getElementById('imgPreview').innerHTML=''}
+  if(page==='products')renderProducts();if(page==='addproduct'){uploadedMedia=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
   if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs'){renderLogs();const af=document.getElementById('logsAccountFilter');if(af){const allLogs=JSON.parse(localStorage.getItem('staff_logs')||'[]');const visibleLogs=(currentUser&&currentUser.role==='staff')?allLogs.filter(l=>l.account===currentUser.username):allLogs;af.textContent='共'+visibleLogs.length+'条 | 账号:'+(currentUser?currentUser.username:'unknown')+(currentUser&&currentUser.role==='staff'?' (仅自己的日志)':'')}};if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
@@ -1661,7 +1661,9 @@ async function saveEditProduct(id){
   const oldP=allProducts.find(x=>x.id===id);logOperation('edit_product','product',id,oldP,{...updates});closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
 }
 async function deleteProduct(id){
-  if(!confirm('确定删除这个商品？'))return;
+  const p=allProducts.find(x=>x.id===id);
+  const keepMedia=p&&p.image_url?confirm('同时删除商品图片？\n取消=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
+  if(!confirm('确定删除这个商品？\nEliminare questo prodotto?'))return;
   if(sb){
     try{const{error}=await sb.from('products').delete().eq('id',id);if(error){handleSyncError('delete_product',error);return}}
     catch(e){handleSyncError('delete_product',e);return}

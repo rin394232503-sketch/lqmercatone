@@ -153,6 +153,12 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 /* ===== Responsive ===== */
 @media(max-width:768px){body{max-width:100%}}
+
+/* ===== Image Zoom ===== */
+.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:500;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.zoom-overlay.show{display:flex}
+.zoom-overlay img{max-width:100%;max-height:100%;transition:transform 0.2s;touch-action:none}
+.zoom-close{position:fixed;top:16px;right:16px;color:white;font-size:24px;z-index:501;cursor:pointer;background:rgba(0,0,0,0.5);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -613,8 +619,48 @@ function showToast(msg){
   setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(100px)'},2000);
 }
 
+
+// ===== Image Zoom =====
+let zoomScale=1,zoomStartDist=0;
+function openZoom(src){
+  document.getElementById('zoomImg').src=src;
+  document.getElementById('zoomOverlay').classList.add('show');
+  zoomScale=1;document.getElementById('zoomImg').style.transform='scale(1)';
+}
+function closeZoom(){document.getElementById('zoomOverlay').classList.remove('show')}
+function zoomTouchStart(e){
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    zoomStartDist=Math.sqrt(dx*dx+dy*dy);
+  }
+}
+function zoomTouchMove(e){
+  e.preventDefault();
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    zoomScale=Math.max(0.5,Math.min(5,zoomScale*(dist/zoomStartDist)));
+    document.getElementById('zoomImg').style.transform='scale('+zoomScale+')';
+    zoomStartDist=dist;
+  }
+}
+function zoomTouchEnd(){zoomStartDist=0}
+// Click on carousel images to zoom
+document.getElementById('carouselTrack')?.addEventListener('click',function(e){
+  const img=e.target.closest('img');
+  if(img&&img.src.startsWith('data:'))openZoom(img.src);
+});
+
 // ===== Init =====
 loadProduct();
 </script>
+
+<!-- Image Zoom Overlay -->
+<div class="zoom-overlay" id="zoomOverlay" onclick="closeZoom()">
+  <div class="zoom-close" onclick="closeZoom()">✕</div>
+  <img id="zoomImg" src="" style="transform:scale(1)" ontouchstart="zoomTouchStart(event)" ontouchmove="zoomTouchMove(event)" ontouchend="zoomTouchEnd(event)">
+</div>
 </body>
 </html>

@@ -173,6 +173,7 @@ tr:hover td{background:var(--bg2)}
   .main{margin-left:60px}
   .stats-grid{grid-template-columns:1fr}
 }
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -355,10 +356,10 @@ tr:hover td{background:var(--bg2)}
         <h3>商品图片 Immagini</h3>
         <div class="upload-area" onclick="document.getElementById('npImages').click()">
           <div style="font-size:36px;margin-bottom:8px">📂</div>
-          <div style="font-size:14px">点击选择图片（可多选）</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:4px">Seleziona immagini (multiple) · 自动压缩到1600px</div>
+          <div style="font-size:14px">点击选择图片/视频（可多选）</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">📷 图片: jpg/png ≤5MB &nbsp; 🎬 视频: mp4 ≤20MB</div>
         </div>
-        <input type="file" id="npImages" accept="image/*" multiple style="display:none" onchange="previewImages(this)">
+        <input type="file" id="npImages" accept="image/jpeg,image/png,video/mp4" multiple style="display:none" onchange="handleMediaUpload(this)">
         <div id="imgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"></div>
       </div>
       <div class="form-section">
@@ -584,7 +585,7 @@ function toggleColor(el){el.classList.toggle('active');if(el.classList.contains(
 function getSelectedSizes(){const s=[];document.querySelectorAll('#sizeSelector .sku-opt.active').forEach(el=>s.push(el.dataset.size));return s}
 function getSelectedColors(){const c=[];document.querySelectorAll('#colorOptions .color-opt.active').forEach(el=>{if(el.dataset.color)c.push(el.dataset.color)});return c}
 function previewImages(input){const files=input.files;if(!files.length)return;const container=document.getElementById('imgPreview');for(let i=0;i<files.length;i++){const reader=new FileReader();reader.onload=e=>{uploadedImages.push(e.target.result);const idx=uploadedImages.length-1;const div=document.createElement('div');div.style.cssText='position:relative;width:100px;height:100px;border-radius:8px;overflow:hidden;border:1px solid var(--border)';div.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"><div onclick="removeImg('+idx+',this)" style="position:absolute;top:2px;right:2px;width:20px;height:20px;background:var(--danger);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">✕</div>';container.appendChild(div)};reader.readAsDataURL(files[i])}}
-function removeImg(idx,el){uploadedImages[idx]=null;el.parentElement.remove()}
+function removeMedia(idx,el){uploadedMedia[idx]=null;el.parentElement.remove()}
 
 async function saveNewProduct(){
   try{
@@ -603,7 +604,7 @@ async function saveNewProduct(){
     const imgFiles=document.getElementById('npImages').files;
     for(let i=0;i<imgFiles.length;i++){
       try{const imgFile=imgFiles[i];const rawBase64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=e=>resolve(e.target.result);reader.onerror=reject;reader.readAsDataURL(imgFile)});const img=new Image();img.src=rawBase64;await new Promise(r=>img.onload=r);const MAX=1600;let w=img.width,h=img.height;if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX}}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);const compressed=canvas.toDataURL('image/jpeg',0.9);if(i===0)newP.image_url=compressed;/*skip images*/}catch(e){}}
-    const validUploaded=uploadedImages.filter(u=>u);
+    const validUploaded=uploadedMedia.filter(u=>u&&u.type==='image');
     if(validUploaded.length){if(!newP.image_url)newP.image_url=validUploaded[0];/*skip images array*/}
     if(sb){
       try{const{data,error}=await sb.from('products').insert(newP).select();
