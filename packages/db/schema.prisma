@@ -1,0 +1,413 @@
+// L&Q Mercatone v2 - Prisma Schema
+// 基于 v1 数据 + 意大利电商最佳实践
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// 用户系统（买家 + 管理员统一）
+// ============================================
+
+enum UserRole {
+  BUYER       // 普通买家
+  ADMIN       // 管理员主账号
+  WAREHOUSE   // 仓库子账号
+}
+
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique                    // 意大利手机号 +39...
+  email         String?   @unique
+  name          String?
+  avatar        String?
+  role          UserRole  @default(BUYER)
+  passwordHash  String?                              // bcrypt（仅管理员）
+  preferredLang String    @default("it")             // it | zh
+  emailConsent  Boolean   @default(false)            // GDPR 营销邮件同意
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?                            // 软删除（GDPR）
+
+  // 关联
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  favorites     Favorite[]
+  coupons       UserCoupon[]
+
+  @@map("users")
+}
+
+// ============================================
+// 商品系统
+// ============================================
+
+enum ProductCategory {
+  ABBIGLIAMENTO   // 服装
+  DETERSIVI       // 清洁剂
+  CASA            // 家居
+  ELETTRONICA     // 电子电器
+  TRUCCO          // 美妆
+  CURA_PELLE      // 护肤
+  FIORI           // 仿真花艺
+  DECORAZIONI     // 节日装饰
+  ALTRO           // 其他
+}
+
+model Product {
+  id            String            @id @default(cuid())
+  nameIt        String                                // 意大利语名称
+  nameZh        String            @default("")         // 中文名称
+  brand         String            @default("")
+  category      ProductCategory
+  priceCent     Int                                   // 价格（欧分）€9.99 = 999
+  oldPriceCent  Int?                                  // 原价（欧分）
+  stock         Int               @default(0)
+  images        String[]                              // Supabase Storage URLs
+  description   String            @default("")
+  descriptionZh String            @default("")         // 中文描述
+  tags          String[]                              // hot, new, sale
+  onSale        Boolean           @default(false)
+  barcode       String?           @unique             // 条码
+  sizes         String[]                              // S, M, L, XL
+  colors        String[]                              // Nero, Bianco, Blu...
+  weight        Int?                                  // 重量（克），用于运费
+  isLarge       Boolean           @default(false)      // 大件商品（单独运费）
+
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // 关联
+  orderItems    OrderItem[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  favorites     Favorite[]
+
+  @@index([category])
+  @@index([onSale])
+  @@index([barcode])
+  @@map("products")
+}
+
+// ============================================
+// 订单系统
+// ============================================
+
+enum OrderStatus {
+  PENDING_PAYMENT   // 待付款
+  PENDING_SHIP      // 待发货
+  SHIPPED           // 已发货
+  DELIVERED         // 已送达
+  COMPLETED         // 已完成
+  CANCELLED         // 已取消
+  REFUNDING         // 退款中
+  REFUNDED          // 已退款
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  orderNo           String      @unique                 // LQ + 时间戳
+  userId            String
+  user              User        @relation(fields: [userId], references: [id])
+
+  // 金额（全部用欧分存储）
+  subtotalCent      Int
+  shippingCent      Int
+  discountCent      Int         @default(0)
+  totalCent         Int
+  currency          String      @default("EUR")
+
+  // 支付
+  paymentMethod     String?                             // stripe | sisal | cod | pickup
+  paymentStatus     String      @default("pending")     // pending | paid | refunded
+  transactionId     String?                             // Stripe transaction ID
+  paidAt            DateTime?
+
+  // 状态
+  status            OrderStatus @default(PENDING_PAYMENT)
+  paymentDeadline   DateTime                            // 24h 超时
+  cancelledAt       DateTime?
+  cancelReason      String?
+
+  // 收货信息
+  shippingRegion    String                              // 意大利大区
+  shippingAddress   String
+  shippingPostcode  String
+  receiverName      String
+  receiverPhone     String
+
+  // 备注
+  buyerNote         String?
+  adminNote         String?                             // 内部备注（不展示给买家）
+
+  // 自提
+  isPickup          Boolean     @default(false)
+  pickupCode        String?                             // PK-XXXXXX
+
+  // 其他
+  language          String      @default("it")          // 下单时语言
+  couponId          String?
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // 关联
+  items             OrderItem[]
+  coupon            UserCoupon? @relation(fields: [couponId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNo])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+
+  quantity    Int
+  priceCent   Int                           // 下单时的价格（欧分）
+  color       String?
+  size        String?
+
+  @@map("order_items")
+}
+
+// ============================================
+// 购物车（Redis 缓存 + DB 持久化）
+// ============================================
+
+model CartItem {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+
+  quantity    Int      @default(1)
+  color       String?
+  size        String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, productId, color, size])
+  @@map("cart_items")
+}
+
+// ============================================
+// 收货地址
+// ============================================
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  phone       String
+  detail      String
+  city        String?
+  postcode    String?
+  region      String?
+  isDefault   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("addresses")
+}
+
+// ============================================
+// 评价系统
+// ============================================
+
+model Review {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  orderId     String                         // 只有已完成订单可评价
+
+  rating      Int                            // 1-5 星
+  content     String
+  images      String[]                       // 评价图片 URLs
+  adminReply  String?                        // 管理员回复
+  adminRepliedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([orderId, productId])             // 一单对一品仅一次
+  @@map("reviews")
+}
+
+// ============================================
+// 优惠券系统
+// ============================================
+
+enum CouponType {
+  NO_THRESHOLD    // 无门槛
+  FULL_REDUCTION  // 满减
+  PERCENTAGE      // 折扣百分比
+  SPECIFIC_PRODUCT // 指定商品
+}
+
+model Coupon {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  type          CouponType
+  valueCent     Int         @default(0)             // 减免金额（欧分）
+  percentage    Int?                                // 折扣百分比（0-100）
+  minOrderCent  Int         @default(0)             // 最低订单金额（欧分）
+  totalLimit    Int         @default(0)             // 总领取限制（0=无限）
+  perUserLimit  Int         @default(1)             // 每人领取限制
+  newUserOnly   Boolean     @default(false)
+  stackable     Boolean     @default(false)         // 是否可叠加
+
+  startsAt      DateTime
+  endsAt        DateTime
+  isActive      Boolean     @default(true)
+
+  createdAt     DateTime    @default(now())
+
+  // 关联
+  userCoupons   UserCoupon[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+model UserCoupon {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  couponId    String
+  coupon      Coupon    @relation(fields: [couponId], references: [id])
+
+  usedAt      DateTime?
+  usedOrderId String?
+  refundedAt  DateTime?                           // 退款退回
+
+  // 关联订单
+  orders      Order[]
+
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, couponId])
+  @@map("user_coupons")
+}
+
+model CouponUsageLog {
+  id          String    @id @default(cuid())
+  couponId    String
+  userId      String
+  orderId     String?
+  action      String                              // claim | use | refund
+  createdAt   DateTime  @default(now())
+
+  @@map("coupon_usage_logs")
+}
+
+// ============================================
+// 收藏/足迹
+// ============================================
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+// ============================================
+// 验证码（Redis 为主，DB 做日志）
+// ============================================
+
+model VerificationCode {
+  id          String   @id @default(cuid())
+  phone       String
+  code        String
+  purpose     String                        // login | register | reset
+  status      String                        // sent | verified | expired | failed
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([phone])
+  @@index([createdAt])
+  @@map("verification_codes")
+}
+
+// ============================================
+// 操作日志（只读，不可删除）
+// ============================================
+
+model OperationLog {
+  id          String   @id @default(cuid())
+  action      String                        // login | create_product | update_price | ship_order ...
+  targetType  String                        // product | order | user | coupon
+  targetId    String
+  userId      String?
+  userRole    String?
+  details     String                        // JSON：before/after 值
+  ipAddress   String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("operation_logs")
+}
+
+// ============================================
+// 退货地址配置
+// ============================================
+
+model ReturnAddress {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  address     String
+  city        String
+  postcode    String
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("return_addresses")
+}
+
+// ============================================
+// 邮件同意日志（GDPR）
+// ============================================
+
+model EmailConsentLog {
+  id          String   @id @default(cuid())
+  userId      String
+  consentType String                        // order | aftersale | marketing | price_alert
+  agreed      Boolean
+  createdAt   DateTime @default(now())
+
+  @@map("email_consent_logs")
+}
