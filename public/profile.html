@@ -202,7 +202,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="profile-name" id="profileName">Ospite</div>
       <div class="profile-id" id="profileId">Accedi per vedere il profilo</div>
     </div>
-    <button class="settings-btn" onclick="showToast('Impostazioni in arrivo')">⚙️</button>
+    <button class="settings-btn" onclick="showSettings()">⚙️</button>
   </div>
 </div>
 
@@ -216,7 +216,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="stat-num" id="statPoints">0</div>
     <div class="stat-label">Punti</div>
   </div>
-  <div class="stat-item" onclick="showToast('Coupon in arrivo')">
+  <div class="stat-item" onclick="showCoupons()">
     <div class="stat-num" id="statCoupons">0</div>
     <div class="stat-label">Coupon</div>
   </div>
@@ -229,25 +229,25 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="menu-label">Carrello</div>
     <div class="menu-badge" id="cartBadge">0</div>
   </div>
-  <div class="menu-item" onclick="showToast('Preferiti in arrivo')">
+  <div class="menu-item" onclick="showFavorites()">
     <div class="menu-icon">❤️</div>
     <div class="menu-label">Preferiti</div>
   </div>
-  <div class="menu-item" onclick="showToast('Cronologia in arrivo')">
+  <div class="menu-item" onclick="showOrderHistory()">
     <div class="menu-icon"></div>
     <div class="menu-label">Cronologia</div>
   </div>
-  <div class="menu-item" onclick="showToast('Coupon in arrivo')">
+  <div class="menu-item" onclick="showCoupons()">
     <div class="menu-icon">🎫</div>
     <div class="menu-label">Coupon</div>
     <div class="menu-badge">3</div>
   </div>
-  <div class="menu-item" onclick="showToast('Messaggi in arrivo')">
+  <div class="menu-item" onclick="showMessages()">
     <div class="menu-icon">💬</div>
     <div class="menu-label">Messaggi</div>
     <div class="menu-badge">5</div>
   </div>
-  <div class="menu-item" onclick="showToast('Assistenza in arrivo')">
+  <div class="menu-item" onclick="showSupport()">
     <div class="menu-icon">🎧</div>
     <div class="menu-label">Assistenza</div>
   </div>
@@ -784,6 +784,21 @@ async function executeDeleteAccount() {
 
 
 // ===== 加载真实用户信息 =====
+// ===== 浏览历史 =====
+function showOrderHistory() {
+  const orders = JSON.parse(localStorage.getItem("lq_orders") || "[]");
+  if (orders.length === 0) {
+    showToast("Nessun ordine / 暂无订单");
+    return;
+  }
+  showToast(orders.length + " ordini / 个订单");
+}
+
+// ===== 客服中心 =====
+function showSupport() {
+  showToast("Supporto: info@lqmercatone.com");
+}
+
 function loadUserProfile() {
   const user = JSON.parse(localStorage.getItem("buyer_user") || "null");
   if (user) {
