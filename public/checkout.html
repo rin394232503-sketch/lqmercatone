@@ -215,7 +215,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="address-default">
         <div class="address-name-row">
           <span class="address-name" id="savedAddrName">—</span>
-          <span class="address-phone">+39 333 123 4567</span>
+          <span class="address-phone" id="savedAddrPhone"></span>
         </div>
         <div class="address-detail" id="savedAddrDetail">请先添加地址</div>
       </div>
@@ -424,7 +424,7 @@ async function updateShipping() {
     const subtotal = cart.filter(i => i.selected).reduce((sum, i) => sum + i.price * i.qty, 0);
     const total = subtotal + result.price;
     document.getElementById('totalPrice').textContent = `€${total.toFixed(2)}`;
-    document.getElementById('submitTotal').textContent = total.toFixed(2);
+    document.getElementById('submitTotal').textContent = '€' + total.toFixed(2);
     
   } catch (error) {
     console.error('运费计算失败:', error);
@@ -557,8 +557,8 @@ function render() {
   document.getElementById('shippingCost').textContent = shipping === 0 ? '€0 (Gratis)' : '€' + shipping.toFixed(2);
   document.getElementById('shippingValue').textContent = shipping === 0 ? 'Gratuita' : '€' + shipping.toFixed(2);
   document.getElementById('discount').textContent = '-€' + coupon.toFixed(2);
-  document.getElementById('totalPrice').textContent = total.toFixed(2);
-  document.getElementById('submitTotal').textContent = total.toFixed(2);
+  document.getElementById('totalPrice').textContent = '€' + total.toFixed(2);
+  document.getElementById('submitTotal').textContent = '€' + total.toFixed(2);
   document.getElementById('couponValue').textContent = coupon > 0 ? '-€'+coupon.toFixed(2) : 'Nessun coupon';
 
   // Address
@@ -660,7 +660,7 @@ async function submitOrder() {
 
   const orderNo = 'LQ' + Date.now().toString().slice(-8) + Math.random().toString(36).slice(2,5).toUpperCase();
   const pickupCode = selectedPayment === 'pickup' ? 'PK-' + Math.random().toString(36).substr(2,6).toUpperCase() : '';
-  const total = parseFloat(document.getElementById('totalPrice').textContent.replace('€',''));
+  const total = parseFloat(document.getElementById('totalPrice').textContent.replace('€','')) || 0;
   const itemCount = items.reduce((s, i) => s + i.qty, 0);
 
   const orderData = {
@@ -897,7 +897,7 @@ async function updateShipping() {
     const subtotal = cart.filter(i => i.selected).reduce((sum, i) => sum + i.price * i.qty, 0);
     const total = subtotal + result.price;
     document.getElementById('totalPrice').textContent = `€${total.toFixed(2)}`;
-    document.getElementById('submitTotal').textContent = total.toFixed(2);
+    document.getElementById('submitTotal').textContent = '€' + total.toFixed(2);
     
   } catch (error) {
     console.error('运费计算失败:', error);
