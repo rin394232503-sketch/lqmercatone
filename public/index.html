@@ -784,27 +784,6 @@ function getPurchaseHistory() {
       };
     }
   });
-  // If no local orders, create demo history from current products
-  if (Object.keys(orderMap).length === 0 && PRODUCTS.length > 0) {
-    const demoItems = PRODUCTS.filter(p => p.on_sale).slice(0, 5).map(p => ({
-      id: p.id, name: p.name, emoji: p.emoji || '📦',
-      price: p.price, qty: 1, category: p.category || ''
-    }));
-    orderMap['demo_1'] = {
-      order_no: 'LQ26102001ABC',
-      date: '10月20日',
-      items: demoItems
-    };
-    orderMap['demo_2'] = {
-      order_no: 'LQ26091502DEF',
-      date: '9月15日',
-      items: PRODUCTS.filter(p => p.price < 100).slice(0, 3).map(p => ({
-        id: p.id, name: p.name, emoji: p.emoji || '📦',
-        price: p.price, qty: 2, category: p.category || ''
-      }))
-    };
-  }
-  return Object.values(orderMap).sort((a, b) => (b.order_no > a.order_no ? 1 : -1));
 }
 
 function openRebuy() {

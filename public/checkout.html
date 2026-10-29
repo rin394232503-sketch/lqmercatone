@@ -460,21 +460,9 @@ try{sbClient=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){console.log('S
 // ===== Cart Data =====
 let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
 let selectedPayment = 'sisal';
-let addresses = JSON.parse(localStorage.getItem('lq_addresses') || 'null') || [{
-  name: 'Mario Rossi', phone: '+39 333 123 4567',
-  detail: 'Via Roma 123, 20121 Milano, Italia',
-  city: 'Milano', zip: '20121', isDefault: true
-}];
+let addresses = JSON.parse(localStorage.getItem('lq_addresses') || '[]');
 let currentAddress = addresses.find(a => a.isDefault) || addresses[0];
 
-// Demo data if cart is empty
-if (cart.length === 0) {
-  cart = [
-    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",price:1299,emoji:"🧥",qty:1,color:"Nero",size:"M",stock:15,selected:true},
-    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",price:329,emoji:"👖",qty:1,color:"Blu",size:"L",stock:23,selected:true},
-    {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",price:89.99,emoji:"",qty:2,color:"",size:"",stock:3,selected:true}
-  ];
-}
 // ===== Stripe Payment =====
 let stripe, cardElement, paymentIntentClientSecret = null;
 

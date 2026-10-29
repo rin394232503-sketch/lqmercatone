@@ -199,8 +199,8 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   <div class="profile-top">
     <div class="avatar"></div>
     <div class="profile-info">
-      <div class="profile-name">Mario Rossi</div>
-      <div class="profile-id">ID: LQ20260001 · Italia</div>
+      <div class="profile-name" id="profileName">Ospite</div>
+      <div class="profile-id" id="profileId">Accedi per vedere il profilo</div>
     </div>
     <button class="settings-btn" onclick="showToast('Impostazioni in arrivo')">⚙️</button>
   </div>
@@ -209,15 +209,15 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Stats Row -->
 <div class="stats-row">
   <div class="stat-item" onclick="showToast('Saldo in arrivo')">
-    <div class="stat-num">€0</div>
+    <div class="stat-num" id="statBalance">€0</div>
     <div class="stat-label">Saldo</div>
   </div>
   <div class="stat-item" onclick="showToast('Punti in arrivo')">
-    <div class="stat-num">128</div>
+    <div class="stat-num" id="statPoints">0</div>
     <div class="stat-label">Punti</div>
   </div>
   <div class="stat-item" onclick="showToast('Coupon in arrivo')">
-    <div class="stat-num">3</div>
+    <div class="stat-num" id="statCoupons">0</div>
     <div class="stat-label">Coupon</div>
   </div>
 </div>
@@ -782,6 +782,24 @@ async function executeDeleteAccount() {
   }
 }
 
+
+// ===== 加载真实用户信息 =====
+function loadUserProfile() {
+  const user = JSON.parse(localStorage.getItem("buyer_user") || "null");
+  if (user) {
+    const nameEl = document.getElementById("profileName");
+    const idEl = document.getElementById("profileId");
+    if (nameEl) nameEl.textContent = user.name || user.phone || "Utente";
+    if (idEl) idEl.textContent = "ID: " + (user.id || "LQ" + Date.now().toString().slice(-6)) + " · Italia";
+  } else {
+    // 未登录，提示登录
+    const nameEl = document.getElementById("profileName");
+    const idEl = document.getElementById("profileId");
+    if (nameEl) nameEl.textContent = "Ospite";
+    if (idEl) idEl.textContent = "Accedi per vedere il profilo";
+  }
+}
+loadUserProfile();
 </script>
 </body>
 </html>

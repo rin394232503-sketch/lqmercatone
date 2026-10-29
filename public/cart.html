@@ -254,17 +254,6 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 let cart = JSON.parse(localStorage.getItem('lq_cart') || '[]');
 let editMode = false;
 
-// If cart is empty, add demo items
-if (cart.length === 0) {
-  cart = [
-    {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:1,stock:15,selected:true,color:"Nero",size:"M"},
-    {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"👖",tag:"sale",on_sale:1,stock:23,selected:true,color:"Blu",size:"L"},
-    {id:9,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1,stock:50,selected:false,color:"",size:""},
-    {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1,stock:3,selected:true,color:"",size:""},
-    {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1,stock:0,selected:false,color:"",size:""}
-  ];
-  saveCart();
-}
 
 function saveCart() { localStorage.setItem('lq_cart', JSON.stringify(cart)); }
 
