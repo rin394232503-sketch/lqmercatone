@@ -211,7 +211,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <label for="selectAll">Seleziona tutto</label>
   </div>
   <div class="summary-right">
-    合计 <strong id="totalPrice">0</strong>
+    Totale <strong id="totalPrice">0</strong>
   </div>
 </div>
 
@@ -351,7 +351,7 @@ function deleteItem(i) {
 }
 function toggleEdit() {
   editMode = !editMode;
-  document.getElementById('editBtn').textContent = editMode ? '完成' : '编辑';
+  document.getElementById('editBtn').textContent = editMode ? 'Fine' : 'Modifica';
   render();
 }
 function checkout() {

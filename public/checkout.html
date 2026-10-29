@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>L&Qmercatone - Checkout Ordine</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -96,6 +97,11 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 .payment-name { font-size: 14px; flex: 1; }
 .payment-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; }
 .payment-option.active .payment-check { border-color: var(--accent); background: var(--accent); color: white; }
+
+/* Stripe Card Element */
+#cardElement.StripeElement { padding: 14px; }
+.StripeElement--focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,92,231,0.1); }
+.StripeElement--invalid { border-color: var(--danger); }
 
 /* Note Input */
 .note-input {
@@ -190,9 +196,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 <!-- User Info (logged in) -->
 <div id="userInfo" style="display:none;background:var(--accent-bg);padding:10px 16px;font-size:12px;color:var(--accent);border-radius:var(--radius-sm);margin:12px 16px">
-  <span>✅ 已登录：</span>
+  <span>✅ Loggato:</span>
   <span id="userName"></span>
-  <a href="#" onclick="logout()" style="margin-left:auto;color:var(--danger)">退出</a>
+  <a href="#" onclick="logout()" style="margin-left:auto;color:var(--danger)">Esci</a>
 </div>
 
 <!-- Top Nav -->
@@ -208,7 +214,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="address-section">
       <div class="address-default">
         <div class="address-name-row">
-          <span class="address-name">张三 Mario Rossi</span>
+          <span class="address-name">Mario Rossi</span>
           <span class="address-phone">+39 333 123 4567</span>
         </div>
         <div class="address-detail">Via Roma 123, 20121 Milano, Italia</div>
@@ -224,9 +230,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 <!-- Shipping Region -->
 <div class="section-card" id="regionCard">
-  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">收货区域 Regione di spedizione</div>
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Regione di spedizione</div>
   <select id="shippingRegion" onchange="updateShipping()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:white">
-    <option value="">请选择区域 / Seleziona regione</option>
+    <option value="">Seleziona regione</option>
     <optgroup label="🇮🇹 本土 Italia Continentale">
       <option value="lombardia">Lombardia 伦巴第 (Milano)</option>
       <option value="lazio">Lazio 拉齐奥 (Roma</option>
@@ -275,6 +281,13 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="payment-icon"></div>
     <div class="payment-name">Carta di credito</div>
     <div class="payment-check"></div>
+  </div>
+  <!-- Stripe Card Element -->
+  <div id="stripeCardContainer" style="display:none;margin-top:12px;">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Inserisci i dati della carta</div>
+    <div id="cardElement" style="padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:white;"></div>
+    <div id="cardErrors" style="color:var(--danger);font-size:12px;margin-top:6px;"></div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🔒 Pagamento sicuro con 3D Secure 2.0 (PSD2)</div>
   </div>
   <div class="payment-option" onclick="selectPayment(this,'paypal')">
     <div class="payment-icon">🅿️</div>
@@ -353,7 +366,8 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 // ===== 运费计算 =====
 let shippingRegion = '';
 let shippingTemplate = 'standard';
@@ -432,6 +446,8 @@ document.getElementById('shippingRegion')?.addEventListener('change', (e) => {
   localStorage.setItem('shippingRegion', e.target.value);
 });
 
+// Initialize Stripe
+initStripe();
 </script>
 <script>
 // ===== Supabase =====
@@ -458,6 +474,52 @@ if (cart.length === 0) {
     {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",price:89.99,emoji:"",qty:2,color:"",size:"",stock:3,selected:true}
   ];
 }
+// ===== Stripe Payment =====
+let stripe, cardElement, paymentIntentClientSecret = null;
+
+async function initStripe() {
+  try {
+    const res = await fetch('/api/payment/config');
+    const config = await res.json();
+    if (config.mockMode) {
+      console.log('Stripe mock mode active');
+      return;
+    }
+    stripe = Stripe(config.publishableKey);
+    const elements = stripe.elements();
+    cardElement = elements.create('card', {
+      style: {
+        base: { fontSize: '16px', color: '#2d3436', fontFamily: '-apple-system, sans-serif', '::placeholder': { color: '#b2bec3' } },
+        invalid: { color: '#e17055' }
+      }
+    });
+    cardElement.mount('#cardElement');
+    cardElement.on('change', function(event) {
+      const errEl = document.getElementById('cardErrors');
+      if (errEl) errEl.textContent = event.error ? event.error.message : '';
+    });
+  } catch(e) { console.log('Stripe init error:', e); }
+}
+
+async function createPaymentIntent(orderNo, amount) {
+  try {
+    const res = await fetch('/api/payment/create-intent', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ orderNo, totalAmount: amount })
+    });
+    return await res.json();
+  } catch(e) { return { success: false, error: e.message }; }
+}
+
+async function confirmCardPayment(clientSecret) {
+  if (!stripe) return { success: false, error: 'Stripe non initialized' };
+  const result = await stripe.confirmCardPayment(clientSecret, {
+    payment_method: { card: cardElement }
+  });
+  return result;
+}
+
 
 // ===== Render =====
 function render() {
@@ -532,6 +594,9 @@ function selectPayment(el, method) {
     // Show/hide 3DS notice
     const notice = document.getElementById('threesNotice');
     if (notice) notice.style.display = method === 'card' ? 'block' : 'none';
+  // Show/hide Stripe card element
+  const cardContainer = document.getElementById("stripeCardContainer");
+  if (cardContainer) cardContainer.style.display = method === "card" ? "block" : "none";
   // Show/hide pickup info
   const pickupInfo = document.getElementById('pickupInfo');
   if (pickupInfo) pickupInfo.style.display = method === 'pickup' ? 'block' : 'none';
@@ -601,12 +666,48 @@ async function submitOrder() {
     payment_method: selectedPayment === 'sisal' ? 'Sisal' : selectedPayment === 'card' ? 'Carta' : selectedPayment === 'paypal' ? 'PayPal' : 'Ritiro in negozio',
     pickup_code: pickupCode,
     note: document.getElementById('orderNote').value.trim(),
-    admin_note: '' // 管理员内部备注，后台填写
+    admin_note: '', // 管理员内部备注，后台填写
     items: items.map(i => ({id:i.id, name:i.name, emoji:i.emoji||'', qty:i.qty, price:i.price, color:i.color||'', size:i.size||'', category:i.category||''})),
     total_amount: total,
     item_count: itemCount,
     status: 'pending'
   };
+  // ===== Stripe Card Payment =====
+  if (selectedPayment === 'card') {
+    showToast('💳 Elaborazione pagamento...');
+    if (paymentIntentClientSecret) {
+      // Confirm existing payment
+      const result = await confirmCardPayment(paymentIntentClientSecret);
+      if (result.error) {
+        showToast('❌ Pagamento fallito: ' + result.error.message);
+        return;
+      }
+      if (result.paymentIntent.status !== 'succeeded') {
+        showToast('⚠️ Pagamento non completato');
+        return;
+      }
+    } else {
+      // Create and confirm new payment intent
+      const piResult = await createPaymentIntent(orderNo, total);
+      if (!piResult.success) {
+        showToast('❌ Errore pagamento: ' + (piResult.error || 'Sconosciuto'));
+        // If mock mode, simulate success
+        if (piResult.mock) {
+          console.log('Mock payment succeeded');
+        } else {
+          return;
+        }
+      } else if (piResult.clientSecret && stripe) {
+        paymentIntentClientSecret = piResult.clientSecret;
+        const result = await confirmCardPayment(piResult.clientSecret);
+        if (result.error) {
+          showToast('❌ Pagamento fallito: ' + result.error.message);
+          return;
+        }
+      }
+    }
+  }
+
 
   // Save to localStorage
   const orders = JSON.parse(localStorage.getItem('lq_orders') || '[]');
@@ -803,6 +904,8 @@ document.getElementById('shippingRegion')?.addEventListener('change', (e) => {
   localStorage.setItem('shippingRegion', e.target.value);
 });
 
+// Initialize Stripe
+initStripe();
 </script>
 </body>
 </html>

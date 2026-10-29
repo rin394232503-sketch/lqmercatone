@@ -200,7 +200,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="avatar"></div>
     <div class="profile-info">
       <div class="profile-name">Mario Rossi</div>
-      <div class="profile-id">ID: LQ20260001 · 意大利 Italia</div>
+      <div class="profile-id">ID: LQ20260001 · Italia</div>
     </div>
     <button class="settings-btn" onclick="showToast('Impostazioni in arrivo')">⚙️</button>
   </div>
@@ -239,7 +239,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   </div>
   <div class="menu-item" onclick="showToast('Coupon in arrivo')">
     <div class="menu-icon">🎫</div>
-    <div class="menu-label">优惠券</div>
+    <div class="menu-label">Coupon</div>
     <div class="menu-badge">3</div>
   </div>
   <div class="menu-item" onclick="showToast('Messaggi in arrivo')">
@@ -299,7 +299,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="order-card-img"></div>
     </div>
     <div class="order-card-bottom">
-      <div class="order-card-total">合计: <strong>€1,628</strong></div>
+      <div class="order-card-total">Totale: <strong>€1,628</strong></div>
       <button class="order-card-btn primary">Paga</button>
     </div>
   </div>
@@ -315,7 +315,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="order-card-img">🧹</div>
     </div>
     <div class="order-card-bottom">
-      <div class="order-card-total">合计: <strong>€179.97</strong></div>
+      <div class="order-card-total">Totale: <strong>€179.97</strong></div>
       <button class="order-card-btn">Conferma ricezione</button>
     </div>
   </div>
@@ -329,7 +329,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="order-card-img">👗</div>
     </div>
     <div class="order-card-bottom">
-      <div class="order-card-total">合计: <strong>€459</strong></div>
+      <div class="order-card-total">Totale: <strong>€459</strong></div>
       <button class="order-card-btn">Recensisci</button>
     </div>
   </div>
@@ -600,7 +600,7 @@ function renderRecentOrders(){
       </div>
       <div class="order-card-items">${items.slice(0,3).map(i=>`<div class="order-card-img">${i.emoji||'📦'}</div>`).join('')}</div>
       <div class="order-card-bottom">
-        <div class="order-card-total">合计: <strong>€${total.toFixed(2)}</strong></div>
+        <div class="order-card-total">Totale: <strong>€${total.toFixed(2)}</strong></div>
         ${o.status==='pending'?'<button class="order-card-btn primary">Paga</button>':''}
         ${o.status==='shipped'?'<button class="order-card-btn">Conferma ricezione</button>':''}
         ${o.status==='done'?'<button class="order-card-btn">Recensisci</button>':''}
