@@ -214,10 +214,10 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="address-section">
       <div class="address-default">
         <div class="address-name-row">
-          <span class="address-name">Mario Rossi</span>
+          <span class="address-name" id="savedAddrName">—</span>
           <span class="address-phone">+39 333 123 4567</span>
         </div>
-        <div class="address-detail">Via Roma 123, 20121 Milano, Italia</div>
+        <div class="address-detail" id="savedAddrDetail">请先添加地址</div>
       </div>
       <div class="address-edit" onclick="openAddressModal()">Modifica</div>
     </div>
@@ -306,7 +306,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <div class="section-card" id="pickupInfo" style="display:none">
   <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px"> 自提信息 Informazioni ritiro</div>
   <div style="font-size:14px;font-weight:600">L&Qmercatone</div>
-  <div style="font-size:13px;color:var(--text-light)">Via Roma 123, 20121 Milano</div>
+  <div style="font-size:13px;color:var(--text-light)">Il tuo indirizzo</div>
   <div style="font-size:12px;color:var(--text-muted);margin-top:4px">营业时间: Lun-Sab 9:00-19:00</div>
   <div style="font-size:12px;color:var(--accent);margin-top:4px">自提有效期: 7天 dal pagamento</div>
 </div>
@@ -352,7 +352,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     </div>
     <input type="text" id="addrName" placeholder="Nome e cognome *">
     <input type="tel" id="addrPhone" placeholder="Telefono *">
-    <textarea id="addrDetail" rows="3" placeholder="Indirizzo completo *&#10;例: Via Roma 123, 20121 Milano"></textarea>
+    <textarea id="addrDetail" rows="3" placeholder="Indirizzo completo *&#10;例: Il tuo indirizzo"></textarea>
     <div style="display:flex;gap:10px;">
       <input type="text" id="addrCity" placeholder="Città" style="flex:1;">
       <input type="text" id="addrZip" placeholder="CAP" style="flex:1;">

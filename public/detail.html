@@ -195,7 +195,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <span class="price-original">459</span>
     <span class="price-discount">-35%</span>
   </div>
-  <h1 class="product-title">Cappotto Classico in Cashmere - 经典羊绒大衣</h1>
+  <h1 class="product-title" id="productTitle">Caricamento...</h1>
   <div class="product-tags">
     <span class="tag tag-stock">现货</span>
     <span class="tag tag-ships">🚚 预计 3-5 天送达</span>
@@ -368,14 +368,10 @@ async function loadProduct(){
   }
   // Fallback
   if(!p){
-    const fallback=[
-      {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"🧥",tag:"hot",on_sale:true,stock:15,description:"经典款羊绒大衣，意大利进口纯羊绒"},
-      {id:2,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"👖",tag:"sale",on_sale:true,stock:23,description:"高腰修身牛仔裤"},
-      {id:3,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:true,stock:7,description:"真皮夹克"},
-      {id:4,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"🧴",tag:"sale",on_sale:true,stock:50,description:"洗衣液3升装"},
-      {id:7,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"🍳",tag:"hot",on_sale:true,stock:5,description:"锅具5件套"},
-    ];
-    p=fallback.find(x=>x.id===productId)||fallback[0];
+    showToast("Prodotto non trovato / 商品未找到");
+    setTimeout(()=>{location.href="index.html"},1500);
+    return;
+  }
   }
   product={
     id:p.id, name:p.name, brand:p.brand||'', category:p.category||'',

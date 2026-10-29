@@ -129,17 +129,9 @@ const SB_URL='https://yiyydikfpgbmtdypiggc.supabase.co';
 const SB_KEY='sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM';
 let sb;try{sb=window.supabase.createClient(SB_URL,SB_KEY)}catch(e){}
 
-const FALLBACK_PROMOS=[
-  {id:28,name:'Cappotto in Lana Grigio Chiaro',emoji:'🧥',price:39.90,old_price:69.90,discount:43},
-  {id:26,name:'Set Pentole 5pz',emoji:'🍳',price:19.99,old_price:39.99,discount:50},
-  {id:25,name:'Detersivo Lavatrice 3L',emoji:'🧴',price:9.00,old_price:18.99,discount:53},
-  {id:27,name:'Set Asciugamani 6pz',emoji:'🛁',price:9.00,old_price:24.99,discount:64},
-  {id:1,name:'Jeans Slim Vita Alta',emoji:'👖',price:29.90,old_price:59.90,discount:50},
-  {id:2,name:'T-shirt Cotone',emoji:'',price:19.90,old_price:35.90,discount:45},
-];
 
 async function loadPromos(){
-  let promos=FALLBACK_PROMOS;
+  let promos=[];
   if(sb){
     try{
       const{data}=await sb.from('products').select('id,name,emoji,price,old_price,tag').eq('on_sale',true).order('price');

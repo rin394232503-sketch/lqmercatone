@@ -774,7 +774,7 @@ function handleSyncError(action, err){
 
 // ===== Data Loading =====
 async function loadData(){
-  if(!sb){loadDemoData();return}
+  if(!sb){console.log("No data");return}
   try{
     const{data:p}=await sb.from('products').select('*').order('id',{ascending:false});
     if(p&&p.length){allProducts=p.map(x=>({...x,price:parseFloat(x.price),old_price:x.old_price?parseFloat(x.old_price):null,on_sale:!!x.on_sale}))}
@@ -782,24 +782,8 @@ async function loadData(){
     const{data:o}=await sb.from('orders').select('*').order('created_at',{ascending:false});
     if(o&&o.length)allOrders=o;
     else{allOrders=[]}
-  }catch(e){loadDemoData()}
+  }catch(e){console.log("No data")}
   renderDashboard();renderProducts();renderOrders();renderNotifications()
-}
-function loadDemoData(){
-  allProducts=[
-    {id:1,name:'Cappotto Classico in Cashmere 经典羊绒大衣',category:'Abbigliamento',price:1299,old_price:1899,emoji:'🧥',tag:'hot',on_sale:true,stock:15},
-    {id:3,name:'Jeans Slim Vita Alta 高腰牛仔裤',category:'Abbigliamento',price:329,old_price:459,emoji:'👖',tag:'sale',on_sale:true,stock:23},
-    {id:7,name:'Set Pentole 5pz 锅具套装',category:'Casa',price:89.99,old_price:129.99,emoji:'',tag:'hot',on_sale:true,stock:3},
-    {id:9,name:'Detersivo Lavatrice 洗衣液3L',category:'Detersivi',price:18.99,old_price:24.99,emoji:'',tag:'sale',on_sale:true,stock:50},
-    {id:12,name:'Candeggina 漂白水',category:'Detersivi',price:3.49,old_price:null,emoji:'',tag:'hot',on_sale:true,stock:0},
-    {id:17,name:'Set Asciugamani 毛巾套装',category:'Casa',price:39.99,old_price:59.99,emoji:'',tag:'sale',on_sale:true,stock:4}
-  ];
-  allOrders=[
-    {id:1,order_no:'LQ29100001',customer_name:'Mario R.',customer_phone:'+39 333 111 2222',total_amount:1299,item_count:1,status:'pending',created_at:new Date().toISOString(),items:[{name:'Cappotto Classico',emoji:'🧥',qty:1,price:1299}]},
-    {id:2,order_no:'LQ29100002',customer_name:'Laura B.',customer_phone:'+39 333 333 4444',total_amount:329,item_count:1,status:'toship',created_at:new Date(Date.now()-3600000).toISOString(),items:[{name:'Jeans Slim',emoji:'👖',qty:1,price:329}]},
-    {id:3,order_no:'LQ29100003',customer_name:'Giuseppe V.',customer_phone:'+39 333 555 6666',total_amount:108.97,item_count:3,status:'shipped',created_at:new Date(Date.now()-86400000).toISOString(),items:[{name:'Detersivo',emoji:'',qty:2,price:18.99},{name:'Candeggina',emoji:'',qty:1,price:3.49}]},
-    {id:4,order_no:'LQ29100004',customer_name:'Anna M.',customer_phone:'+39 333 777 8888',total_amount:89.99,item_count:1,status:'done',created_at:new Date(Date.now()-172800000).toISOString(),items:[{name:'Set Pentole',emoji:'',qty:1,price:89.99}]}
-  ]
 }
 
 // ===== Dashboard =====
