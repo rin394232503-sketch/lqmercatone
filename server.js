@@ -560,13 +560,12 @@ app.get('/api/shipping/regions', (req, res) => {
 });
 
 // ===== Supabase Storage 上传 API =====
-const multer = require('multer');
-const path = require('path');
+// multer 已在文件顶部声明
 
-// 配置 multer 内存存储
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
+// 配置 multer 内存存储（Supabase Storage 上传专用）
+const memoryStorage = multer.memoryStorage();
+const uploadToStorage = multer({
+  storage: memoryStorage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB
   },
@@ -849,6 +848,116 @@ app.post('/api/auth/logout', (req, res) => {
   // TODO: 将 token 加入黑名单
   res.json({ success: true, message: '已登出' });
 });
+
+// ===== Stripe 支付 API =====
+const { createPaymentIntent, verifyWebhookSignature, mockConfirmPayment } = require('./stripe-payment');
+const { STRIPE_PUBLISHABLE_KEY, USE_MOCK } = require('./stripe-config');
+const { generateToken, verifyToken, verifyPassword } = require('./auth');
+
+// 获取 Stripe 公钥（前端用）
+app.get('/api/payment/config', (req, res) => {
+  res.json({
+    publishableKey: STRIPE_PUBLISHABLE_KEY,
+    mockMode: USE_MOCK,
+    currency: 'eur',
+  });
+});
+
+// 创建支付意图
+app.post('/api/payment/create-intent', async (req, res) => {
+  try {
+    const { orderNo, totalAmount, buyerPhone, email } = req.body;
+
+    if (!orderNo || !totalAmount) {
+      return res.status(400).json({ error: '缺少订单号或金额' });
+    }
+
+    if (totalAmount <= 0) {
+      return res.status(400).json({ error: '金额必须大于 0' });
+    }
+
+    const result = await createPaymentIntent({
+      orderNo,
+      orderId: orderNo,
+      totalAmount: parseFloat(totalAmount),
+      buyerPhone: buyerPhone || '',
+      email: email || '',
+    });
+
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+
+    res.json({
+      success: true,
+      clientSecret: result.clientSecret,
+      paymentIntentId: result.paymentIntentId,
+      mock: result.mock || USE_MOCK,
+    });
+
+  } catch (error) {
+    console.error('创建支付意图失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Stripe Webhook 回调（原始 body 解析）
+app.post('/api/payment/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  verifyWebhookSignature(req, res, () => {});
+});
+
+// 模拟支付确认（仅开发/测试用）
+app.post('/api/payment/mock-confirm', (req, res) => {
+  if (!USE_MOCK) {
+    return res.status(403).json({ error: '仅模拟模式可用' });
+  }
+
+  const { paymentIntentId } = req.body;
+  if (!paymentIntentId) {
+    return res.status(400).json({ error: '缺少 paymentIntentId' });
+  }
+
+  const result = mockConfirmPayment(paymentIntentId);
+  res.json(result);
+});
+
+// ===== 管理员登录 API =====
+const bcrypt = require('bcryptjs');
+
+app.post('/api/admin/login', (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: '缺少用户名或密码' });
+    }
+    const user = db.prepare('SELECT * FROM admin_users WHERE username = ? AND is_active = 1').get(username);
+    if (!user) {
+      return res.status(401).json({ error: '账号不存在' });
+    }
+    const valid = bcrypt.compareSync(password, user.password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: '密码错误' });
+    }
+    const token = generateToken({ id: user.id, role: user.role, username: user.username });
+    db.prepare('UPDATE admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
+    res.json({ success: true, token, user: { id: user.id, username: user.username, role: user.role, real_name: user.real_name } });
+  } catch (error) {
+    console.error('管理员登录失败:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 管理员鉴权中间件
+function requireAdminAuth(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: '未登录' });
+  const decoded = verifyToken(token);
+  if (!decoded || (decoded.role !== 'admin' && decoded.role !== 'warehouse')) {
+    return res.status(403).json({ error: '权限不足' });
+  }
+  req.adminUser = decoded;
+  next();
+}
 
 // 同步购物车（登录后）
 app.post('/api/cart/sync', (req, res) => {

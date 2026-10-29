@@ -278,16 +278,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="payment-check">✓</div>
   </div>
   <div class="payment-option" onclick="selectPayment(this,'card')">
-    <div class="payment-icon"></div>
+    <div class="payment-icon">💳</div>
     <div class="payment-name">Carta di credito</div>
     <div class="payment-check"></div>
-  </div>
-  <!-- Stripe Card Element -->
-  <div id="stripeCardContainer" style="display:none;margin-top:12px;">
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Inserisci i dati della carta</div>
-    <div id="cardElement" style="padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:white;"></div>
-    <div id="cardErrors" style="color:var(--danger);font-size:12px;margin-top:6px;"></div>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🔒 Pagamento sicuro con 3D Secure 2.0 (PSD2)</div>
   </div>
   <div class="payment-option" onclick="selectPayment(this,'paypal')">
     <div class="payment-icon">🅿️</div>
@@ -299,6 +292,14 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     <div class="payment-name">到店自提 Ritiro in negozio <span style="font-size:11px;color:var(--success);margin-left:6px">运费 €0</span></div>
     <div class="payment-check"></div>
   </div>
+</div>
+
+<!-- Stripe Card Element -->
+<div class="section-card" id="stripeCardSection" style="display:none">
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Dati della carta</div>
+  <div id="cardElement" style="padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:white;"></div>
+  <div id="cardErrors" style="color:var(--danger);font-size:12px;margin-top:6px;"></div>
+  <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">🔒 Pagamento sicuro con 3D Secure 2.0 (PSD2)</div>
 </div>
 
 <!-- Pickup Info (hidden by default) -->
@@ -481,8 +482,13 @@ async function initStripe() {
   try {
     const res = await fetch('/api/payment/config');
     const config = await res.json();
+    console.log('Payment config:', config);
     if (config.mockMode) {
-      console.log('Stripe mock mode active');
+      console.log('Stripe 模拟模式 - 使用模拟支付');
+      return;
+    }
+    if (!config.publishableKey) {
+      console.log('无 Stripe 公钥，使用模拟模式');
       return;
     }
     stripe = Stripe(config.publishableKey);
@@ -498,7 +504,10 @@ async function initStripe() {
       const errEl = document.getElementById('cardErrors');
       if (errEl) errEl.textContent = event.error ? event.error.message : '';
     });
-  } catch(e) { console.log('Stripe init error:', e); }
+    console.log('Stripe Elements 初始化成功');
+  } catch(e) {
+    console.log('Stripe 初始化失败，使用模拟支付:', e.message);
+  }
 }
 
 async function createPaymentIntent(orderNo, amount) {
@@ -595,7 +604,7 @@ function selectPayment(el, method) {
     const notice = document.getElementById('threesNotice');
     if (notice) notice.style.display = method === 'card' ? 'block' : 'none';
   // Show/hide Stripe card element
-  const cardContainer = document.getElementById("stripeCardContainer");
+  const cardContainer = document.getElementById("stripeCardSection");
   if (cardContainer) cardContainer.style.display = method === "card" ? "block" : "none";
   // Show/hide pickup info
   const pickupInfo = document.getElementById('pickupInfo');
@@ -649,6 +658,14 @@ function saveAddress() {
 
 // ===== Submit Order =====
 async function submitOrder() {
+  // 检查登录状态
+  const buyerUser = JSON.parse(localStorage.getItem('buyer_user') || 'null');
+  if (!buyerUser) {
+    showToast('️ 请先登录 / Effettua il login prima di ordinare');
+    setTimeout(() => { window.location.href = 'login.html?redirect=checkout.html'; }, 1500);
+    return;
+  }
+
   if (!currentAddress) { showToast('⚠️ Seleziona un indirizzo'); return; }
   const items = cart.filter(i => i.selected);
   if (items.length === 0) { showToast('️ Carrello vuoto'); return; }
@@ -675,35 +692,46 @@ async function submitOrder() {
   // ===== Stripe Card Payment =====
   if (selectedPayment === 'card') {
     showToast('💳 Elaborazione pagamento...');
-    if (paymentIntentClientSecret) {
-      // Confirm existing payment
-      const result = await confirmCardPayment(paymentIntentClientSecret);
-      if (result.error) {
-        showToast('❌ Pagamento fallito: ' + result.error.message);
-        return;
-      }
-      if (result.paymentIntent.status !== 'succeeded') {
-        showToast('⚠️ Pagamento non completato');
-        return;
+
+    // Check if we have Stripe initialized
+    if (!stripe || !cardElement) {
+      // No Stripe - check if server returned mock mode
+      try {
+        const configRes = await fetch('/api/payment/config');
+        const config = await configRes.json();
+        if (config.mockMode) {
+          console.log('模拟支付模式 - 跳过真实支付');
+        } else {
+          showToast('❌ Stripe 未初始化，请刷新页面重试');
+          return;
+        }
+      } catch(e) {
+        // Server unreachable - allow order in offline mode
+        console.log('服务器不可达，继续下单');
       }
     } else {
-      // Create and confirm new payment intent
-      const piResult = await createPaymentIntent(orderNo, total);
-      if (!piResult.success) {
-        showToast('❌ Errore pagamento: ' + (piResult.error || 'Sconosciuto'));
-        // If mock mode, simulate success
-        if (piResult.mock) {
-          console.log('Mock payment succeeded');
-        } else {
+      // Real Stripe payment
+      try {
+        const piResult = await createPaymentIntent(orderNo, total);
+        if (!piResult.success) {
+          showToast('❌ Errore pagamento: ' + (piResult.error || 'Sconosciuto'));
           return;
         }
-      } else if (piResult.clientSecret && stripe) {
-        paymentIntentClientSecret = piResult.clientSecret;
-        const result = await confirmCardPayment(piResult.clientSecret);
-        if (result.error) {
-          showToast('❌ Pagamento fallito: ' + result.error.message);
-          return;
+
+        if (piResult.clientSecret) {
+          const result = await confirmCardPayment(piResult.clientSecret);
+          if (result.error) {
+            showToast(' Pagamento fallito: ' + result.error.message);
+            return;
+          }
+          if (result.paymentIntent && result.paymentIntent.status !== 'succeeded') {
+            showToast('⚠️ Pagamento non completato');
+            return;
+          }
         }
+      } catch(e) {
+        showToast('❌ Errore pagamento: ' + e.message);
+        return;
       }
     }
   }

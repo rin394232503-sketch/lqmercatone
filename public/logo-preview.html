@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L&Q Mercatone - Logo 预览</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: #333;
+      font-size: 24px;
+    }
+    .section {
+      margin: 30px auto;
+      max-width: 800px;
+    }
+    .section h2 {
+      color: #555;
+      font-size: 16px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    .preview-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .preview-box.dark {
+      background: #1a1a2e;
+    }
+    .preview-box.transparent {
+      background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+    }
+    .preview-box img, .preview-box svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .icon-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .icon-item {
+      text-align: center;
+    }
+    .icon-item span {
+      display: block;
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .info {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 30px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .info h3 { color: #333; margin-bottom: 10px; }
+    .info ul { padding-left: 20px; color: #666; line-height: 1.8; }
+    .download-link {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #C9A84C;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin: 5px;
+      font-size: 14px;
+    }
+    .download-link:hover { background: #16213e; }
+  </style>
+</head>
+<body>
+
+  <h1>L&Q Mercatone - Logo &amp; 图标预览</h1>
+
+  <!-- 横版 Logo - 深色背景 -->
+  <div class="section">
+    <h2>1. 横版 Logo（深色背景）- 用于网站头部、App</h2>
+    <div class="preview-box dark">
+      <img src="logo.svg" alt="L&Q Mercatone Logo" width="400">
+    </div>
+  </div>
+
+  <!-- 横版 Logo - 浅色背景 -->
+  <div class="section">
+    <h2>2. 横版 Logo（浅色背景）- 用于文档、邮件</h2>
+    <div class="preview-box transparent">
+      <img src="logo-light.svg" alt="L&Q Mercatone Logo Light" width="400">
+    </div>
+  </div>
+
+  <!-- 方形图标 -->
+  <div class="section">
+    <h2>3. 方形图标 - 用于 Favicon、App 图标</h2>
+    <div class="preview-box">
+      <div class="icon-row">
+        <div class="icon-item">
+          <img src="logo-icon.svg" width="128" alt="Icon 128px">
+          <span>128 x 128</span>
+        </div>
+        <div class="icon-item">
+          <img src="logo-icon.svg" width="64" alt="Icon 64px">
+          <span>64 x 64</span>
+        </div>
+        <div class="icon-item">
+          <img src="logo-icon.svg" width="48" alt="Icon 48px">
+          <span>48 x 48</span>
+        </div>
+        <div class="icon-item">
+          <img src="logo-icon.svg" width="32" alt="Icon 32px">
+          <span>32 x 32</span>
+        </div>
+        <div class="icon-item">
+          <img src="logo-icon.svg" width="16" alt="Icon 16px">
+          <span>16 x 16</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 文件说明 -->
+  <div class="section">
+    <div class="info">
+      <h3>文件说明</h3>
+      <ul>
+        <li><strong>logo.svg</strong> - 横版 Logo，深色背景，用于网站头部和 App 导航栏</li>
+        <li><strong>logo-light.svg</strong> - 横版 Logo，透明背景，用于文档和邮件签名</li>
+        <li><strong>logo-icon.svg</strong> - 方形图标，用于 Favicon 和 App 图标（512x512）</li>
+      </ul>
+      <h3 style="margin-top: 15px;">设计说明</h3>
+      <ul>
+        <li>配色：深蓝底色 (#1a1a2e) + 金色 (#C9A84C / #F5E6A3)</li>
+        <li>字体：Georgia 衬线体，体现意大利经典风格</li>
+        <li>标语：La tua bottega italiana（你的意大利小店）</li>
+        <li>L&amp;Q 字母在圆形徽章中，象征品质与信任</li>
+      </ul>
+      <h3 style="margin-top: 15px;">下载</h3>
+      <div style="margin-top: 10px;">
+        <a href="logo.svg" class="download-link" download>下载 logo.svg</a>
+        <a href="logo-light.svg" class="download-link" download>下载 logo-light.svg</a>
+        <a href="logo-icon.svg" class="download-link" download>下载 logo-icon.svg</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
