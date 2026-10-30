@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AddressesService } from './addresses.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -13,7 +13,7 @@ export class AddressesController {
    * 获取用户所有地址
    */
   @Get()
-  async getUserAddresses(@Request() req: ExpressRequest & { user: any }) {
+  async getUserAddresses(@Req() req: ExpressRequest & { user: any }) {
     return this.addressesService.getUserAddresses(req.user.id);
   }
 
@@ -22,7 +22,7 @@ export class AddressesController {
    * 获取默认地址
    */
   @Get('default')
-  async getDefaultAddress(@Request() req: ExpressRequest & { user: any }) {
+  async getDefaultAddress(@Req() req: ExpressRequest & { user: any }) {
     return this.addressesService.getDefaultAddress(req.user.id);
   }
 
@@ -32,7 +32,7 @@ export class AddressesController {
    */
   @Post()
   async createAddress(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Body() body: {
       name: string;
       phone: string;
@@ -52,7 +52,7 @@ export class AddressesController {
    */
   @Put(':id')
   async updateAddress(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Param('id') id: string,
     @Body() body: {
       name?: string;
@@ -72,7 +72,7 @@ export class AddressesController {
    * 删除地址
    */
   @Delete(':id')
-  async deleteAddress(@Request() req: ExpressRequest & { user: any }, @Param('id') id: string) {
+  async deleteAddress(@Req() req: ExpressRequest & { user: any }, @Param('id') id: string) {
     return this.addressesService.deleteAddress(req.user.id, id);
   }
 }

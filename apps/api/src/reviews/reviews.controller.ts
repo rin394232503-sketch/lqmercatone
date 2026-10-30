@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -30,7 +30,7 @@ export class ReviewsController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   async createReview(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Body() body: {
       productId: string;
       orderId: string;

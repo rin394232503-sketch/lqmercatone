@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -15,7 +15,7 @@ export class OrdersController {
    */
   @Post()
   async createOrder(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Body() body: {
       addressId: string;
       paymentMethod: string;
@@ -33,7 +33,7 @@ export class OrdersController {
    */
   @Get()
   async getUserOrders(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Query('status') status?: OrderStatus,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -60,7 +60,7 @@ export class OrdersController {
    */
   @Post(':id/cancel')
   async cancelOrder(
-    @Request() req: ExpressRequest & { user: any },
+    @Req() req: ExpressRequest & { user: any },
     @Param('id') id: string,
     @Body() body?: { reason?: string },
   ) {

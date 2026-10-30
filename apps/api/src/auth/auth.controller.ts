@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PhoneLoginDto, PasswordLoginDto, RegisterAdminDto } from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -42,7 +42,7 @@ export class AuthController {
    */
   @Post('refresh')
   @UseGuards(AuthGuard('jwt'))
-  async refreshToken(@Request() req: ExpressRequest & { user: any }) {
+  async refreshToken(@Req() req: ExpressRequest & { user: any }) {
     return this.authService.refreshToken(req.user.id);
   }
 
@@ -52,7 +52,7 @@ export class AuthController {
    */
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  async getMe(@Request() req: ExpressRequest & { user: any }) {
+  async getMe(@Req() req: ExpressRequest & { user: any }) {
     return req.user;
   }
 }
