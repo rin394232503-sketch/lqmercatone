@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: apps/api
     branch: v2-branch
-    buildCommand: npm install && npx prisma generate --schema=../../packages/db/schema.prisma && npx nest build
+    buildCommand: npm install && npx prisma generate --schema=../../packages/db/schema.prisma && npx prisma migrate deploy --schema=../../packages/db/schema.prisma && npx nest build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
