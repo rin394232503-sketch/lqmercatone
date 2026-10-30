@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: lqmercatone-api
+    env: node
+    region: frankfurt  # 欧洲节点，离意大利近
+    plan: free
+    rootDir: apps/api
+    branch: v2-branch
+    buildCommand: npm install && npx prisma generate --schema=../../packages/db/schema.prisma && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        value: postgresql://postgres:Lin3344521@aws-0-eu-west-3.pooler.supabase.com:6543/postgres?pgbouncer=true
+      - key: DIRECT_URL
+        value: postgresql://postgres:Lin3344521@db.yiyydikfpgbmtdypiggc.supabase.co:5432/postgres
+      - key: JWT_SECRET
+        value: lqmercatone_super_secret_key_2026_change_in_prod
+      - key: JWT_REFRESH_SECRET
+        value: lqmercatone_refresh_secret_key_2026_change_in_prod
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: STRIPE_SECRET_KEY
+        value: "从Vercel环境变量复制sk_test密钥"
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: "从Vercel环境变量复制pk_test密钥"
+      - key: STRIPE_WEBHOOK_SECRET
+        value: ""
+      - key: SUPABASE_STORAGE_URL
+        value: https://yiyydikfpgbmtdypiggc.supabase.co/storage/v1
