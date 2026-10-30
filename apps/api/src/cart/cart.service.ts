@@ -191,7 +191,7 @@ export class CartService {
     color?: string;
     size?: string;
   }>) {
-    const results = [];
+    const results: any[] = [];
 
     for (const item of guestItems) {
       try {

@@ -37,7 +37,7 @@ export class OrdersService {
 
     // 3. 计算金额（欧分）
     let subtotalCent = 0;
-    const orderItems = [];
+    const orderItems: any[] = [];
 
     for (const cartItem of cart) {
       const product = cartItem.product;
