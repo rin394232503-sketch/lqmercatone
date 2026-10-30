@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AuthGuard } from '@nestjs/passport';
-import { Request as ExpressRequest } from 'express';
 
 @Controller('cart')
 @UseGuards(AuthGuard('jwt'))
@@ -13,7 +12,7 @@ export class CartController {
    * 获取当前用户的购物车
    */
   @Get()
-  async getCart(@Req() req: ExpressRequest & { user: any }) {
+  async getCart(@Req() req: { user: any }) {
     return this.cartService.getCart(req.user.id);
   }
 
@@ -23,7 +22,7 @@ export class CartController {
    */
   @Post('items')
   async addItem(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Body() body: {
       productId: string;
       quantity: number;
@@ -40,7 +39,7 @@ export class CartController {
    */
   @Put('items/:id')
   async updateQuantity(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Param('id') id: string,
     @Body() body: { quantity: number },
   ) {
@@ -52,7 +51,7 @@ export class CartController {
    * 删除购物车商品
    */
   @Delete('items/:id')
-  async removeItem(@Req() req: ExpressRequest & { user: any }, @Param('id') id: string) {
+  async removeItem(@Req() req: { user: any }, @Param('id') id: string) {
     return this.cartService.removeItem(req.user.id, id);
   }
 
@@ -61,7 +60,7 @@ export class CartController {
    * 清空购物车
    */
   @Delete()
-  async clearCart(@Req() req: ExpressRequest & { user: any }) {
+  async clearCart(@Req() req: { user: any }) {
     return this.cartService.clearCart(req.user.id);
   }
 
@@ -71,7 +70,7 @@ export class CartController {
    */
   @Post('merge')
   async mergeCart(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Body() body: {
       items: Array<{
         productId: string;

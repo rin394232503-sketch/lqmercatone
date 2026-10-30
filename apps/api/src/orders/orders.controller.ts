@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '@nestjs/passport';
-import { Request as ExpressRequest } from 'express';
 import { OrderStatus } from '@prisma/client';
 
 @Controller('orders')
@@ -15,7 +14,7 @@ export class OrdersController {
    */
   @Post()
   async createOrder(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Body() body: {
       addressId: string;
       paymentMethod: string;
@@ -33,7 +32,7 @@ export class OrdersController {
    */
   @Get()
   async getUserOrders(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Query('status') status?: OrderStatus,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -60,7 +59,7 @@ export class OrdersController {
    */
   @Post(':id/cancel')
   async cancelOrder(
-    @Req() req: ExpressRequest & { user: any },
+    @Req() req: { user: any },
     @Param('id') id: string,
     @Body() body?: { reason?: string },
   ) {
