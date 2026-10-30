@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '@nestjs/passport';
-import { OrderStatus } from '@prisma/client';
+
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
@@ -33,7 +33,7 @@ export class OrdersController {
   @Get()
   async getUserOrders(
     @Req() req: { user: any },
-    @Query('status') status?: OrderStatus,
+    @Query('status') status?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {

@@ -15,19 +15,13 @@ datasource db {
 // 用户系统（买家 + 管理员统一）
 // ============================================
 
-enum UserRole {
-  BUYER       // 普通买家
-  ADMIN       // 管理员主账号
-  WAREHOUSE   // 仓库子账号
-}
-
 model User {
   id            String    @id @default(cuid())
   phone         String    @unique                    // 意大利手机号 +39...
   email         String?   @unique
   name          String?
   avatar        String?
-  role          UserRole  @default(BUYER)
+  role          String    @default("BUYER")          // BUYER | ADMIN | WAREHOUSE
   passwordHash  String?                              // bcrypt（仅管理员）
   preferredLang String    @default("it")             // it | zh
   emailConsent  Boolean   @default(false)            // GDPR 营销邮件同意
@@ -51,24 +45,13 @@ model User {
 // 商品系统
 // ============================================
 
-enum ProductCategory {
-  ABBIGLIAMENTO   // 服装
-  DETERSIVI       // 清洁剂
-  CASA            // 家居
-  ELETTRONICA     // 电子电器
-  TRUCCO          // 美妆
-  CURA_PELLE      // 护肤
-  FIORI           // 仿真花艺
-  DECORAZIONI     // 节日装饰
-  ALTRO           // 其他
-}
 
 model Product {
   id            String            @id @default(cuid())
   nameIt        String                                // 意大利语名称
   nameZh        String            @default("")         // 中文名称
   brand         String            @default("")
-  category      ProductCategory
+  category      String
   priceCent     Int                                   // 价格（欧分）€9.99 = 999
   oldPriceCent  Int?                                  // 原价（欧分）
   stock         Int               @default(0)
@@ -102,16 +85,6 @@ model Product {
 // 订单系统
 // ============================================
 
-enum OrderStatus {
-  PENDING_PAYMENT   // 待付款
-  PENDING_SHIP      // 待发货
-  SHIPPED           // 已发货
-  DELIVERED         // 已送达
-  COMPLETED         // 已完成
-  CANCELLED         // 已取消
-  REFUNDING         // 退款中
-  REFUNDED          // 已退款
-}
 
 model Order {
   id                String      @id @default(cuid())
@@ -133,7 +106,7 @@ model Order {
   paidAt            DateTime?
 
   // 状态
-  status            OrderStatus @default(PENDING_PAYMENT)
+  status            String      @default("PENDING_PAYMENT")
   paymentDeadline   DateTime                            // 24h 超时
   cancelledAt       DateTime?
   cancelReason      String?
@@ -259,17 +232,11 @@ model Review {
 // 优惠券系统
 // ============================================
 
-enum CouponType {
-  NO_THRESHOLD    // 无门槛
-  FULL_REDUCTION  // 满减
-  PERCENTAGE      // 折扣百分比
-  SPECIFIC_PRODUCT // 指定商品
-}
 
 model Coupon {
   id            String      @id @default(cuid())
   code          String      @unique
-  type          CouponType
+  type          String
   valueCent     Int         @default(0)             // 减免金额（欧分）
   percentage    Int?                                // 折扣百分比（0-100）
   minOrderCent  Int         @default(0)             // 最低订单金额（欧分）

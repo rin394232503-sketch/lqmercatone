@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CouponType } from '@prisma/client';
+
 
 @Controller('coupons')
 export class CouponsController {
