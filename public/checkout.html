@@ -217,7 +217,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
           <span class="address-name" id="savedAddrName">—</span>
           <span class="address-phone" id="savedAddrPhone"></span>
         </div>
-        <div class="address-detail" id="savedAddrDetail">请先添加地址</div>
+        <div class="address-detail" id="savedAddrDetail">Aggiungi prima un indirizzo</div>
       </div>
       <div class="address-edit" onclick="openAddressModal()">Modifica</div>
     </div>
@@ -233,18 +233,18 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Regione di spedizione</div>
   <select id="shippingRegion" onchange="updateShipping()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:white">
     <option value="">Seleziona regione</option>
-    <optgroup label="🇮🇹 本土 Italia Continentale">
-      <option value="lombardia">Lombardia 伦巴第 (Milano)</option>
-      <option value="lazio">Lazio 拉齐奥 (Roma</option>
-      <option value="campania">Campania 坎帕尼亚 (Napoli)</option>
-      <option value="veneto">Veneto 威尼托 (Venezia)</option>
-      <option value="piemonte">Piemonte 皮埃蒙特 (Torino)</option>
-      <option value="toscana">Toscana 托斯卡纳 (Firenze)</option>
-      <option value="emilia-romagna">Emilia-Romagna 艾米利亚 (Bologna)</option>
+    <optgroup label="🇮🇹 Italia Continentale">
+      <option value="lombardia">Lombardia (Milano)</option>
+      <option value="lazio">Lazio (Roma</option>
+      <option value="campania">Campania (Napoli)</option>
+      <option value="veneto">Veneto (Venezia)</option>
+      <option value="piemonte">Piemonte (Torino)</option>
+      <option value="toscana">Toscana (Firenze)</option>
+      <option value="emilia-romagna">Emilia-Romagna (Bologna)</option>
     </optgroup>
-    <optgroup label="🏝️ 岛屿 Isole">
-      <option value="sicilia">Sicilia 西西里 (+€2)</option>
-      <option value="sardegna">Sardegna 撒丁岛 (+€2)</option>
+    <optgroup label="🏝️ Isole">
+      <option value="sicilia">Sicilia (+€2)</option>
+      <option value="sardegna">Sardegna (+€2)</option>
     </optgroup>
   </select>
   <div id="shippingInfo" style="margin-top:8px;font-size:12px;color:var(--accent)"></div>
@@ -254,7 +254,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 <div class="section-card">
   <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">🏪 L&Qmercatone Negozio</div>
   <div id="productPreview"></div>
-  <div class="pp-more" id="moreItems" style="display:none;">还有 <span id="moreCount">0</span> 件商品...</div>
+  <div class="pp-more" id="moreItems" style="display:none;">Ci sono <span id="moreCount">0</span> articoli...</div>
 </div>
 
 <!-- Coupon & Shipping -->
@@ -289,7 +289,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
   </div>
   <div class="payment-option" onclick="selectPayment(this,'pickup')">
     <div class="payment-icon">🏪</div>
-    <div class="payment-name">到店自提 Ritiro in negozio <span style="font-size:11px;color:var(--success);margin-left:6px">运费 €0</span></div>
+    <div class="payment-name">Ritiro in negozio <span style="font-size:11px;color:var(--success);margin-left:6px">Spedizione €0</span></div>
     <div class="payment-check"></div>
   </div>
 </div>
@@ -304,17 +304,17 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 
 <!-- Pickup Info (hidden by default) -->
 <div class="section-card" id="pickupInfo" style="display:none">
-  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px"> 自提信息 Informazioni ritiro</div>
+  <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px"> Informazioni ritiro</div>
   <div style="font-size:14px;font-weight:600">L&Qmercatone</div>
   <div style="font-size:13px;color:var(--text-light)">Il tuo indirizzo</div>
-  <div style="font-size:12px;color:var(--text-muted);margin-top:4px">营业时间: Lun-Sab 9:00-19:00</div>
-  <div style="font-size:12px;color:var(--accent);margin-top:4px">自提有效期: 7天 dal pagamento</div>
+  <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Orari: Lun-Sab 9:00-19:00</div>
+  <div style="font-size:12px;color:var(--accent);margin-top:4px">Validità ritiro: 7 giorni dal pagamento</div>
 </div>
 
 <!-- Order Note -->
 <div class="section-card">
   <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Note dell'ordine</div>
-  <textarea class="note-input" id="orderNote" rows="2" placeholder="Inserisci richieste particolari，如包装、配送时间等..."></textarea>
+  <textarea class="note-input" id="orderNote" rows="2" placeholder="Inserisci richieste particolari, come imballaggio, orario di consegna ecc...."></textarea>
 </div>
 
 <!-- Price Summary -->
@@ -352,7 +352,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     </div>
     <input type="text" id="addrName" placeholder="Nome e cognome *">
     <input type="tel" id="addrPhone" placeholder="Telefono *">
-    <textarea id="addrDetail" rows="3" placeholder="Indirizzo completo *&#10;例: Il tuo indirizzo"></textarea>
+    <textarea id="addrDetail" rows="3" placeholder="Indirizzo completo *&#10;Es: Il tuo indirizzo"></textarea>
     <div style="display:flex;gap:10px;">
       <input type="text" id="addrCity" placeholder="Città" style="flex:1;">
       <input type="text" id="addrZip" placeholder="CAP" style="flex:1;">
@@ -401,7 +401,7 @@ async function updateShipping() {
     const result = await response.json();
     
     if (result.error) {
-      shippingInfo.textContent = '运费计算失败';
+      shippingInfo.textContent = 'Calcolo spedizione fallito';
       return;
     }
     
@@ -409,7 +409,7 @@ async function updateShipping() {
     shippingInfo.innerHTML = `
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
         <span>📍 ${result.region || region}</span>
-        <span>${result.deliveryDays || '3-5'} 天</span>
+        <span>${result.deliveryDays || '3-5'}  giorni</span>
       </div>
       <div style="font-weight:600;color:${result.freeShipping ? 'var(--success)' : 'var(--accent)'}">
         ${result.message}
@@ -428,7 +428,7 @@ async function updateShipping() {
     
   } catch (error) {
     console.error('运费计算失败:', error);
-    shippingInfo.textContent = '运费计算失败，使用默认运费';
+    shippingInfo.textContent = 'Calcolo fallito, uso spedizione predefinita';
   }
 }
 
@@ -601,7 +601,7 @@ function selectPayment(el, method) {
   const shippingBar = document.getElementById('checkoutShipping');
   if (shippingBar) {
     if (method === 'pickup') {
-      shippingBar.textContent = '自提 Ritiro: €0';
+      shippingBar.textContent = 'Ritiro: €0';
       // Recalculate total without shipping
       const subtotal = cart.filter(i => i.selected).reduce((s, i) => s + i.price * i.qty, 0);
       document.getElementById('totalPrice').textContent = subtotal.toFixed(2);
@@ -649,7 +649,7 @@ async function submitOrder() {
   // 检查登录状态
   const buyerUser = JSON.parse(localStorage.getItem('buyer_user') || 'null');
   if (!buyerUser) {
-    showToast('️ 请先登录 / Effettua il login prima di ordinare');
+    showToast('️ Effettua il login prima di ordinare');
     setTimeout(() => { window.location.href = 'login.html?redirect=checkout.html'; }, 1500);
     return;
   }
@@ -690,7 +690,7 @@ async function submitOrder() {
         if (config.mockMode) {
           console.log('模拟支付模式 - 跳过真实支付');
         } else {
-          showToast('❌ Stripe 未初始化，请刷新页面重试');
+          showToast('❌ Stripe non inizializzato, ricarica la pagina');
           return;
         }
       } catch(e) {
@@ -874,7 +874,7 @@ async function updateShipping() {
     const result = await response.json();
     
     if (result.error) {
-      shippingInfo.textContent = '运费计算失败';
+      shippingInfo.textContent = 'Calcolo spedizione fallito';
       return;
     }
     
@@ -882,7 +882,7 @@ async function updateShipping() {
     shippingInfo.innerHTML = `
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
         <span>📍 ${result.region || region}</span>
-        <span>${result.deliveryDays || '3-5'} 天</span>
+        <span>${result.deliveryDays || '3-5'}  giorni</span>
       </div>
       <div style="font-weight:600;color:${result.freeShipping ? 'var(--success)' : 'var(--accent)'}">
         ${result.message}
@@ -901,7 +901,7 @@ async function updateShipping() {
     
   } catch (error) {
     console.error('运费计算失败:', error);
-    shippingInfo.textContent = '运费计算失败，使用默认运费';
+    shippingInfo.textContent = 'Calcolo fallito, uso spedizione predefinita';
   }
 }
 

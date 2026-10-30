@@ -909,7 +909,7 @@ async function confirmShip(id){
     }catch(e){handleSyncError('ship_order',e);return}
   }else{handleSyncError('ship_order','no connection');return}
   const o=allOrders.find(x=>x.id===id);if(o){o.status='shipped';o.tracking_number=tracking}
-  const shipOrder=allOrders.find(x=>x.id===id);logOperation('ship_order','order',id,{status:shipOrder?.status},{status:'shipped',tracking:tracking});closeModal();showToast('✅ 发货成功');renderDashboard();renderOrders()
+  const shipOrder=allOrders.find(x=>x.id===id);logOperation('ship_order','order',id,{status:shipOrder?.status},{status:'shipped',tracking:tracking});closeModal();showToast('✅ Spedizione completata');renderDashboard();renderOrders()
 }
 
 // ===== Low Stock Page =====
@@ -1430,7 +1430,7 @@ async function handleImport(e){
       html+=`<tr><td style="padding:4px 6px;border:1px solid var(--border)">${item.name.substring(0,20)}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.category.substring(0,8)}</td><td style="padding:4px 6px;border:1px solid var(--border)">€${item.price}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.stock}</td></tr>`;
     }
     html+='</table>';
-    document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length} 件商品待导入 (格式: .${ext})</p>`;
+    document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length}  prodotti da importare (格式: .${ext})</p>`;
     document.getElementById('importBtn').style.display='block';
   }catch(err){
     console.error('Import error:',err);
