@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Headers, RawBodyRequest, Req } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-import { Request } from 'express';
+
 
 @Controller('payment')
 export class StripeController {
@@ -35,7 +35,7 @@ export class StripeController {
   @Post('webhook')
   async handleWebhook(
     @Headers('stripe-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>,
+    @Req() req: any,
   ) {
     const rawBody = req.rawBody || Buffer.from('');
     return this.stripeService.handleWebhook(rawBody, signature);
