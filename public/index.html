@@ -437,11 +437,11 @@ body>*{position:relative;z-index:1}
     <div class="nav-icon">🏠</div>
     <span class="nav-label" data-i18n="tab_home">Home</span>
   </div>
-  <div class="nav-item" onclick="switchTab('category',this)">
+  <div class="nav-item" onclick="location.href='index.html?view=categories'">
     <div class="nav-icon">📂</div>
     <span class="nav-label" data-i18n="tab_cat">Categorie</span>
   </div>
-  <div class="nav-item" onclick="switchTab('search',this)">
+  <div class="nav-item" onclick="document.getElementById('searchInput').focus();document.getElementById('searchInput').scrollIntoView({behavior:'smooth',block:'center'});">
     <div class="nav-icon">🔍</div>
     <span class="nav-label" data-i18n="tab_search">Cerca</span>
   </div>
@@ -618,10 +618,26 @@ function handleSearch(q) {
   if (!q.trim()) { renderProducts(); return; }
   const filtered = PRODUCTS.filter(p =>
     p.name.toLowerCase().includes(q.toLowerCase()) ||
-    p.category.toLowerCase().includes(q.toLowerCase())
+    p.category.toLowerCase().includes(q.toLowerCase()) ||
+    (p.brand && p.brand.toLowerCase().includes(q.toLowerCase()))
   );
-  document.getElementById('productGrid').innerHTML = filtered.map(renderCard).join('');
-  document.getElementById('productCount').textContent = filtered.length + ' prodotti';
+  const grid = document.getElementById('productGrid');
+  if (filtered.length === 0) {
+    const msg = currentLang === 'zh'
+      ? `未找到 "${q}" 相关商品`
+      : `Nessun risultato per "${q}"`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:12px;">🔍</div>
+      <div style="font-size:14px;">${msg}</div>
+      <div style="font-size:12px;margin-top:8px;">${currentLang === 'zh' ? '请尝试其他关键词' : 'Prova con parole diverse'}</div>
+    </div>`;
+  } else {
+    grid.innerHTML = filtered.map(renderCard).join('');
+  }
+  const countText = currentLang === 'zh' ? ' 件商品' : ' prodotti';
+  document.getElementById('productCount').textContent = filtered.length + countText;
+  // 滚动到商品区域
+  grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ===== Filter =====
