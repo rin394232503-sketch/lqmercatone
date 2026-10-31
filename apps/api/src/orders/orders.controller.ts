@@ -46,11 +46,16 @@ export class OrdersController {
 
   /**
    * GET /api/v1/orders/:id
-   * 获取订单详情
+   * 获取订单详情（强制归属校验）
    */
   @Get(':id')
-  async getOrder(@Param('id') id: string) {
-    return this.ordersService.getOrderById(id);
+  async getOrder(@Req() req: { user: any }, @Param('id') id: string) {
+    // 管理员可以查看任何订单
+    if (req.user.role === 'ADMIN' || req.user.role === 'WAREHOUSE') {
+      return this.ordersService.getOrderById(id);
+    }
+    // 买家只能查看自己的订单
+    return this.ordersService.getOrderById(id, req.user.id);
   }
 
   /**

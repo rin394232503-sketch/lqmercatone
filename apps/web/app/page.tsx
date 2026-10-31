@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: string;
@@ -28,6 +29,7 @@ interface Pagination {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 export default function Home() {
+  const router = useRouter();
   const [lang, setLang] = useState<'it' | 'zh'>('it');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +136,11 @@ export default function Home() {
             placeholder={t('Cerca prodotti...', '搜索商品...')}
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchTerm.length >= 2) {
+                router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+              }
+            }}
           />
         </div>
         <button className="lang-btn" onClick={toggleLang}>
@@ -192,8 +199,26 @@ export default function Home() {
           {t('Caricamento...', '加载中...')}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
-          {t('Nessun prodotto trovato', '暂无商品')}
+        <div className="text-center py-12">
+          <div className="text-4xl mb-3">📦</div>
+          <div className="text-gray-500 font-medium">
+            {searchTerm
+              ? t(`Nessun risultato per "${searchTerm}"`, `未找到 "${searchTerm}" 相关商品`)
+              : t('Nessun prodotto disponibile al momento', '暂无商品上架')}
+          </div>
+          <div className="text-gray-400 text-sm mt-2">
+            {searchTerm
+              ? t('Prova con parole diverse', '请尝试其他关键词')
+              : t('Torna presto per nuove offerte!', '稍后再来看看新上架的商品吧！')}
+          </div>
+          {searchTerm && (
+            <Link
+              href="/search"
+              className="inline-block mt-4 text-purple-600 font-medium"
+            >
+              {t('Vai alla ricerca avanzata →', '前往高级搜索 →')}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="product-grid">
@@ -248,23 +273,23 @@ export default function Home() {
           <span className="nav-icon">🏠</span>
           <span>{t('Home', '首页')}</span>
         </div>
-        <div className="nav-item">
+        <Link href="/categories" className="nav-item">
           <span className="nav-icon">📂</span>
           <span>{t('Categorie', '分类')}</span>
-        </div>
-        <div className="nav-item">
+        </Link>
+        <Link href="/search" className="nav-item">
           <span className="nav-icon">🔍</span>
           <span>{t('Cerca', '搜索')}</span>
-        </div>
+        </Link>
         <Link href="/cart" className="nav-item">
           <span className="nav-icon">🛒</span>
           <span>{t('Carrello', '购物车')}</span>
           {cartCount > 0 && <span className="nav-badge">{cartCount}</span>}
         </Link>
-        <div className="nav-item">
+        <Link href="/profile" className="nav-item">
           <span className="nav-icon">👤</span>
           <span>{t('Profilo', '我的')}</span>
-        </div>
+        </Link>
       </nav>
 
       {/* Toast */}

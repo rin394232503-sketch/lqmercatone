@@ -14,23 +14,21 @@ export class StripeService {
     private couponsService: CouponsService,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY') || '';
-    this.stripe = new Stripe(secretKey, {
-      apiVersion: '2025-02-24.acacia',
-    });
+    this.stripe = new Stripe(secretKey);
   }
 
   /**
-   * 创建支付意图
+   * 创建支付意图（必须校验订单归属）
    */
-  async createPaymentIntent(orderId: string) {
-    // 1. 获取订单
-    const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
+  async createPaymentIntent(orderId: string, userId: string) {
+    // 1. 获取订单并校验归属
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId },
       include: { items: { include: { product: true } } },
     });
 
     if (!order) {
-      throw new BadRequestException('订单不存在');
+      throw new BadRequestException('订单不存在或不属于当前用户');
     }
 
     if (order.status !== 'PENDING_PAYMENT') {
@@ -44,6 +42,7 @@ export class StripeService {
       metadata: {
         orderId: order.id,
         orderNo: order.orderNo,
+        userId: order.userId,
       },
       automatic_payment_methods: {
         enabled: true,
@@ -73,7 +72,17 @@ export class StripeService {
    * 处理 Stripe Webhook
    */
   async handleWebhook(payload: Buffer, signature: string) {
-    const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
+    const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
+
+    // 必须校验：密钥不能为空
+    if (!webhookSecret) {
+      throw new BadRequestException('STRIPE_WEBHOOK_SECRET 未配置，拒绝所有 Webhook');
+    }
+
+    // 必须校验签名
+    if (!signature) {
+      throw new BadRequestException('缺少 stripe-signature 头');
+    }
 
     let event: Stripe.Event;
 
@@ -84,7 +93,7 @@ export class StripeService {
         webhookSecret,
       );
     } catch (err) {
-      throw new BadRequestException('Webhook 验证失败');
+      throw new BadRequestException(`Webhook 签名验证失败: ${err.message}`);
     }
 
     // 处理不同的事件类型
@@ -106,22 +115,44 @@ export class StripeService {
   }
 
   /**
-   * 支付成功处理
+   * 支付成功处理（幂等 + 金额校验）
    */
   private async handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     const orderId = paymentIntent.metadata.orderId;
 
     if (!orderId) return;
 
-    // 更新订单状态为已付款
-    await this.prisma.order.update({
-      where: { id: orderId },
+    // 幂等：只有 PENDING_PAYMENT 状态才能转为已付款
+    const result = await this.prisma.order.updateMany({
+      where: {
+        id: orderId,
+        status: 'PENDING_PAYMENT',
+        paymentStatus: 'pending',
+      },
       data: {
         status: 'PENDING_SHIP',
         paymentStatus: 'paid',
         paidAt: new Date(),
+        transactionId: paymentIntent.id,
       },
     });
+
+    if (result.count === 0) {
+      // 已被处理过（重复推送），忽略
+      return;
+    }
+
+    // 校验金额
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (order && paymentIntent.amount_received !== order.totalCent) {
+      // 金额不匹配，标记异常
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: {
+          adminNote: `⚠️ 金额不匹配: 应收${order.totalCent} 实收${paymentIntent.amount_received}`,
+        },
+      });
+    }
 
     console.log(`✅ 订单 ${orderId} 支付成功`);
   }

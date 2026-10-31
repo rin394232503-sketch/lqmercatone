@@ -1,0 +1,19 @@
+# 环境变量（密钥、数据库连接等）
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# 构建缓存
+.next/
+out/
+*.tsbuildinfo
+
+# 依赖
+node_modules/
+
+# 日志
+npm-debug.log*
+
+# 系统文件
+.DS_Store

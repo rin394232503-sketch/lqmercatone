@@ -1,7 +1,15 @@
 import { IsString, IsOptional, IsEnum } from 'class-validator';
-import { UserRole } from '@prisma/client';
+
 
 export class PhoneLoginDto {
+  @IsString()
+  phone: string;  // 意大利手机号 +39...
+
+  @IsString()
+  code: string;   // 短信验证码（6 位数字）
+}
+
+export class SendCodeDto {
   @IsString()
   phone: string;  // 意大利手机号 +39...
 }
@@ -25,8 +33,8 @@ export class RegisterAdminDto {
   @IsOptional()
   name?: string;
 
-  @IsEnum([UserRole.ADMIN, UserRole.WAREHOUSE])
-  role: UserRole;
+  @IsEnum(['ADMIN', 'WAREHOUSE'])
+  role: string;
 }
 
 export class RefreshTokenDto {

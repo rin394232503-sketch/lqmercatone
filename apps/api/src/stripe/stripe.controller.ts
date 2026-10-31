@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Headers, RawBodyRequest, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, Req, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
-
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('payment')
 export class StripeController {
@@ -20,17 +20,20 @@ export class StripeController {
 
   /**
    * POST /api/v1/payment/create-intent
-   * 创建支付意图
+   * 创建支付意图（必须登录 + 订单属于当前用户）
    */
   @Post('create-intent')
-  async createPaymentIntent(@Body() body: { orderId: string }) {
-    return this.stripeService.createPaymentIntent(body.orderId);
+  @UseGuards(AuthGuard('jwt'))
+  async createPaymentIntent(
+    @Req() req: { user: any },
+    @Body() body: { orderId: string },
+  ) {
+    return this.stripeService.createPaymentIntent(body.orderId, req.user.id);
   }
 
   /**
    * POST /api/v1/payment/webhook
-   * Stripe Webhook 回调
-   * 注意：需要配置 raw body
+   * Stripe Webhook 回调（不需要 JWT，但必须校验签名）
    */
   @Post('webhook')
   async handleWebhook(

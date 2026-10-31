@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [lang, setLang] = useState<'it' | 'zh'>('it');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [step, setStep] = useState<'phone' | 'code'>('phone');
@@ -15,6 +17,13 @@ export default function LoginPage() {
   const [toast, setToast] = useState('');
   const [agreed, setAgreed] = useState(false);
 
+  useEffect(() => {
+    const saved = localStorage.getItem('lang');
+    if (saved === 'zh' || saved === 'it') setLang(saved as 'it' | 'zh');
+  }, []);
+
+  const t = (it: string, zh: string) => lang === 'it' ? it : zh;
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(''), 3000);
@@ -22,29 +31,47 @@ export default function LoginPage() {
 
   async function sendCode() {
     if (!phone.startsWith('+39') || phone.length < 13) {
-      showToast('请输入有效的意大利手机号 / Inserisci un numero italiano valido (+39...)');
+      showToast(t(
+        'Inserisci un numero italiano valido (+39...)',
+        '请输入有效的意大利手机号 (+39...)'
+      ));
       return;
     }
     if (!agreed) {
-      showToast('请先同意隐私政策 / Accetta la privacy policy');
+      showToast(t(
+        'Accetta la privacy policy',
+        '请先同意隐私政策'
+      ));
       return;
     }
 
     setLoading(true);
     try {
-      // TODO: 集成 Twilio 发送验证码
-      // 开发阶段：固定验证码 123456
-      showToast(`验证码已发送到 ${phone}（测试码: 123456）`);
-      setStep('code');
-      setCountdown(60);
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) { clearInterval(timer); return 0; }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err) {
-      showToast('发送失败，请重试');
+      const res = await fetch(`${API_BASE}/sms/send-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+
+      if (res.ok) {
+        showToast(t(
+          `Codice inviato a ${phone}`,
+          `验证码已发送到 ${phone}`
+        ));
+        setStep('code');
+        setCountdown(60);
+        const timer = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) { clearInterval(timer); return 0; }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        const data = await res.json();
+        showToast(data.message || t('Invio fallito', '发送失败'));
+      }
+    } catch {
+      showToast(t('Errore di rete, riprova', '网络错误，请重试'));
     } finally {
       setLoading(false);
     }
@@ -52,7 +79,7 @@ export default function LoginPage() {
 
   async function verifyCode() {
     if (code.length !== 6) {
-      showToast('请输入 6 位验证码');
+      showToast(t('Inserisci il codice a 6 cifre', '请输入 6 位验证码'));
       return;
     }
 
@@ -61,25 +88,23 @@ export default function LoginPage() {
       const res = await fetch(`${API_BASE}/auth/phone-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, code }),
       });
       const data = await res.json();
 
       if (data.accessToken) {
-        localStorage.setItem('buyer_token', data.accessToken);
-        localStorage.setItem('buyer_user', JSON.stringify(data.user));
-        showToast('登录成功！');
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+        showToast(t('Accesso effettuato!', '登录成功！'));
         router.push('/');
       } else {
-        showToast(data.error || '登录失败');
+        showToast(data.message || t('Accesso fallito', '登录失败'));
       }
-    } catch (err) {
-      // 开发模式：直接登录
-      const user = { id: 'dev-user', phone, name: phone, role: 'BUYER' };
-      localStorage.setItem('buyer_token', 'dev-token');
-      localStorage.setItem('buyer_user', JSON.stringify(user));
-      showToast('登录成功（开发模式）');
-      router.push('/');
+    } catch {
+      showToast(t('Errore di rete, riprova', '网络错误，请重试'));
     } finally {
       setLoading(false);
     }
@@ -87,25 +112,41 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-600 to-indigo-800 flex flex-col items-center justify-center px-6">
+      {/* Language switch */}
+      <button
+        className="absolute top-4 right-4 bg-white/20 text-white px-3 py-1 rounded-full text-sm"
+        onClick={() => {
+          const next = lang === 'it' ? 'zh' : 'it';
+          setLang(next);
+          localStorage.setItem('lang', next);
+        }}
+      >
+        {lang === 'it' ? '中文' : 'IT'}
+      </button>
+
       {/* Logo */}
       <div className="mb-8 text-center">
         <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-4xl">🛍️</span>
         </div>
         <h1 className="text-2xl font-bold text-white">L&Q Mercatone</h1>
-        <p className="text-white/70 mt-1">Accedi al tuo account</p>
+        <p className="text-white/70 mt-1">
+          {t('Accedi al tuo account', '登录您的账户')}
+        </p>
       </div>
 
       {/* Login Card */}
       <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-xl">
         {step === 'phone' ? (
           <>
-            <h2 className="text-lg font-bold mb-4">手机号登录</h2>
+            <h2 className="text-lg font-bold mb-4">
+              {t('Accesso con telefono', '手机号登录')}
+            </h2>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+39 手机号"
+              placeholder={t('+39 Numero di telefono', '+39 手机号')}
               className="w-full p-3 border rounded-xl mb-4 text-lg"
             />
 
@@ -118,8 +159,10 @@ export default function LoginPage() {
                 className="mt-1 accent-purple-600"
               />
               <span className="text-xs text-gray-500">
-                我同意 <a className="text-purple-600 underline">隐私政策</a> 和{' '}
-                <a className="text-purple-600 underline">服务条款</a>
+                {t('Accetto la', '我同意')}{' '}
+                <a className="text-purple-600 underline">{t('Privacy Policy', '隐私政策')}</a>
+                {' '}{t('e i', '和')}{' '}
+                <a className="text-purple-600 underline">{t('Termini di servizio', '服务条款')}</a>
               </span>
             </label>
 
@@ -128,33 +171,37 @@ export default function LoginPage() {
               disabled={loading || !agreed}
               className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold disabled:bg-gray-300"
             >
-              {loading ? '发送中...' : '发送验证码'}
+              {loading
+                ? t('Invio in corso...', '发送中...')
+                : t('Invia codice di verifica', '发送验证码')}
             </button>
           </>
         ) : (
           <>
-            <h2 className="text-lg font-bold mb-2">输入验证码</h2>
+            <h2 className="text-lg font-bold mb-2">
+              {t('Inserisci il codice', '输入验证码')}
+            </h2>
             <p className="text-sm text-gray-500 mb-4">
-              验证码已发送至 {phone}
+              {t('Codice inviato a', '验证码已发送至')} {phone}
             </p>
 
             <input
               type="text"
+              inputMode="numeric"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="6 位验证码"
+              placeholder={t('Codice a 6 cifre', '6 位验证码')}
               className="w-full p-3 border rounded-xl mb-2 text-lg text-center tracking-widest"
               maxLength={6}
             />
 
             {countdown > 0 ? (
-              <p className="text-sm text-gray-400 mb-4">{countdown} 秒后可重新发送</p>
+              <p className="text-sm text-gray-400 mb-4">
+                {t('Puoi richiederlo di nuovo tra', '可重新发送，剩余')} {countdown}s
+              </p>
             ) : (
-              <button
-                onClick={sendCode}
-                className="text-sm text-purple-600 mb-4"
-              >
-                重新发送验证码
+              <button onClick={sendCode} className="text-sm text-purple-600 mb-4">
+                {t('Invia di nuovo il codice', '重新发送验证码')}
               </button>
             )}
 
@@ -163,24 +210,24 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold disabled:bg-gray-300 mb-3"
             >
-              {loading ? '验证中...' : '登录'}
+              {loading ? t('Verifica...', '验证中...') : t('Accedi', '登录')}
             </button>
 
             <button
               onClick={() => { setStep('phone'); setCode(''); }}
               className="w-full text-sm text-gray-500"
             >
-              ← 返回修改手机号
+              ← {t('Modifica numero di telefono', '返回修改手机号')}
             </button>
           </>
         )}
       </div>
 
-      {/* Admin Login Link */}
+      {/* Admin Login Link - subtle */}
       <div className="mt-6 text-center">
-        <a href="/admin" className="text-white/50 text-sm">
-          管理员登录 →
-        </a>
+        <Link href="/auth/admin-login" className="text-white/30 text-xs">
+          {t('Accesso amministratore', '管理员登录')}
+        </Link>
       </div>
 
       {toast && (

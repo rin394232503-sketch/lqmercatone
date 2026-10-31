@@ -1,6 +1,5 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CouponType } from '@prisma/client';
 
 @Injectable()
 export class CouponsService {
@@ -132,40 +131,46 @@ export class CouponsService {
   }
 
   /**
-   * 使用优惠券（创建订单时调用）
+   * 使用优惠券（原子操作，防止重复使用）
    */
   async useCoupon(userId: string, couponId: string, orderId: string) {
-    const userCoupon = await this.prisma.userCoupon.findFirst({
+    // 原子更新：只有未使用的优惠券才能被标记为已使用
+    const result = await this.prisma.userCoupon.updateMany({
       where: {
         id: couponId,
         userId,
-        usedAt: null, // 未使用
+        usedAt: null,
       },
-      include: {
-        coupon: true,
-      },
-    });
-
-    if (!userCoupon) {
-      throw new NotFoundException('优惠券不存在或已使用');
-    }
-
-    const coupon = userCoupon.coupon;
-
-    // 检查有效期
-    const now = new Date();
-    if (now < coupon.startsAt || now > coupon.endsAt) {
-      throw new BadRequestException('优惠券已过期');
-    }
-
-    // 标记为已使用
-    const updated = await this.prisma.userCoupon.update({
-      where: { id: userCoupon.id },
       data: {
-        usedAt: now,
+        usedAt: new Date(),
         usedOrderId: orderId,
       },
     });
+
+    if (result.count === 0) {
+      throw new BadRequestException('优惠券不存在、不属于你、或已使用');
+    }
+
+    // 验证优惠券有效期
+    const userCoupon = await this.prisma.userCoupon.findUnique({
+      where: { id: couponId },
+      include: { coupon: true },
+    });
+
+    if (!userCoupon) {
+      throw new NotFoundException('优惠券不存在');
+    }
+
+    const coupon = userCoupon.coupon;
+    const now = new Date();
+    if (now < coupon.startsAt || now > coupon.endsAt) {
+      // 回滚
+      await this.prisma.userCoupon.update({
+        where: { id: couponId },
+        data: { usedAt: null, usedOrderId: null },
+      });
+      throw new BadRequestException('优惠券已过期');
+    }
 
     // 记录日志
     await this.prisma.couponUsageLog.create({
@@ -177,7 +182,7 @@ export class CouponsService {
       },
     });
 
-    return updated;
+    return userCoupon;
   }
 
   /**
@@ -221,7 +226,7 @@ export class CouponsService {
    */
   async createCoupon(data: {
     code: string;
-    type: CouponType;
+    type: string;
     valueCent?: number;
     percentage?: number;
     minOrderCent: number;

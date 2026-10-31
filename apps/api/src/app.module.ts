@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
+import { SmsModule } from './sms/sms.module';
 import { ProductsModule } from './products/products.module';
 import { AuthModule } from './auth/auth.module';
 import { CartModule } from './cart/cart.module';
@@ -20,6 +22,12 @@ import { StripeModule } from './stripe/stripe.module';
 
     // 数据库模块
     PrismaModule,
+
+    // Redis 模块（全局）
+    RedisModule,
+
+    // 短信模块
+    SmsModule,
 
     // 业务模块
     ProductsModule,

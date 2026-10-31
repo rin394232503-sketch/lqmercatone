@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductCategory } from '@prisma/client';
+
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -23,7 +23,7 @@ export class ProductsController {
   async findAll(
     @Query('page', ParseIntPipe) page?: number,
     @Query('limit', ParseIntPipe) limit?: number,
-    @Query('category') category?: ProductCategory,
+    @Query('category') category?: string,
     @Query('onSale') onSale?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: string,

@@ -228,9 +228,7 @@ export default function CheckoutPage() {
         <h2 className="font-bold mb-3">💳 Pagamento 支付方式</h2>
         <div className="bg-white rounded-xl divide-y">
           {[
-            { id: 'card', icon: '💳', name: 'Carta di credito 信用卡', desc: '3D Secure 2.0' },
-            { id: 'sisal', icon: '🏪', name: 'Sisal / Lottomatica', desc: '到店付款' },
-            { id: 'paypal', icon: '🅿️', name: 'PayPal', desc: '' },
+            { id: 'card', icon: '💳', name: 'Carta di credito 信用卡', desc: 'Stripe 3D Secure 2.0' },
             { id: 'pickup', icon: '🏪', name: 'Ritiro in negozio 自提', desc: '运费 €0' },
           ].map((method) => (
             <button

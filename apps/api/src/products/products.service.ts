@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, ProductCategory } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -12,7 +11,7 @@ export class ProductsService {
   async findAll(query: {
     page?: number;
     limit?: number;
-    category?: ProductCategory;
+    category?: string;
     onSale?: boolean;
     search?: string;
     sortBy?: string;
@@ -23,7 +22,7 @@ export class ProductsService {
     const skip = (page - 1) * limit;
 
     // 构建筛选条件
-    const where: Prisma.ProductWhereInput = {};
+    const where: any = {};
 
     if (query.category) {
       where.category = query.category;
@@ -42,7 +41,7 @@ export class ProductsService {
     }
 
     // 排序
-    const orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    const orderBy: any = {};
     if (query.sortBy === 'price') {
       orderBy.priceCent = query.sortOrder || 'asc';
     } else if (query.sortBy === 'createdAt') {
@@ -131,14 +130,14 @@ export class ProductsService {
   /**
    * 创建商品（管理员）
    */
-  async create(data: Prisma.ProductCreateInput) {
+  async create(data: any) {
     return this.prisma.product.create({ data });
   }
 
   /**
    * 更新商品（管理员）
    */
-  async update(id: string, data: Prisma.ProductUpdateInput) {
+  async update(id: string, data: any) {
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) {
       throw new NotFoundException(`商品 ${id} 不存在`);
@@ -186,7 +185,16 @@ export class ProductsService {
    * 获取所有分类
    */
   async getCategories() {
-    const categories = Object.values(ProductCategory);
+    const categories = [
+      'CASA',           // 家居
+      'ELETTRONICA',    // 电器
+      'ABBIGLIAMENTO',  // 服装
+      'COSMETICA',      // 化妆品
+      'DECORAZIONI',    // 装饰
+      'SPORT',          // 运动
+      'GIOCHI',         // 玩具
+      'CANCHELLERIA',   // 文具
+    ];
     return { categories };
   }
 }

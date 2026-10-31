@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="L&Q管理">
+<meta name="theme-color" content="#1a1a2e">
+<title>L&Qmercatone 管理</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%231a1a2e' width='180' height='180' rx='40'/><text x='90' y='125' font-size='100' text-anchor='middle'>🛍️</text></svg>">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --primary: #1a1a2e; --accent: #e94560; --bg: #f2f2f7; --card: #fff;
+  --text: #000; --light: #8e8e93; --border: #c6c6c8;
+  --green: #34c759; --red: #ff3b30; --blue: #007aff;
+  --ios-bg: #f2f2f7; --ios-card: #fff; --ios-sep: #e5e5ea;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background: var(--ios-bg); color: var(--text);
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  min-height: 100vh; min-height: -webkit-fill-available;
+  -webkit-font-smoothing: antialiased;
+}
+/* iOS Status Bar Spacer */
+.ios-spacer { height: env(safe-area-inset-top); background: var(--primary); }
+/* App Header - iOS style */
+.app-header {
+  background: var(--primary); color: white;
+  padding: 12px 20px 16px;
+  position: sticky; top: 0; z-index: 10;
+}
+.app-header h1 { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.app-header p { font-size: 12px; opacity: 0.6; margin-top: 2px; }
+/* Bottom Nav - iOS Tab Bar style */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(249,249,249,0.94);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid rgba(0,0,0,0.12);
+  display: flex; z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 6px 4px 4px; font-size: 10px; font-weight: 500;
+  color: var(--light); cursor: pointer; transition: 0.15s;
+  -webkit-user-select: none;
+}
+.nav-item.active { color: var(--accent); }
+.nav-item .nav-icon { font-size: 22px; margin-bottom: 1px; }
+/* Pages */
+.page { display: none; padding: 16px; }
+.page.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* iOS Cards */
+.card {
+  background: var(--ios-card); border-radius: 10px;
+  margin-bottom: 12px; overflow: hidden;
+}
+.card-header { padding: 12px 16px 0; }
+.card-header h3 { font-size: 13px; text-transform: uppercase; color: var(--light); font-weight: 500; letter-spacing: 0.5px; }
+/* Product Item - iOS List style */
+.prod-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--ios-sep);
+}
+.prod-item:last-child { border-bottom: none; }
+.prod-item:active { background: #f0f0f0; }
+.prod-emoji {
+  font-size: 24px; width: 40px; height: 40px;
+  background: #f2f2f7; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.prod-info { flex: 1; min-width: 0; }
+.prod-name { font-size: 15px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-meta { font-size: 12px; color: var(--light); margin-top: 2px; }
+.prod-price { text-align: right; flex-shrink: 0; }
+.prod-price .price { font-size: 15px; font-weight: 600; color: var(--text); }
+.prod-price .old-price { font-size: 12px; color: var(--light); text-decoration: line-through; }
+.prod-discount { font-size: 11px; color: var(--red); font-weight: 600; }
+/* iOS Form */
+.form-group { padding: 0 16px; margin-bottom: 0; }
+.form-group + .form-group { border-top: 0.5px solid var(--ios-sep); }
+.form-group label { display: block; font-size: 12px; color: var(--light); padding: 8px 0 4px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 0; border: none;
+  font-size: 17px; font-family: inherit;
+  background: transparent; color: var(--text);
+  -webkit-appearance: none;
+}
+.form-group input:focus, .form-group select:focus { outline: none; }
+.form-group input::placeholder { color: #c7c7cc; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; }
+/* iOS Buttons */
+.btn {
+  padding: 14px 20px; border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  -webkit-user-select: none;
+}
+.btn:active { opacity: 0.7; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-success { background: var(--green); color: white; }
+.btn-danger { background: #fff; color: var(--red); font-size: 14px; }
+.btn-outline { background: var(--ios-bg); color: var(--blue); }
+/* iOS Segmented Control */
+.cat-tabs {
+  display: flex; background: var(--ios-bg);
+  border-radius: 8px; padding: 2px; margin: 16px;
+}
+.cat-tab {
+  flex: 1; padding: 7px 12px; border-radius: 6px;
+  font-size: 13px; font-weight: 500; text-align: center;
+  cursor: pointer; transition: 0.2s; white-space: nowrap;
+}
+.cat-tab.active { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+/* Badge */
+.badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.badge-sale { background: #fff3e0; color: #e65100; }
+.badge-hot { background: #ffebee; color: #c62828; }
+.badge-new { background: #e3f2fd; color: #1565c0; }
+/* Sync Status */
+.sync-status { display: flex; align-items: center; gap: 8px; padding: 12px 16px; font-size: 13px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.sync-status.error .sync-dot { background: var(--red); }
+/* Code export */
+.code-box { background: #1e1e2e; color: #a6e3a1; padding: 14px; border-radius: 10px; font-family: 'SF Mono', monospace; font-size: 11px; overflow-x: auto; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+/* Settings */
+.setting-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 0.5px solid var(--ios-sep); }
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 15px; }
+.setting-desc { font-size: 12px; color: var(--light); margin-top: 2px; }
+/* Toast - iOS style */
+.toast {
+  position: fixed; bottom: calc(100px + env(safe-area-inset-bottom));
+  left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: white;
+  padding: 12px 24px; border-radius: 20px;
+  font-size: 14px; z-index: 200;
+  opacity: 0; transition: 0.3s; pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+.toast.show { opacity: 1; }
+/* Install Banner */
+.install-banner {
+  background: linear-gradient(135deg, var(--primary), #2d2d4e);
+  color: white; border-radius: 12px; padding: 16px;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
+}
+.install-banner .install-icon { font-size: 32px; }
+.install-banner .install-text { flex: 1; }
+.install-banner .install-title { font-size: 15px; font-weight: 600; }
+.install-banner .install-desc { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+</style>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+
+</head>
+<body>
+
+<!-- App Header -->
+<div class="app-header">
+  <h1>🛍️ L&Qmercatone</h1>
+  <p>商品管理后台</p>
+</div>
+
+<!-- Products Page -->
+<div class="page active" id="page-products">
+  <!-- iOS Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-icon">📱</div>
+    <div class="install-text">
+      <div class="install-title">添加到主屏幕</div>
+      <div class="install-desc">点分享按钮 → 添加到主屏幕，像 APP 一样使用</div>
+    </div>
+  </div>
+
+  <div class="cat-tabs" id="catTabs">
+    <div class="cat-tab active" onclick="filterCat('all')">全部</div>
+    <div class="cat-tab" onclick="filterCat('Abbigliamento')">👗 衣服</div>
+    <div class="cat-tab" onclick="filterCat('Detersivi')">🧴 洗洁剂</div>
+    <div class="cat-tab" onclick="filterCat('Casa')">🏠 家用品</div>
+  </div>
+  <div class="card">
+    <h3>商品列表 <span id="prodCount" style="font-size:13px;color:var(--light);font-weight:400;"></span></h3>
+    <div id="prodList"></div>
+  </div>
+</div>
+
+<!-- Add Product Page -->
+<div class="page" id="page-add">
+  <div class="card">
+    <h3>➕ 添加新商品</h3>
+    <div class="form-group">
+      <label>商品名称 *</label>
+      <input type="text" id="fName" placeholder="输入商品名称">
+    </div>
+    <div class="form-group">
+      <label>品牌</label>
+      <input type="text" id="fBrand" placeholder="输入品牌名">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>分类 *</label>
+        <select id="fCat">
+          <option value="Abbigliamento">👗 衣服</option>
+          <option value="Detersivi">🧴 洗洁剂</option>
+          <option value="Casa">🏠 家用品</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>图标 (emoji)</label>
+        <input type="text" id="fEmoji" placeholder="如 👗" maxlength="4">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>售价 (€) *</label>
+        <input type="number" id="fPrice" step="0.01" placeholder="29.99">
+      </div>
+      <div class="form-group">
+        <label>原价 (€)</label>
+        <input type="number" id="fOldPrice" step="0.01" placeholder="留空=不打折">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>标签</label>
+        <select id="fTag">
+          <option value="">无</option>
+          <option value="hot">🔥 热卖</option>
+          <option value="new">✨ 新品</option>
+          <option value="sale">💰 特惠</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>打折商品</label>
+        <select id="fOnSale">
+          <option value="0">否</option>
+          <option value="1">是 - 显示在首页</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addProduct()" style="margin-top:8px;">➕ 添加商品</button>
+  </div>
+</div>
+
+
+<!-- Settings Page -->
+<div class="page" id="page-settings">
+  <div style="padding:16px;">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">️ 网站设置</h2>
+    <p style="font-size:13px;color:var(--light);margin-bottom:16px;">修改后自动同步到网站，无需重新部署</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>基本信息</h3></div>
+    <div class="form-group"><label>店铺名称</label><input type="text" id="sName" placeholder="L&Qmercatone"></div>
+    <div class="form-group"><label>店铺标语</label><input type="text" id="sTagline" placeholder="Qualità selezionata per te"></div>
+    <div class="form-group"><label>店铺简介</label><textarea id="sDesc" rows="2" placeholder="描述你的店铺"></textarea></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>联系方式</h3></div>
+    <div class="form-group"><label>电话</label><input type="tel" id="sPhone" placeholder="+39 xxx"></div>
+    <div class="form-group"><label>邮箱</label><input type="email" id="sEmail" placeholder="info@..."></div>
+    <div class="form-group"><label>地址</label><input type="text" id="sAddress" placeholder="店铺地址"></div>
+    <div class="form-group"><label>微信</label><input type="text" id="sWechat" placeholder="微信号"></div>
+    <div class="form-group"><label>WhatsApp</label><input type="text" id="sWhatsapp" placeholder="+39 xxx"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>社交媒体链接</h3></div>
+    <div class="form-group"><label>抖音 / TikTok</label><input type="url" id="sTiktok" placeholder="https://..."></div>
+    <div class="form-group"><label>Instagram</label><input type="url" id="sInstagram" placeholder="https://..."></div>
+    <div class="form-group"><label>Facebook</label><input type="url" id="sFacebook" placeholder="https://..."></div>
+    <div class="form-group"><label>小红书</label><input type="url" id="sXiaohongshu" placeholder="https://..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>页脚</h3></div>
+    <div class="form-group"><label>页脚文字</label><input type="text" id="sFooter" placeholder="版权信息"></div>
+  </div>
+
+  <div style="padding:0 16px 16px;">
+    <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+  </div>
+</div>
+
+<!-- Sync Page -->
+<div class="page" id="page-sync">
+  <div class="card">
+    <h3>☁️ 同步到 GitHub</h3>
+    <div class="sync-status" id="syncStatus">
+      <div class="sync-dot"></div>
+      <span id="syncText">未连接</span>
+    </div>
+    <div class="form-group">
+      <label>GitHub Token</label>
+      <input type="password" id="ghToken" placeholder="输入你的 GitHub Personal Access Token">
+    </div>
+    <div class="form-group">
+      <label>仓库</label>
+      <input type="text" id="ghRepo" value="rin394232503-sketch/lqmercatone" placeholder="用户名/仓库名">
+    </div>
+    <button class="btn btn-success" onclick="syncToGitHub()" style="margin-bottom:12px;">☁️ 同步到 GitHub</button>
+    <p style="font-size:12px;color:var(--light);">Token 只保存在本地浏览器，不会上传到任何服务器。获取 Token：GitHub → Settings → Developer settings → Personal access tokens</p>
+  </div>
+
+  <div class="card">
+    <h3>📤 导出代码</h3>
+    <p style="font-size:13px;color:var(--light);margin-bottom:12px;">手动复制代码粘贴到 GitHub 文件</p>
+    <div class="code-box" id="exportCode"></div>
+    <button class="btn btn-outline" onclick="copyCode()" style="margin-top:12px;">📋 复制代码</button>
+  </div>
+
+  <div class="card">
+    <h3>️ 设置</h3>
+    <div class="setting-item">
+      <div><div class="setting-label">清除所有商品</div><div class="setting-desc">恢复默认商品列表</div></div>
+      <button class="btn btn-danger" onclick="resetProducts()">重置</button>
+    </div>
+    <div class="setting-item">
+      <div><div class="setting-label">导出备份</div><div class="setting-desc">下载商品数据 JSON 文件</div></div>
+      <button class="btn btn-outline" onclick="exportJSON()" style="width:auto;padding:8px 12px;font-size:13px;">下载</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showPage('products',this)">
+    <div class="nav-icon">📦</div>
+    <span>商品</span>
+  </div>
+  <div class="nav-item" onclick="showPage('orders',this)">
+    <div class="nav-icon">📬</div>
+    <span>订单</span>
+  </div>
+  <div class="nav-item" onclick="showPage('add',this)">
+    <div class="nav-icon">➕</div>
+    <span>添加</span>
+  </div>
+  <div class="nav-item" onclick="showPage('sync',this)">
+    <div class="nav-icon">☁️</div>
+    <span>同步</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== 管理员登录鉴权 =====
+(function checkAdminAuth() {
+  const adminSession = localStorage.getItem('admin_session');
+  if (!adminSession) {
+    window.location.href = '/manage-login.html?redirect=' + encodeURIComponent(window.location.pathname);
+    return;
+  }
+  try {
+    const session = JSON.parse(adminSession);
+    // 检查是否过期（24 小时）
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+      localStorage.removeItem('admin_session');
+      window.location.href = '/manage-login.html?expired=1&redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    // 检查角色
+    if (session.role !== 'ADMIN' && session.role !== 'WAREHOUSE') {
+      localStorage.removeItem('admin_session');
+      window.location.href = '/manage-login.html?forbidden=1';
+      return;
+    }
+  } catch (e) {
+    localStorage.removeItem('admin_session');
+    window.location.href = '/manage-login.html?error=1';
+  }
+})();
+
+// ===== Data =====
+const DEFAULT_PRODUCTS = [
+  {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"",tag:"hot",on_sale:1},
+  {id:2,name:"Abito Floreale Francese",brand:"Maison Belle",category:"Abbigliamento",price:459,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:3,name:"Jeans Slim Vita Alta",brand:"Denim Lab",category:"Abbigliamento",price:329,old_price:459,emoji:"",tag:"sale",on_sale:1},
+  {id:4,name:"Camicia di Seta Bianca",brand:"Silk Touch",category:"Abbigliamento",price:599,old_price:null,emoji:"",tag:null,on_sale:0},
+  {id:5,name:"Set Sportivo Casual",brand:"Active Life",category:"Abbigliamento",price:389,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:6,name:"Maglione in Lana",brand:"L&Q Collection",category:"Abbigliamento",price:459,old_price:699,emoji:"",tag:"sale",on_sale:1},
+  {id:7,name:"Giacca in Pelle",brand:"Urban Style",category:"Abbigliamento",price:899,old_price:1299,emoji:"🧥",tag:"hot",on_sale:1},
+  {id:8,name:"Felpa con Cappuccio",brand:"Active Life",category:"Abbigliamento",price:259,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:9,name:"Detersivo Lavatrice 3L",brand:"PulitoMax",category:"Detersivi",price:18.99,old_price:24.99,emoji:"",tag:"sale",on_sale:1},
+  {id:10,name:"Detersivo Piatti Limone",brand:"PulitoMax",category:"Detersivi",price:4.99,old_price:null,emoji:"🍋",tag:null,on_sale:0},
+  {id:11,name:"Ammorbidente Pavimenti",brand:"CasaPulita",category:"Detersivi",price:7.99,old_price:11.99,emoji:"",tag:"sale",on_sale:1},
+  {id:12,name:"Candeggina Classica 1.5L",brand:"PulitoMax",category:"Detersivi",price:3.49,old_price:null,emoji:"",tag:"hot",on_sale:1},
+  {id:13,name:"Detersivo Lavastoviglie 30pz",brand:"CasaPulita",category:"Detersivi",price:12.99,old_price:16.99,emoji:"✨",tag:"sale",on_sale:1},
+  {id:14,name:"Sgrassatore Universale",brand:"CasaPulita",category:"Detersivi",price:5.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:15,name:"Detersivo Vetri Spray",brand:"PulitoMax",category:"Detersivi",price:4.49,old_price:5.99,emoji:"",tag:"sale",on_sale:1},
+  {id:16,name:"Sapone Marsiglia 2L",brand:"NaturaleBio",category:"Detersivi",price:9.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:17,name:"Set Asciugamani 6pz",brand:"CasaComfort",category:"Casa",price:39.99,old_price:59.99,emoji:"",tag:"sale",on_sale:1},
+  {id:18,name:"Lampada LED da Tavolo",brand:"BrightHome",category:"Casa",price:29.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:19,name:"Set Pentole 5pz",brand:"CucinaPro",category:"Casa",price:89.99,old_price:129.99,emoji:"",tag:"hot",on_sale:1},
+  {id:20,name:"Aspirapolvere Portatile",brand:"CleanMax",category:"Casa",price:49.99,old_price:69.99,emoji:"🧹",tag:"sale",on_sale:1},
+  {id:21,name:"Set Lenzuola Matrimoniale",brand:"CasaComfort",category:"Casa",price:59.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:22,name:"Organizer Cucina",brand:"CasaSmart",category:"Casa",price:19.99,old_price:29.99,emoji:"🗄️",tag:"sale",on_sale:1},
+  {id:23,name:"Diffusore Profumo Casa",brand:"AromaVivo",category:"Casa",price:24.99,old_price:null,emoji:"",tag:"new",on_sale:0},
+  {id:24,name:"Set Tazze Ceramica 4pz",brand:"CasaComfort",category:"Casa",price:22.99,old_price:32.99,emoji:"☕",tag:"sale",on_sale:1}
+];
+
+let products = JSON.parse(localStorage.getItem('lq_products') || 'null') || [...DEFAULT_PRODUCTS];
+let currentFilter = 'all';
+
+function saveProducts() { localStorage.setItem('lq_products', JSON.stringify(products)); }
+
+// ===== Navigation =====
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'products') renderProducts();
+  if (name === 'sync') updateExport();
+}
+
+function filterCat(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProducts();
+}
+
+// ===== Render =====
+function renderProducts() {
+  const list = document.getElementById('prodList');
+  const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
+  document.getElementById('prodCount').textContent = filtered.length + ' 件';
+
+  const catNames = {Abbigliamento:'衣服', Detersivi:'洗洁剂', Casa:'家用品'};
+  const tagNames = {hot:'🔥热卖', new:'✨新品', sale:'💰特惠'};
+
+  list.innerHTML = filtered.map(p => {
+    const discount = p.old_price ? Math.round((1 - p.price/p.old_price)*100) : 0;
+    return `<div class="prod-item">
+      <div class="prod-emoji">${p.emoji || '📦'}</div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-meta">${catNames[p.category]||p.category} ${p.brand ? '· '+p.brand : ''} ${p.tag ? '<span class="badge badge-'+p.tag+'">'+tagNames[p.tag]+'</span>' : ''} ${p.on_sale ? '<span class="badge badge-sale">打折 -'+discount+'%</span>' : ''}</div>
+      </div>
+      <div class="prod-price">
+        <div class="price">€${p.price}</div>
+        ${p.old_price ? '<div class="old-price">€'+p.old_price+'</div>' : ''}
+      </div>
+      <button class="btn btn-danger" onclick="deleteProduct(${p.id})" style="margin-left:8px;">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ===== Add Product =====
+function addProduct() {
+  const name = document.getElementById('fName').value.trim();
+  const brand = document.getElementById('fBrand').value.trim();
+  const category = document.getElementById('fCat').value;
+  const emoji = document.getElementById('fEmoji').value.trim();
+  const price = parseFloat(document.getElementById('fPrice').value);
+  const old_price = document.getElementById('fOldPrice').value ? parseFloat(document.getElementById('fOldPrice').value) : null;
+  const tag = document.getElementById('fTag').value || null;
+  const on_sale = parseInt(document.getElementById('fOnSale').value);
+
+  if (!name) { showToast('⚠️ 请输入商品名称'); return; }
+  if (isNaN(price) || price <= 0) { showToast('⚠️ 请输入有效价格'); return; }
+
+  const maxId = products.reduce((max, p) => Math.max(max, p.id), 0);
+  products.push({id: maxId + 1, name, brand, category, emoji, price, old_price, tag, on_sale});
+  saveProducts();
+  // Sync to Supabase
+  saveProductToDB({name, brand, category, price, old_price, emoji, tag, on_sale: on_sale === 1});
+
+  // Clear form
+  ['fName','fBrand','fEmoji','fPrice','fOldPrice'].forEach(id => document.getElementById(id).value = '');
+  showToast('✅ 商品已添加！自动同步中...');
+  autoSyncToGitHub();
+
+  // Go to products page
+  showPage('products', document.querySelectorAll('.nav-item')[0]);
+}
+
+function deleteProduct(id) {
+  if (!confirm('确定删除这个商品？')) return;
+  products = products.filter(p => p.id !== id);
+  saveProducts();
+  deleteProductFromDB(id);
+  renderProducts();
+  showToast('🗑️ 商品已删除');
+}
+
+// ===== Sync to GitHub =====
+async function syncToGitHub(silent = false) {
+  const token = document.getElementById('ghToken').value.trim();
+  const repo = document.getElementById('ghRepo').value.trim();
+  if (!token) { showToast('⚠️ 请输入 GitHub Token'); return; }
+
+  const status = document.getElementById('syncStatus');
+  const text = document.getElementById('syncText');
+  status.className = 'sync-status';
+  text.textContent = '正在同步...';
+
+  try {
+    // Get current file SHA
+    const fileRes = await fetch(`https://api.github.com/repos/${repo}/contents/public/index.html`, {
+      headers: { 'Authorization': 'token ' + token }
+    });
+    const fileData = await fileRes.json();
+
+    // Read current index.html
+    const htmlRes = await fetch(window.location.origin + '/index.html');
+    let html = await htmlRes.text();
+
+    // Replace PRODUCTS array
+    const productsStr = 'const PRODUCTS = ' + JSON.stringify(products, null, 2) + ';';
+    html = html.replace(/const PRODUCTS = \[[\s\S]*?\];/, productsStr);
+
+    // Encode and push
+    const content = btoa(unescape(encodeURIComponent(html)));
+    const pushRes = await fetch(`https://api.github.com/repos/${repo}/contents/public/index.html`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: '📦 更新商品数据 - ' + new Date().toISOString().slice(0,10),
+        content: content,
+        sha: fileData.sha
+      })
+    });
+
+    if (pushRes.ok) {
+      status.className = 'sync-status';
+      text.textContent = '✅ 同步成功！Vercel 将在 1-2 分钟内自动更新';
+      if (!silent) showToast('✅ 同步成功！'); else console.log('Auto-sync success');
+    } else {
+      const err = await pushRes.json();
+      status.className = 'sync-status error';
+      text.textContent = '❌ 同步失败: ' + (err.message || '未知错误');
+      if (!silent) showToast('❌ 同步失败'); else console.log('Auto-sync failed');
+    }
+  } catch (e) {
+    status.className = 'sync-status error';
+    text.textContent = '❌ 网络错误: ' + e.message;
+    if (!silent) showToast('✅ 同步成功！'); else console.log('Auto-sync success');
+  }
+}
+
+// ===== Export =====
+function updateExport() {
+  const code = 'const PRODUCTS = ' + JSON.stringify(products, null, 2) + ';';
+  document.getElementById('exportCode').textContent = code;
+  // Load saved token
+  const savedToken = localStorage.getItem('gh_token');
+  if (savedToken) document.getElementById('ghToken').value = savedToken;
+}
+
+function copyCode() {
+  const code = document.getElementById('exportCode').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('📋 代码已复制！'));
+}
+
+// Save token when changed
+document.getElementById('ghToken').addEventListener('change', function() {
+  localStorage.setItem('gh_token', this.value);
+});
+
+// ===== Reset =====
+function resetProducts() {
+  if (!confirm('确定恢复默认商品？你的修改将丢失。')) return;
+  products = [...DEFAULT_PRODUCTS];
+  saveProducts();
+  renderProducts();
+  showToast(' 已恢复默认商品');
+}
+
+// ===== Export JSON =====
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(products, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lqmercatone-products.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 已下载');
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== Supabase 云数据库 =====
+let supabase = null;
+let sbConfig = JSON.parse(localStorage.getItem('sb_config') || '{"url":"https://yiyydikfpgbmtdypiggc.supabase.co","key":"sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM"}');
+
+function initSupabase() {
+  const url = document.getElementById('sbUrl').value.trim();
+  const key = document.getElementById('sbKey').value.trim();
+  if (!url || !key) { showToast('⚠️ 请填写 URL 和 Key'); return; }
+
+  try {
+    supabase = window.supabase.createClient(url, key);
+    sbConfig = { url, key };
+    localStorage.setItem('sb_config', JSON.stringify(sbConfig));
+    document.getElementById('supabaseBanner').style.display = 'none';
+    showToast('✅ 数据库已连接！');
+    loadProductsFromDB();
+    listenOrders();
+  } catch (e) {
+    showToast(' 连接失败: ' + e.message);
+  }
+}
+
+// OLD Auto-connect code REMOVED - now handled at bottom of file
+
+// Load products from Supabase
+async function loadProductsFromDB() {
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase.from('products').select('*').order('id');
+    if (error) throw error;
+    if (data && data.length > 0 && data[0].name) {
+      products = data.map(p => ({
+        id: p.id, name: p.name, brand: p.brand, category: p.category,
+        price: parseFloat(p.price), old_price: p.old_price ? parseFloat(p.old_price) : null,
+        emoji: p.emoji || '', tag: p.tag, on_sale: p.on_sale ? 1 : 0,
+        image_url: p.image_url || '', stock: p.stock || 99
+      }));
+      saveProducts();
+      renderProducts();
+    } else {
+      // Database is empty - save default products to Supabase
+      console.log('Database empty, saving default products...');
+      const toInsert = DEFAULT_PRODUCTS.map(p => ({
+        name: p.name, brand: p.brand, category: p.category,
+        price: p.price, old_price: p.old_price, emoji: p.emoji,
+        tag: p.tag, on_sale: p.on_sale === 1, stock: p.stock || 99
+      }));
+      const { error: insertError } = await supabase.from('products').insert(toInsert);
+      if (insertError) console.log('Insert error:', insertError);
+      else {
+        products = [...DEFAULT_PRODUCTS];
+        saveProducts();
+        renderProducts();
+      }
+    }
+  } catch (e) {
+    console.log('DB load error:', e);
+    // Fallback to defaults
+    if (products.length === 0) {
+      products = [...DEFAULT_PRODUCTS];
+      saveProducts();
+      renderProducts();
+    }
+  }
+}
+
+// Realtime: Listen for new orders
+function listenOrders() {
+  if (!supabase) return;
+  supabase.channel('orders')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+      onNewOrder(payload.new);
+    })
+    .subscribe();
+}
+
+let unreadOrders = 0;
+function onNewOrder(order) {
+  unreadOrders++;
+  const badge = document.getElementById('newOrderBadge');
+  if (badge) { badge.textContent = unreadOrders; badge.style.display = 'inline'; }
+  showToast('📬 新订单！来自 ' + order.customer_name);
+  renderOrders();
+}
+
+// Render orders
+function renderOrders() {
+  // In production, fetch from Supabase
+  const list = document.getElementById('ordersList');
+  if (!list) return;
+  if (!supabase) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--light);">请先连接数据库</div>'; return; }
+
+  supabase.from('orders').select('*').order('created_at', {ascending:false}).limit(50).then(({data}) => {
+    if (!data || data.length === 0) { document.getElementById('noOrders').style.display = 'block'; return; }
+    document.getElementById('noOrders').style.display = 'none';
+    const catNames = {Abbigliamento:'衣服', Detersivi:'洗洁剂', Casa:'家用品'};
+    list.innerHTML = data.map(o => {
+      const items = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+      const time = new Date(o.created_at).toLocaleString('zh-CN');
+      return `<div class="card" style="margin:0 16px 12px;">
+        <div style="padding:12px 16px;border-bottom:0.5px solid var(--ios-sep);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;">${o.order_no}</span>
+            <span style="font-size:12px;color:var(--light);">${time}</span>
+          </div>
+        </div>
+        <div style="padding:12px 16px;">
+          <div style="font-size:14px;margin-bottom:8px;">👤 ${o.customer_name} · 📱 ${o.customer_phone}</div>
+          ${o.customer_wechat ? '<div style="font-size:13px;color:var(--light);">💬 微信: '+o.customer_wechat+'</div>' : ''}
+          <div style="font-size:13px;color:var(--light);margin-top:4px;">📍 ${o.customer_address}</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--ios-sep);">
+            ${items.map(i => '<div style="font-size:13px;">'+(i.emoji||'📦')+' '+i.name+' ×'+i.qty+' — €'+(i.price*i.qty).toFixed(2)+'</div>').join('')}
+          </div>
+          <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--light);">${o.item_count}件 · ${o.payment_method}</span>
+            <span style="font-size:18px;font-weight:700;color:var(--accent);">€${parseFloat(o.total_amount).toFixed(2)}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+// Save product changes to Supabase
+async function saveProductToDB(product) {
+  if (!supabase) return;
+  try {
+    if (product.id && product.id > 0) {
+      await supabase.from('products').update(product).eq('id', product.id);
+    } else {
+      await supabase.from('products').insert([product]);
+    }
+  } catch (e) { console.log('DB save error:', e); }
+}
+
+// Delete product from Supabase
+async function deleteProductFromDB(id) {
+  if (!supabase) return;
+  try { await supabase.from('products').delete().eq('id', id); } catch (e) {}
+}
+
+// Upload image to Supabase Storage
+async function uploadImage(file, productId) {
+  if (!supabase) { showToast('⚠️ 请先连接数据库'); return null; }
+  try {
+    const ext = file.name.split('.').pop();
+    const path = `products/${productId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('product-images').upload(path, file);
+    if (error) throw error;
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
+  } catch (e) {
+    showToast('❌ 上传失败: ' + e.message);
+    return null;
+  }
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ===== iOS Install Detection =====
+function isStandalone() {
+  return window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+}
+if (isStandalone()) {
+  const banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'none';
+}
+
+// Haptic feedback simulation
+function haptic() {
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// ===== CRITICAL: Always render products FIRST =====
+renderProducts();
+
+// Auto-connect to Supabase immediately (HARDCODED - no manual setup)
+(function autoConnect() {
+  // Always use hardcoded config
+  const HARDCODED_CONFIG = {
+    url: 'https://yiyydikfpgbmtdypiggc.supabase.co',
+    key: 'sb_publishable_yk7pSAVz4iQ_oFaF0ybUEQ_xd92I2LM'
+  };
+  sbConfig = HARDCODED_CONFIG;
+  localStorage.setItem('sb_config', JSON.stringify(sbConfig));
+  
+  function tryConnect() {
+    if (typeof window !== 'undefined' && window.supabase) {
+      try {
+        supabase = window.supabase.createClient(sbConfig.url, sbConfig.key);
+        document.getElementById('supabaseBanner').style.display = 'none';
+        loadProductsFromDB();
+        listenOrders();
+        
+        // Auto-refresh every 60 seconds
+        setInterval(() => {
+          console.log('Auto-refreshing from database...');
+          loadProductsFromDB();
+          renderOrders();
+        }, 60000);
+        
+        console.log('Supabase auto-connected!');
+      } catch (e) {
+        console.log('Auto-connect error:', e);
+      }
+    } else {
+      // Supabase SDK not loaded yet, retry in 1 second
+      setTimeout(tryConnect, 1000);
+    }
+  }
+  
+  // Start trying immediately
+  tryConnect();
+})();
+</script>
+</body>
+</html>

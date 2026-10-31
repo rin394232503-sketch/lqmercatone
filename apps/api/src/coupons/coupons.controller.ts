@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -58,7 +58,7 @@ export class CouponsController {
    */
   @Post(':id/refund')
   @UseGuards(AuthGuard('jwt'))
-  async refundCoupon(@Param('id') id: string) {
+  async refundCoupon(@Req() req: { user: any }, @Param('id') id: string) {
     return this.couponsService.refundCoupon(id);
   }
 
@@ -66,14 +66,15 @@ export class CouponsController {
 
   /**
    * POST /api/v1/coupons/admin/create
-   * 创建优惠券（管理员）
+   * 创建优惠券（仅 ADMIN 角色）
    */
   @Post('admin/create')
   @UseGuards(AuthGuard('jwt'))
   async createCoupon(
+    @Req() req: { user: any },
     @Body() body: {
       code: string;
-      type: CouponType;
+      type: string;
       valueCent?: number;
       percentage?: number;
       minOrderCent: number;
@@ -85,6 +86,10 @@ export class CouponsController {
       endsAt: string;
     },
   ) {
+    // 角色校验：仅管理员可创建优惠券
+    if (req.user.role !== 'ADMIN') {
+      throw new ForbiddenException('仅管理员可创建优惠券');
+    }
     return this.couponsService.createCoupon({
       ...body,
       startsAt: new Date(body.startsAt),
@@ -94,14 +99,19 @@ export class CouponsController {
 
   /**
    * GET /api/v1/coupons/admin/all
-   * 获取所有优惠券（管理员）
+   * 获取所有优惠券（仅 ADMIN/WAREHOUSE 角色）
    */
   @Get('admin/all')
   @UseGuards(AuthGuard('jwt'))
   async getAllCoupons(
+    @Req() req: { user: any },
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
+    // 角色校验
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'WAREHOUSE') {
+      throw new ForbiddenException('权限不足');
+    }
     return this.couponsService.getAllCoupons({
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,

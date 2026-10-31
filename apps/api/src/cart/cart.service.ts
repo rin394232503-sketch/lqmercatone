@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -184,6 +184,7 @@ export class CartService {
 
   /**
    * 合并购物车（游客→登录用户）
+   * 添加限流保护：最多 50 个商品项，单项最多 99 件
    */
   async mergeCart(userId: string, guestItems: Array<{
     productId: string;
@@ -191,9 +192,22 @@ export class CartService {
     color?: string;
     size?: string;
   }>) {
+    // 限流：最多 50 个商品项
+    if (guestItems.length > 50) {
+      throw new BadRequestException('单次最多合并 50 个商品');
+    }
+
     const results: any[] = [];
 
     for (const item of guestItems) {
+      // 限流：单项最多 99 件
+      if (item.quantity > 99) {
+        item.quantity = 99;
+      }
+      if (item.quantity < 1) {
+        continue;
+      }
+
       try {
         const result = await this.addItem(userId, item);
         results.push(result);

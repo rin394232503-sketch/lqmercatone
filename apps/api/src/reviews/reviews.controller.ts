@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -43,28 +43,36 @@ export class ReviewsController {
 
   /**
    * POST /api/v1/reviews/:id/reply
-   * 管理员回复评价
+   * 管理员回复评价（仅 ADMIN/WAREHOUSE）
    */
   @Post(':id/reply')
   @UseGuards(AuthGuard('jwt'))
   async adminReplyReview(
+    @Req() req: { user: any },
     @Param('id') id: string,
     @Body() body: { reply: string },
   ) {
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'WAREHOUSE') {
+      throw new ForbiddenException('仅管理员可回复评价');
+    }
     return this.reviewsService.adminReplyReview(id, body.reply);
   }
 
   /**
    * GET /api/v1/reviews
-   * 获取所有评价（管理员）
+   * 获取所有评价（仅 ADMIN/WAREHOUSE）
    */
   @Get()
   @UseGuards(AuthGuard('jwt'))
   async getAllReviews(
+    @Req() req: { user: any },
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('productId') productId?: string,
   ) {
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'WAREHOUSE') {
+      throw new ForbiddenException('权限不足');
+    }
     return this.reviewsService.getAllReviews({
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,

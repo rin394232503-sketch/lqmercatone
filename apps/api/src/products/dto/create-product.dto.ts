@@ -1,5 +1,5 @@
 import { IsString, IsInt, IsBoolean, IsOptional, IsArray, IsEnum, Min } from 'class-validator';
-import { ProductCategory } from '@prisma/client';
+
 
 export class CreateProductDto {
   @IsString()
@@ -13,8 +13,8 @@ export class CreateProductDto {
   @IsOptional()
   brand?: string;
 
-  @IsEnum(ProductCategory)
-  category: ProductCategory;
+  @IsString()
+  category: string;
 
   @IsInt()
   @Min(0)

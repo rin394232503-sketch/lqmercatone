@@ -1,5 +1,5 @@
 import { IsString, IsInt, IsBoolean, IsOptional, IsArray, IsEnum, Min } from 'class-validator';
-import { ProductCategory } from '@prisma/client';
+
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateProductDto } from './create-product.dto';
 
