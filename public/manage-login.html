@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L&Q Mercatone - Accesso Admin</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1a1a2e; --accent: #e94560; --bg: #f2f2f7;
+  --card: #fff; --text: #000; --light: #8e8e93; --border: #c6c6c8;
+}
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; -webkit-font-smoothing: antialiased;
+}
+.login-container {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 20px;
+  background: linear-gradient(135deg, var(--primary) 0%, #16213e 100%);
+}
+.logo {
+  width: 80px; height: 80px; background: rgba(255,255,255,0.15);
+  border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  font-size: 40px; margin-bottom: 20px;
+}
+h1 { color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 30px; }
+.login-card {
+  background: white; border-radius: 16px; padding: 28px;
+  width: 100%; max-width: 380px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--light); margin-bottom: 6px; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-group input {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: 10px; font-size: 16px; outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus { border-color: var(--accent); }
+.login-btn {
+  width: 100%; padding: 14px; background: var(--accent); color: white;
+  border: none; border-radius: 10px; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: 0.2s;
+}
+.login-btn:hover { background: #d63851; }
+.login-btn:disabled { background: #ccc; cursor: not-allowed; }
+.error-msg {
+  background: #fff0f0; color: #d63851; padding: 10px 14px;
+  border-radius: 8px; font-size: 13px; margin-bottom: 16px;
+  display: none;
+}
+.error-msg.show { display: block; }
+.back-link {
+  display: block; text-align: center; margin-top: 20px;
+  color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: none;
+}
+.back-link:hover { color: white; }
+.lang-switch {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,0.15); color: white;
+  border: none; padding: 6px 12px; border-radius: 20px;
+  font-size: 13px; cursor: pointer;
+}
+.warning {
+  background: #fff8e1; color: #8d6e00; padding: 10px 14px;
+  border-radius: 8px; font-size: 12px; margin-bottom: 16px;
+  display: none;
+}
+.warning.show { display: block; }
+</style>
+</head>
+<body>
+<button class="lang-switch" onclick="toggleLang()">中文 / IT</button>
+
+<div class="login-container">
+  <div class="logo">🛍️</div>
+  <h1 id="title">L&Q Mercatone</h1>
+  <p class="subtitle" id="subtitle">Accesso Pannello Amministrazione</p>
+
+  <div class="login-card">
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="warning" id="warningMsg"></div>
+
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label id="lbl-username">Nome utente</label>
+        <input type="text" id="username" placeholder="admin" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label id="lbl-password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span id="btn-text">Accedi</span>
+      </button>
+    </form>
+  </div>
+
+  <a href="/" class="back-link" id="backLink">← Torna al negozio</a>
+</div>
+
+<script>
+const API_BASE = (location.hostname === 'localhost' ? 'http://localhost:3001' : '') + '/api/v1';
+let lang = 'it';
+
+const i18n = {
+  it: {
+    title: 'L&Q Mercatone',
+    subtitle: 'Accesso Pannello Amministrazione',
+    username: 'Nome utente',
+    password: 'Password',
+    login: 'Accedi',
+    loggingIn: 'Accesso in corso...',
+    backLink: '← Torna al negozio',
+    invalidCredentials: 'Nome utente o password errati',
+    networkError: 'Errore di rete, riprova',
+    sessionExpired: 'Sessione scaduta, accedi di nuovo',
+    forbidden: 'Accesso negato: permessi insufficienti',
+    rateLimited: 'Troppi tentativi, riprova tra 15 minuti',
+  },
+  zh: {
+    title: 'L&Q Mercatone',
+    subtitle: '管理员登录',
+    username: '用户名',
+    password: '密码',
+    login: '登录',
+    loggingIn: '登录中...',
+    backLink: '← 返回商城',
+    invalidCredentials: '用户名或密码错误',
+    networkError: '网络错误，请重试',
+    sessionExpired: '会话已过期，请重新登录',
+    forbidden: '权限不足，无法访问',
+    rateLimited: '尝试次数过多，请 15 分钟后再试',
+  },
+};
+
+function t(key) { return i18n[lang][key] || key; }
+
+function toggleLang() {
+  lang = lang === 'it' ? 'zh' : 'it';
+  localStorage.setItem('admin_lang', lang);
+  applyLang();
+}
+
+function applyLang() {
+  document.getElementById('title').textContent = t('title');
+  document.getElementById('subtitle').textContent = t('subtitle');
+  document.getElementById('lbl-username').textContent = t('username');
+  document.getElementById('lbl-password').textContent = t('password');
+  document.getElementById('btn-text').textContent = t('login');
+  document.getElementById('backLink').textContent = t('backLink');
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function showWarning(msg) {
+  const el = document.getElementById('warningMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('loginBtn');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  btn.disabled = true;
+  document.getElementById('btn-text').textContent = t('loggingIn');
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/admin-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.accessToken) {
+      // 保存登录态（24 小时过期）
+      const session = {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        user: data.user,
+        role: data.user?.role || 'ADMIN',
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      };
+      localStorage.setItem('admin_session', JSON.stringify(session));
+
+      // 跳转到目标页面
+      const params = new URLSearchParams(location.search);
+      const redirect = params.get('redirect') || '/manage.html';
+      window.location.href = redirect;
+    } else {
+      if (res.status === 429) {
+        showError(t('rateLimited'));
+      } else if (res.status === 403) {
+        showError(t('forbidden'));
+      } else {
+        showError(data.message || t('invalidCredentials'));
+      }
+    }
+  } catch (err) {
+    showError(t('networkError'));
+  } finally {
+    btn.disabled = false;
+    document.getElementById('btn-text').textContent = t('login');
+  }
+}
+
+// 初始化
+(function init() {
+  const savedLang = localStorage.getItem('admin_lang');
+  if (savedLang === 'zh' || savedLang === 'it') lang = savedLang;
+  applyLang();
+
+  // URL 参数提示
+  const params = new URLSearchParams(location.search);
+  if (params.get('expired') === '1') showWarning(t('sessionExpired'));
+  if (params.get('forbidden') === '1') showError(t('forbidden'));
+})();
+</script>
+</body>
+</html>

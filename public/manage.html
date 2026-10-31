@@ -358,6 +358,33 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== 管理员登录鉴权 =====
+(function checkAdminAuth() {
+  const adminSession = localStorage.getItem('admin_session');
+  if (!adminSession) {
+    window.location.href = '/manage-login.html?redirect=' + encodeURIComponent(window.location.pathname);
+    return;
+  }
+  try {
+    const session = JSON.parse(adminSession);
+    // 检查是否过期（24 小时）
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+      localStorage.removeItem('admin_session');
+      window.location.href = '/manage-login.html?expired=1&redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    // 检查角色
+    if (session.role !== 'ADMIN' && session.role !== 'WAREHOUSE') {
+      localStorage.removeItem('admin_session');
+      window.location.href = '/manage-login.html?forbidden=1';
+      return;
+    }
+  } catch (e) {
+    localStorage.removeItem('admin_session');
+    window.location.href = '/manage-login.html?error=1';
+  }
+})();
+
 // ===== Data =====
 const DEFAULT_PRODUCTS = [
   {id:1,name:"Cappotto Classico in Cashmere",brand:"L&Q Collection",category:"Abbigliamento",price:1299,old_price:1899,emoji:"",tag:"hot",on_sale:1},
