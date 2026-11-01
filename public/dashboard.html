@@ -188,24 +188,24 @@ tr:hover td{background:var(--bg2)}
     <p>Pannello Admin</p>
   </div>
   <div class="sidebar-menu">
-    <div class="menu-label">主菜单</div>
-    <div class="menu-item active" onclick="showPage('dashboard',this)"><span class="icon"></span><span>数据看板</span></div>
-    <div class="menu-item" onclick="showPage('products',this)"><span class="icon">📦</span><span>商品管理</span></div>
-    <div class="menu-item" onclick="showPage('orders',this)"><span class="icon"></span><span>订单管理</span><span class="badge" id="orderBadge" style="display:none">0</span></div>
-    <div class="menu-item" onclick="showPage('quickadd',this)"><span class="icon">⚡</span><span>快速入库</span></div>
-    <div class="menu-item" onclick="showPage('import',this)"><span class="icon">📂</span><span>批量导入</span></div>
-    <div class="menu-item" onclick="showPage('addproduct',this)"><span class="icon">➕</span><span>新增商品</span></div>
-    <div class="menu-item" onclick="showPage('lowstock',this)"><span class="icon">⚠️</span><span>库存预警</span></div>
-    <div class="menu-label">营销</div>
-    <div class="menu-item" onclick="showPage('discount',this)"><span class="icon">🏷️</span><span>快速打折</span></div>
-    <div class="menu-item" onclick="showPage('aftersales',this)"><span class="icon">🔄</span><span>售后管理</span></div>
-    <div class="menu-item" onclick="showPage('reviews',this)"><span class="icon">⭐</span><span>评价管理</span></div>
-    <div class="menu-item" onclick="showPage('notifications',this)"><span class="icon">🔔</span><span>通知</span><span class="badge" id="notifBadge" style="display:none">0</span></div>
-    <div class="menu-label">系统</div>
-    <div class="menu-item" onclick="showPage('logs',this)"><span class="icon">📋</span><span>操作日志</span></div>
-      <div class="menu-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span><span>设置</span></div>
-    <div class="menu-item" onclick="window.open('staff.html','_blank')"><span class="icon">📱</span><span>手机后台</span></div>
-    <div class="menu-item" onclick="window.open('/','_blank')"><span class="icon">🌐</span><span>查看商城</span></div>
+    <div class="menu-label">Menu Principale</div>
+    <div class="menu-item active" onclick="showPage('dashboard',this)"><span class="icon"></span><span>Dashboard Dati</span></div>
+    <div class="menu-item" onclick="showPage('products',this)"><span class="icon">📦</span><span>Gestione Prodotti</span></div>
+    <div class="menu-item" onclick="showPage('orders',this)"><span class="icon"></span><span>Gestione Ordini</span><span class="badge" id="orderBadge" style="display:none">0</span></div>
+    <div class="menu-item" onclick="showPage('quickadd',this)"><span class="icon">⚡</span><span>Caricamento Rapido</span></div>
+    <div class="menu-item" onclick="showPage('import',this)"><span class="icon">📂</span><span>Importazione Batch</span></div>
+    <div class="menu-item" onclick="showPage('addproduct',this)"><span class="icon">➕</span><span>Nuovo Prodotto</span></div>
+    <div class="menu-item" onclick="showPage('lowstock',this)"><span class="icon">⚠️</span><span>Avviso Scorta</span></div>
+    <div class="menu-label">Marketing</div>
+    <div class="menu-item" onclick="showPage('discount',this)"><span class="icon">🏷️</span><span>Sconto Rapido</span></div>
+    <div class="menu-item" onclick="showPage('aftersales',this)"><span class="icon">🔄</span><span>Post-Vendita</span></div>
+    <div class="menu-item" onclick="showPage('reviews',this)"><span class="icon">⭐</span><span>Gestione Recensioni</span></div>
+    <div class="menu-item" onclick="showPage('notifications',this)"><span class="icon">🔔</span><span>Notifiche</span><span class="badge" id="notifBadge" style="display:none">0</span></div>
+    <div class="menu-label">Sistema</div>
+    <div class="menu-item" onclick="showPage('logs',this)"><span class="icon">📋</span><span>Registro Operazioni</span></div>
+      <div class="menu-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span><span>Impostazioni</span></div>
+    <div class="menu-item" onclick="window.open('staff.html','_blank')"><span class="icon">📱</span><span>Pannello Mobile</span></div>
+    <div class="menu-item" onclick="window.open('/','_blank')"><span class="icon">🌐</span><span>Vedi Negozio</span></div>
   </div>
   <div class="sidebar-footer">v2.0 · L&Qmercatone</div>
 </div>
@@ -214,8 +214,8 @@ tr:hover td{background:var(--bg2)}
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-      <h1 id="pageTitle">数据看板 Dashboard</h1>
-      <span class="breadcrumb" id="breadcrumb">首页 / Dashboard</span>
+      <h1 id="pageTitle">Dashboard Dati</h1>
+      <span class="breadcrumb" id="breadcrumb">Home / Dashboard</span>
     </div>
     <div class="topbar-right">
       <div class="topbar-btn" id="notifBell" onclick="showPage('notifications')"><div class="dot" id="notifDot" style="display:none"></div></div>
@@ -227,55 +227,55 @@ tr:hover td{background:var(--bg2)}
     <!-- Dashboard Page -->
     <div class="page active" id="page-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statSales">€0</div><div class="stat-label">今日销售额 Vendite Oggi</div><div class="stat-change up" id="statSalesChange">—</div></div><div class="stat-icon">💰</div></div>
-        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statOrders">0</div><div class="stat-label">今日订单 Ordini Oggi</div><div class="stat-change up" id="statOrdersChange">—</div></div><div class="stat-icon">📦</div></div>
-        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statProducts">0</div><div class="stat-label">商品总数 Prodotti</div></div><div class="stat-icon">️</div></div>
-        <div class="stat-card" style="border:1px solid var(--danger)"><div class="stat-info"><div class="stat-value" id="statAlerts">0</div><div class="stat-label">待处理 Pending</div></div><div class="stat-icon">⚠️</div></div>
+        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statSales">€0</div><div class="stat-label">Vendite Oggi</div><div class="stat-change up" id="statSalesChange">—</div></div><div class="stat-icon">💰</div></div>
+        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statOrders">0</div><div class="stat-label">Ordini Oggi</div><div class="stat-change up" id="statOrdersChange">—</div></div><div class="stat-icon">📦</div></div>
+        <div class="stat-card"><div class="stat-info"><div class="stat-value" id="statProducts">0</div><div class="stat-label">Prodotti Totali</div></div><div class="stat-icon">️</div></div>
+        <div class="stat-card" style="border:1px solid var(--danger)"><div class="stat-info"><div class="stat-value" id="statAlerts">0</div><div class="stat-label">In Attesa</div></div><div class="stat-icon">⚠️</div></div>
       </div>
       <div class="charts-row">
-        <div class="chart-card"><h3>📊 本周销售 Vendite Settimanali <span class="period" id="weekPeriod"></span></h3><div class="bar-chart" id="weeklyChart"></div></div>
-        <div class="chart-card"><h3>🍩 分类占比 Categorie</h3><div class="donut-container"><div class="donut" id="donutChart"></div><div class="donut-legend" id="donutLegend"></div></div></div>
+        <div class="chart-card"><h3>📊 Vendite Settimanali <span class="period" id="weekPeriod"></span></h3><div class="bar-chart" id="weeklyChart"></div></div>
+        <div class="chart-card"><h3>🍩 Distribuzione Categorie</h3><div class="donut-container"><div class="donut" id="donutChart"></div><div class="donut-legend" id="donutLegend"></div></div></div>
       </div>
       <!-- Quick Actions -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
         <div onclick="showPage('products')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
           <div style="font-size:28px;margin-bottom:8px"></div>
-          <div style="font-size:13px;font-weight:600">商品管理</div>
+          <div style="font-size:13px;font-weight:600">Gestione Prodotti</div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Prodotti</div>
         </div>
         <div onclick="showPage('orders')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
           <div style="font-size:28px;margin-bottom:8px"></div>
-          <div style="font-size:13px;font-weight:600">订单管理</div>
+          <div style="font-size:13px;font-weight:600">Gestione Ordini</div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Ordini</div>
         </div>
         <div onclick="showPage('discount')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
           <div style="font-size:28px;margin-bottom:8px">🏷️</div>
-          <div style="font-size:13px;font-weight:600">营销打折</div>
+          <div style="font-size:13px;font-weight:600">Sconti e Marketing</div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">Marketing Sconti</div>
         </div>
         <div onclick="showPage('aftersales')" style="background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:0.2s" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background='var(--card)'">
           <div style="font-size:28px;margin-bottom:8px"></div>
-          <div style="font-size:13px;font-weight:600">售后管理</div>
+          <div style="font-size:13px;font-weight:600">Post-Vendita</div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">Gestione Resi</div>
         </div>
       </div>
       <div class="table-section">
-        <div class="table-card"><h3>🏆 热销商品 Top Prodotti</h3><table><thead><tr><th>商品</th><th>销量</th><th>收入</th><th>趋势</th></tr></thead><tbody id="topProductsTable"></tbody></table></div>
-        <div class="table-card"><h3>📋 最近订单 Ultimi Ordini</h3><table><thead><tr><th>订单号</th><th>客户</th><th>金额</th><th>状态</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div>
+        <div class="table-card"><h3>🏆 Prodotti più Venduti</h3><table><thead><tr><th>Prodotto</th><th>Vendite</th><th>Ricavo</th><th>Trend</th></tr></thead><tbody id="topProductsTable"></tbody></table></div>
+        <div class="table-card"><h3>📋 Ordini Recenti</h3><table><thead><tr><th>Ordine</th><th>Cliente</th><th>Importo</th><th>Stato</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div>
       </div>
     </div>
 
     <!-- Products Page -->
     <div class="page" id="page-products">
       <div class="search-bar">
-        <input class="search-input" type="text" placeholder="🔍 搜索商品..." id="productSearch" oninput="filterProducts()">
-        <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer">批量管理</button>
-        <button onclick="showPage('addproduct')" style="padding:8px 16px;background:var(--accent);color:white;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer"> 新增</button>
+        <input class="search-input" type="text" placeholder="Cerca prodotto..." id="productSearch" oninput="filterProducts()">
+        <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer">Gestione Batch</button>
+        <button onclick="showPage('addproduct')" style="padding:8px 16px;background:var(--accent);color:white;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer"> Nuovo</button>
       </div>
       <div class="filter-tabs" id="productFilterTabs">
-        <div class="ftab active" onclick="setProductFilter('all',this)">全部</div>
-        <div class="ftab" onclick="setProductFilter('on',this)">在售</div>
-        <div class="ftab" onclick="setProductFilter('off',this)">下架</div>
+        <div class="ftab active" onclick="setProductFilter('all',this)">Tutti</div>
+        <div class="ftab" onclick="setProductFilter('on',this)">In Vendita</div>
+        <div class="ftab" onclick="setProductFilter('off',this)">Non in Vendita</div>
         <div class="ftab" onclick="setProductFilter('oos',this)">缺货</div>
       </div>
       <div class="product-grid" id="productGrid"></div>
@@ -290,7 +290,7 @@ tr:hover td{background:var(--bg2)}
     <!-- Orders Page -->
     <div class="page" id="page-orders">
       <div class="filter-tabs" id="orderFilterTabs">
-        <div class="ftab active" onclick="filterOrders('all',this)">全部</div>
+        <div class="ftab active" onclick="filterOrders('all',this)">Tutti</div>
         <div class="ftab" onclick="filterOrders('pending',this)">待付款</div>
         <div class="ftab" onclick="filterOrders('toship',this)">待发货</div>
         <div class="ftab" onclick="filterOrders('shipped',this)">已发货</div>
@@ -350,7 +350,7 @@ tr:hover td{background:var(--bg2)}
         </div>
         <div class="form-row">
           <div class="form-group"><label>库存 Stock *</label><input type="number" id="npStock" value="50" min="0"></div>
-          <div class="form-group"><label>上架状态</label><select id="npOnSale"><option value="1">在售</option><option value="0">下架</option></select></div>
+          <div class="form-group"><label>上架状态</label><select id="npOnSale"><option value="1">In Vendita</option><option value="0">Non in Vendita</option></select></div>
         </div>
       </div>
       <div class="form-section">
@@ -396,7 +396,7 @@ tr:hover td{background:var(--bg2)}
       <div class="form-section" style="margin-top:12px">
         <h3>⚡ 快速打折 Sconto Rapido</h3>
         <div class="search-bar" style="margin-bottom:0">
-          <input class="search-input" type="text" placeholder="🔍 搜索商品名称或条码..." id="dashDiscountSearch" oninput="dashSearchDiscount()">
+          <input class="search-input" type="text" placeholder="Cerca prodotto名称或条码..." id="dashDiscountSearch" oninput="dashSearchDiscount()">
         </div>
         <div id="dashDiscountResults" style="margin-top:12px"></div>
       </div>
@@ -425,8 +425,8 @@ tr:hover td{background:var(--bg2)}
         </select>
       </div>
       <div class="filter-tabs" style="margin-bottom:12px">
-          <div class="ftab active" onclick="filterDashLogs('all',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--accent);color:white;cursor:pointer;border:none">全部</div>
-          <div class="ftab" onclick="filterDashLogs('product',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">商品</div>
+          <div class="ftab active" onclick="filterDashLogs('all',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--accent);color:white;cursor:pointer;border:none">Tutti</div>
+          <div class="ftab" onclick="filterDashLogs('product',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">Prodotto</div>
           <div class="ftab" onclick="filterDashLogs('order',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">订单</div>
           <div class="ftab" onclick="filterDashLogs('import',this)" style="padding:6px 14px;border-radius:16px;font-size:12px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid var(--border)">导入</div>
         </div>
@@ -491,7 +491,7 @@ tr:hover td{background:var(--bg2)}
     <div class="page" id="page-discount">
       <div class="form-section">
         <h3>⚡ 快速打折 Sconto Rapido</h3>
-        <div class="search-bar"><input class="search-input" type="text" placeholder="🔍 搜索商品名称或条码..." id="discountSearch2" oninput="dashSearchDiscount2()"></div>
+        <div class="search-bar"><input class="search-input" type="text" placeholder="Cerca prodotto名称或条码..." id="discountSearch2" oninput="dashSearchDiscount2()"></div>
         <div id="discountResults2" style="margin-top:12px"></div>
       </div>
     </div>
@@ -547,7 +547,7 @@ function renderDashboard(){
   const cats=Object.entries(cm).map(([n,v],i)=>({name:n,value:v,color:cc[i%cc.length]}));
   if(cats.length){const total=cats.reduce((s,c)=>s+c.value,0);let g='',o=0;cats.forEach(c=>{const p=(c.value/total)*100;g+=c.color+' '+o+'% '+(o+p)+'%, ';o+=p});
   document.getElementById('donutChart').style.background='conic-gradient('+g.slice(0,-2)+')';
-  document.getElementById('donutChart').innerHTML='<div class="donut-center"><div class="val">'+total+'</div><div class="lbl">商品</div></div>';
+  document.getElementById('donutChart').innerHTML='<div class="donut-center"><div class="val">'+total+'</div><div class="lbl">Prodotto</div></div>';
   document.getElementById('donutLegend').innerHTML=cats.map(c=>'<div class="legend-item"><div class="legend-dot" style="background:'+c.color+'"></div><span>'+c.name+'</span><span class="legend-val">'+c.value+'</span></div>').join('')}
 
   // Top products
@@ -628,7 +628,7 @@ function removeMedia(idx,el){uploadedMedia[idx]=null;el.parentElement.remove()}
 
 async function saveNewProduct(){
   try{
-    if(!document.getElementById('npName')){alert('表单未加载！请在左侧菜单点「新增商品」');return}
+    if(!document.getElementById('npName')){alert('表单未加载！请在左侧菜单点「Nuovo商品」');return}
     const name=document.getElementById('npName').value.trim();
     const price=parseFloat(document.getElementById('npPrice').value);
     const category=document.getElementById('npCategory').value;
@@ -665,7 +665,7 @@ const colorMatch=(p.description||'').match(/Colori:\s*([A-Za-zàèìòùÀÈÌÒ
 const allColors=['','Nero','Bianco','Grigio','Blu','Rosso','Verde','Beige','Marrone'];
 const iconMap={'':'无',Nero:'⚫',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
 const colorBtns=allColors.filter(c=>c).map(c=>{const a=existingColors.includes(c);return'<div class="color-opt'+(a?' active':'')+'" onclick="toggleColor(this)" data-color="'+c+'" style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;border:1.5px solid '+(a?'var(--accent)':'var(--border)')+';background:'+(a?'var(--accent-bg)':'transparent')+';color:'+(a?'var(--accent)':'var(--text2)')+'">'+(iconMap[c]||'')+' '+c+'</div>'}).join('');
-openModal('<div class="modal-header"><h3>编辑 '+p.name.substring(0,20)+'</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="form-group"><label>名称</label><input type="text" id="epName" value="'+p.name+'"></div><div class="form-row"><div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="'+p.price+'"></div><div class="form-group"><label>库存</label><input type="number" id="epStock" value="'+(p.stock||0)+'"></div></div><div class="form-row"><div class="form-group"><label>分类</label><select id="epCat"><option value="Abbigliamento"'+(p.category==='Abbigliamento'?' selected':'')+'>衣服</option><option value="Detersivi"'+(p.category==='Detersivi'?' selected':'')+'>洗洁剂</option><option value="Casa"'+(p.category==='Casa'?' selected':'')+'>家用品</option></select></div><div class="form-group"><label>状态</label><select id="epSale"><option value="1"'+(p.on_sale?' selected':'')+'>在售</option><option value="0"'+(!p.on_sale?' selected':'')+'>下架</option></select></div></div><div class="form-group"><label>尺码</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="editSizeSelector">'+sizeBtns+'</div></div><div class="form-group"><label>颜色</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="editColorSelector">'+colorBtns+'</div></div><button class="save-btn" style="width:100%" onclick="saveEditProduct('+id+')">💾 保存</button><button style="width:100%;margin-top:8px;padding:10px;background:var(--danger);color:white;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:none" onclick="deleteProduct('+id+')">🗑️ 删除</button>')}
+openModal('<div class="modal-header"><h3>编辑 '+p.name.substring(0,20)+'</h3><button class="modal-close" onclick="closeModal()">✕</button></div><div class="form-group"><label>名称</label><input type="text" id="epName" value="'+p.name+'"></div><div class="form-row"><div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="'+p.price+'"></div><div class="form-group"><label>库存</label><input type="number" id="epStock" value="'+(p.stock||0)+'"></div></div><div class="form-row"><div class="form-group"><label>分类</label><select id="epCat"><option value="Abbigliamento"'+(p.category==='Abbigliamento'?' selected':'')+'>衣服</option><option value="Detersivi"'+(p.category==='Detersivi'?' selected':'')+'>洗洁剂</option><option value="Casa"'+(p.category==='Casa'?' selected':'')+'>家用品</option></select></div><div class="form-group"><label>Stato</label><select id="epSale"><option value="1"'+(p.on_sale?' selected':'')+'>In Vendita</option><option value="0"'+(!p.on_sale?' selected':'')+'>Non in Vendita</option></select></div></div><div class="form-group"><label>尺码</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="editSizeSelector">'+sizeBtns+'</div></div><div class="form-group"><label>颜色</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="editColorSelector">'+colorBtns+'</div></div><button class="save-btn" style="width:100%" onclick="saveEditProduct('+id+')">💾 保存</button><button style="width:100%;margin-top:8px;padding:10px;background:var(--danger);color:white;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:none" onclick="deleteProduct('+id+')">🗑️ 删除</button>')}
 function getEditSizes(){const s=[];document.querySelectorAll('#editSizeSelector .sku-opt.active').forEach(el=>s.push(el.dataset.size));return s}
 function getEditColors(){const c=[];document.querySelectorAll('#editColorSelector .color-opt.active').forEach(el=>{if(el.dataset.color)c.push(el.dataset.color)});return c}
 async function saveEditProduct(id){const sizes=getEditSizes();const colors=getEditColors();const sizeInfo=sizes.length?' Taglie: '+sizes.join(', '):'';const colorInfo=colors.length?' Colori: '+colors.join(', '):'';
@@ -719,7 +719,7 @@ async function confirmDashImport(){if(!dashImportData.length){showToast('没有�
 // ===== Quick Discount =====
 function dashSearchDiscount(){const q=document.getElementById('dashDiscountSearch').value.toLowerCase().trim();const c=document.getElementById('dashDiscountResults');if(!q){c.innerHTML='';return}
 const results=allProducts.filter(p=>p.name.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q)||('LQ-'+p.id).toLowerCase().includes(q)||String(p.price).includes(q)).slice(0,15);
-c.innerHTML=results.length?'<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="background:var(--bg2)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">商品</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:right">原价</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:right">折扣价</th><th style="padding:8px;border-bottom:1px solid var(--border)">操作</th></tr>'+results.map(p=>'<tr><td style="padding:8px;border-bottom:1px solid var(--border)"><span style="margin-right:6px">'+(p.emoji||'📦')+'</span>'+p.name.substring(0,30)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);text-align:right">€'+p.price.toFixed(2)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);text-align:right"><input type="number" step="0.01" value="'+(p.price*0.7).toFixed(2)+'" id="ddisc_'+p.id+'" style="width:80px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:var(--bg);color:var(--text)"></td><td style="padding:8px;border-bottom:1px solid var(--border)"><button onclick="dashApplyDiscount('+p.id+')" style="padding:4px 12px;background:var(--accent);color:white;border-radius:12px;font-size:12px;border:none;cursor:pointer">打折</button></td></tr>').join('')+'</table>':'<p style="text-align:center;color:var(--text2);padding:20px">未找到</p>'}
+c.innerHTML=results.length?'<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="background:var(--bg2)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Prodotto</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:right">原价</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:right">折扣价</th><th style="padding:8px;border-bottom:1px solid var(--border)">操作</th></tr>'+results.map(p=>'<tr><td style="padding:8px;border-bottom:1px solid var(--border)"><span style="margin-right:6px">'+(p.emoji||'📦')+'</span>'+p.name.substring(0,30)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);text-align:right">€'+p.price.toFixed(2)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);text-align:right"><input type="number" step="0.01" value="'+(p.price*0.7).toFixed(2)+'" id="ddisc_'+p.id+'" style="width:80px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:right;background:var(--bg);color:var(--text)"></td><td style="padding:8px;border-bottom:1px solid var(--border)"><button onclick="dashApplyDiscount('+p.id+')" style="padding:4px 12px;background:var(--accent);color:white;border-radius:12px;font-size:12px;border:none;cursor:pointer">打折</button></td></tr>').join('')+'</table>':'<p style="text-align:center;color:var(--text2);padding:20px">未找到</p>'}
 async function dashApplyDiscount(id){const newPrice=parseFloat(document.getElementById('ddisc_'+id).value);if(!newPrice||newPrice<=0){showToast('请输入有效价格');return}const p=allProducts.find(x=>x.id===id);if(!p)return;const oldPrice=p.price;if(sb)try{await sb.from('products').update({price:newPrice,old_price:oldPrice}).eq('id',id)}catch(e){}p.price=newPrice;p.old_price=oldPrice;p.tag='sale';showToast('✅ '+p.name.substring(0,15)+' €'+oldPrice.toFixed(2)+' → €'+newPrice.toFixed(2));dashSearchDiscount();renderDashboard()}
 function dashSearchDiscount2(){dashSearchDiscount()}
 
@@ -749,7 +749,7 @@ function renderDashLogs(filter='all'){
   const c=document.getElementById('dashLogsList');
   const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
   if(!filtered.length){c.innerHTML='<p style="text-align:center;padding:20px;color:var(--text-light)">暂无日志记录</p>';return}
-  const al={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量导入',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
+  const al={create_product:'Nuovo商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量导入',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
   const ai={create_product:'➕',edit_product:'✏️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'',import_products:'📂',discount:'️',update_stock:'📊',restock:'📦'};
   c.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:var(--bg)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">时间</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">操作</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">目标</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">账号</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">设备</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">变更</th></tr>'+
     filtered.slice(0,100).map(l=>{const t=new Date(l.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});return'<tr><td style="padding:8px;border-bottom:1px solid var(--border)">'+t+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+(ai[l.action]||'📋')+' '+(al[l.action]||l.action)+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.target_type+' #'+l.target_id+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.account+'('+l.role+')</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px">'+(l.device_info||'').substring(0,25)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px;font-family:monospace">'+(l.before_value&&l.after_value?'前→后':'—')+'</td></tr>'}).join('')+'</table>';
@@ -998,7 +998,7 @@ async function loadReturnAddress() {
 
 // ===== Navigation =====
 function showPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');else{const map={dashboard:0,products:1,orders:2,quickadd:3,import:4,addproduct:5,lowstock:6,discount:7,aftersales:8,reviews:9,notifications:10,settings:11};const items=document.querySelectorAll('.menu-item');if(items[map[page]])items[map[page]].classList.add('active')}
-const t={dashboard:'数据看板 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',addproduct:'新增商品 Nuovo Prodotto',quickadd:'快速入库 Aggiunta Rapida',import:'批量导入 Importa',lowstock:'库存预警 Stock Alert',discount:'快速打折 Sconto Rapido',aftersales:'售后管理 Resi',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'系统设置 Impostazioni'};
+const t={dashboard:'Dashboard Dati',products:'Gestione Prodotti Prodotti',orders:'Gestione Ordini Ordini',addproduct:'Nuovo商品 Nuovo Prodotto',quickadd:'快速入库 Aggiunta Rapida',import:'批量导入 Importa',lowstock:'库存预警 Stock Alert',discount:'快速打折 Sconto Rapido',aftersales:'Post-Vendita Resi',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'系统设置 Impostazioni'};
 document.getElementById('pageTitle').textContent=t[page]||page;document.getElementById('breadcrumb').textContent='首页 / '+(t[page]||page);
 if(page==='products')renderProducts();if(page==='orders')renderOrders();if(page==='lowstock')renderLowStock();if(page==='quickadd')renderQuickAdd();if(page==='logs')renderDashLogs();if(page==='notifications')renderNotifications();if(page==='aftersales')renderAfterSales()}
 

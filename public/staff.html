@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="L&Q商家">
+<meta name="apple-mobile-web-app-title" content="L&Q">
 <meta name="theme-color" content="#1e1e2d">
-<title>L&Qmercatone 商家管理</title>
+<title>L&Qmercatone - Pannello Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ===== Pull to Refresh =====
@@ -34,9 +34,9 @@
       icon.textContent='↓';
       if(diff>threshold){
         icon.textContent='↑';
-        text.textContent='释放刷新';
+        text.textContent='Rilascia per aggiornare';
       }else{
-        text.textContent='下拉刷新';
+        text.textContent='Trascina per aggiornare';
       }
     }
   },{passive:true});
@@ -58,19 +58,19 @@
     indicator.classList.add('show');
     icon.textContent='';
     icon.classList.add('rotating');
-    text.textContent='刷新中...';
+    text.textContent='Aggiornamento...';
     try{
       await loadData();
       renderDashboard();
       renderProducts();
       renderOrders();
       renderNotifications();
-      text.textContent='✅ 已更新';
+      text.textContent='✅ Aggiornato ✅';
       icon.classList.remove('rotating');
       icon.textContent='✓';
       setTimeout(()=>{indicator.classList.remove('show');refreshing=false},800);
     }catch(e){
-      text.textContent='刷新失败';
+      text.textContent='Aggiornamento fallito';
       icon.classList.remove('rotating');
       setTimeout(()=>{indicator.classList.remove('show');refreshing=false},1500);
     }
@@ -262,15 +262,15 @@ input,select,textarea{font-family:inherit}
   <div class="login-lang" id="langToggle" onclick="toggleAppLang()">IT/中</div>
   <div class="login-logo"><img src="logo-icon.svg" alt="L&Q" style="width:64px;height:64px;border-radius:16px;"></div>
   <div class="login-title">L&Qmercatone</div>
-  <div class="login-sub">商家管理后台 Pannello Admin</div>
+  <div class="login-sub">Pannello di Gestione</div>
   <input class="login-input" type="text" id="loginUser" placeholder="用户名 Nome utente" autocomplete="username">
   <input class="login-input" type="password" id="loginPass" placeholder="密码 Password" autocomplete="current-password">
   <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:16px;width:100%">
     <input type="checkbox" id="loginRemember" style="accent-color:var(--accent)"> 记住我 Ricordami
   </label>
-  <button class="login-btn" onclick="doLogin()">登录 Accedi</button>
+  <button class="login-btn" onclick="doLogin()">Accedi</button>
   <div style="margin-top:24px;font-size:11px;color:var(--text2);text-align:center">
-    首次使用？联系管理员创建账号<br>Contatta l'amministratore per creare un account
+    Primo accesso? Contatta l'amministratore<br>Contatta l'amministratore per creare un account
   </div>
 </div>
 
@@ -278,77 +278,77 @@ input,select,textarea{font-family:inherit}
 
 <!-- Pull to Refresh Indicator -->
 <div class="ptr-indicator" id="ptrIndicator">
-  <span class="ptr-icon" id="ptrIcon"></span><span class="ptr-text" id="ptrText">下拉刷新</span>
+  <span class="ptr-icon" id="ptrIcon"></span><span class="ptr-text" id="ptrText">Trascina per aggiornare</span>
 </div>
 <div class="app" id="app">
   <!-- Top Bar -->
   <div class="topbar" id="topbar">
     <button class="topbar-btn" onclick="goBack()" id="backBtn" style="display:none">←</button>
-    <div class="topbar-title" id="topbarTitle">首页</div>
+    <div class="topbar-title" id="topbarTitle">Home</div>
     <button class="topbar-btn" onclick="showPage('notifications')">🔔<div class="badge" id="notifBadge" style="display:none"></div></button>
   </div>
 
   <!-- Dashboard Page -->
   <div class="page active" id="page-dashboard">
-    <div class="greeting" id="greetingText">你好，管理员 👋</div>
+    <div class="greeting" id="greetingText">Ciao, Admin 👋</div>
     <div class="greeting-sub" id="dateText"></div>
 
     <div class="stats-grid">
       <div class="stat-card" onclick="showPage('orders');filterOrders('pending')">
         <div class="stat-icon">📦</div>
         <div class="stat-val" id="statOrders">0</div>
-        <div class="stat-lbl">今日订单</div>
+        <div class="stat-lbl">Ordini Oggi</div>
       </div>
       <div class="stat-card alert" onclick="showPage('orders');filterOrders('toship')">
         <div class="stat-icon"></div>
         <div class="stat-val" id="statToShip">0</div>
-        <div class="stat-lbl">待发货</div>
+        <div class="stat-lbl">Da Spedire</div>
         <div class="stat-badge" id="toShipBadge">0</div>
       </div>
       <div class="stat-card" onclick="showPage('aftersales')">
         <div class="stat-icon">🔄</div>
         <div class="stat-val" id="statRefund">0</div>
-        <div class="stat-lbl">待售后</div>
+        <div class="stat-lbl">Post-Vendita</div>
       </div>
       <div class="stat-card alert" onclick="showPage('lowstock')">
         <div class="stat-icon">⚠️</div>
         <div class="stat-val" id="statLowStock">0</div>
-        <div class="stat-lbl">库存预警</div>
+        <div class="stat-lbl">Avviso Scorta</div>
       </div>
     </div>
 
     <div class="todo-section">
-      <h3>🔴 待处理事项</h3>
+      <h3>🔴 Attività in Attesa</h3>
       <div id="todoList"></div>
     </div>
 
     <div class="quick-actions">
-      <div class="quick-btn" onclick="showPage('addproduct')"><div class="qicon">📷</div><div class="qlbl">快速上新</div></div>
-      <div class="quick-btn" onclick="showPage('orders');filterOrders('toship')"><div class="qicon">📋</div><div class="qlbl">打单发货</div></div>
-      <div class="quick-btn" onclick="showPage('import')"><div class="qicon">📂</div><div class="qlbl">批量导入</div></div>
-      <div class="quick-btn" onclick="showPage('import');setTimeout(()=>document.getElementById('discountSearch').focus(),300)"><div class="qicon">⚡</div><div class="qlbl">快速打折</div></div>
-      <div class="quick-btn" onclick="showPage('lowstock')"><div class="qicon"></div><div class="qlbl">库存管理</div></div>
+      <div class="quick-btn" onclick="showPage('addproduct')"><div class="qicon">📷</div><div class="qlbl">Nuovo Rapido</div></div>
+      <div class="quick-btn" onclick="showPage('orders');filterOrders('toship')"><div class="qicon">📋</div><div class="qlbl">Spedizione</div></div>
+      <div class="quick-btn" onclick="showPage('import')"><div class="qicon">📂</div><div class="qlbl">批量Importato</div></div>
+      <div class="quick-btn" onclick="showPage('import');setTimeout(()=>document.getElementById('discountSearch').focus(),300)"><div class="qicon">⚡</div><div class="qlbl">快速Applica Sconto</div></div>
+      <div class="quick-btn" onclick="showPage('lowstock')"><div class="qicon"></div><div class="qlbl">Scorte</div></div>
     </div>
   </div>
 
   <!-- Products Page -->
   <div class="page" id="page-products">
     <div class="search-bar">
-      <input class="search-input" type="text" placeholder="🔍 搜索商品..." id="productSearch" oninput="filterProducts()">
+      <input class="search-input" type="text" placeholder="🔍 Cerca prodotto..." id="productSearch" oninput="filterProducts()">
       <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap">批量管理</button>
     </div>
     <div class="filter-tabs" id="productFilterTabs">
-      <div class="ftab active" onclick="setProductFilter('all',this)">全部</div>
-      <div class="ftab" onclick="setProductFilter('on',this)">在售</div>
-      <div class="ftab" onclick="setProductFilter('off',this)">下架</div>
-      <div class="ftab" onclick="setProductFilter('oos',this)">缺货</div>
+      <div class="ftab active" onclick="setProductFilter('all',this)">Tutti</div>
+      <div class="ftab" onclick="setProductFilter('on',this)">In Vendita</div>
+      <div class="ftab" onclick="setProductFilter('off',this)">Non in Vendita</div>
+      <div class="ftab" onclick="setProductFilter('oos',this)">Esaurito</div>
     </div>
     <div class="product-grid" id="productGrid"></div>
     <div class="batch-bar" id="batchBar">
       <input type="checkbox" id="batchSelectAll" onchange="toggleBatchAll(this.checked)" style="width:18px;height:18px;accent-color:var(--accent)">
       <span style="font-size:13px;color:var(--text2)" id="batchCount">已选 0 件</span>
-      <button onclick="batchDelete()" style="margin-left:auto;padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;font-weight:600;border:none;cursor:pointer">🗑️ 删除选中</button>
-      <button onclick="cancelBatch()" style="padding:6px 14px;background:var(--card2);color:var(--text);border-radius:16px;font-size:12px;border:none;cursor:pointer">取消</button>
+      <button onclick="batchDelete()" style="margin-left:auto;padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;font-weight:600;border:none;cursor:pointer">🗑️ Elimina Selezionati</button>
+      <button onclick="cancelBatch()" style="padding:6px 14px;background:var(--card2);color:var(--text);border-radius:16px;font-size:12px;border:none;cursor:pointer">Annulla</button>
     </div>
     <button class="fab" onclick="showPage('addproduct')" id="addProductFab">+</button>
   </div>
@@ -356,11 +356,11 @@ input,select,textarea{font-family:inherit}
   <!-- Orders Page -->
   <div class="page" id="page-orders">
     <div class="filter-tabs" id="orderFilterTabs">
-      <div class="ftab active" onclick="filterOrders('all',this)">全部</div>
-      <div class="ftab" onclick="filterOrders('pending',this)">待付款</div>
-      <div class="ftab" onclick="filterOrders('toship',this)">待发货</div>
-      <div class="ftab" onclick="filterOrders('shipped',this)">已发货</div>
-      <div class="ftab" onclick="filterOrders('done',this)">已完成</div>
+      <div class="ftab active" onclick="filterOrders('all',this)">Tutti</div>
+      <div class="ftab" onclick="filterOrders('pending',this)">Da Pagare</div>
+      <div class="ftab" onclick="filterOrders('toship',this)">Da Spedire</div>
+      <div class="ftab" onclick="filterOrders('shipped',this)">Spedito</div>
+      <div class="ftab" onclick="filterOrders('done',this)">Completato</div>
     </div>
     <div id="ordersList"></div>
   </div>
@@ -376,17 +376,17 @@ input,select,textarea{font-family:inherit}
 
   <div class="page" id="page-addproduct">
     <div class="form-section">
-      <h3>基本信息 Informazioni</h3>
-      <div class="form-group"><label>商品名称 Nome *</label><input type="text" id="npName" placeholder="例: Cappotto in Lana"></div>
-      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="例: L&Q Collection"></div>
+      <h3>Informazioni Prodotto</h3>
+      <div class="form-group"><label>Nome Prodotto *</label><input type="text" id="npName" placeholder="Esempio: Cappotto in Lana"></div>
+      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="Esempio: L&Q Collection"></div>
       <div class="form-group" style="position:relative">
         <label>条码 Barcode <span style="font-size:11px;color:var(--text2)">(输入条码自动填充)</span></label>
-        <input type="text" id="npBarcode" placeholder="扫描或输入条码" oninput="searchBarcode(this.value)" style="padding-right:80px">
+        <input type="text" id="npBarcode" placeholder="Scansiona o inserisci codice a barre" oninput="searchBarcode(this.value)" style="padding-right:80px">
         <div id="barcodeResults" style="position:absolute;top:100%;left:0;right:0;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;z-index:100;display:none"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">衣服 Abbigliamento</option><option value="Detersivi">洗洁剂 Detersivi</option><option value="Casa">家用品 Casa</option></select></div>
-        <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">无</option><option value="new">新品</option><option value="hot">热销</option><option value="sale">特价</option></select></div>
+        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">Abbigliamento</option><option value="Detersivi">Detersivi</option><option value="Casa">Casa</option></select></div>
+        <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">Nessuno</option><option value="new">Nuovo</option><option value="hot">Popolare</option><option value="sale">In Offerta</option></select></div>
       </div>
       <!-- 尺码选择 - 仅衣服类显示 -->
       <div id="sizeSelector" class="form-group" style="margin-top:4px">
@@ -397,7 +397,7 @@ input,select,textarea{font-family:inherit}
           <div class="sku-opt active" onclick="toggleSize(this)" data-size="L" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">L</div>
           <div class="sku-opt active" onclick="toggleSize(this)" data-size="XL" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">XL</div>
           <div class="sku-opt" onclick="toggleSize(this)" data-size="XXL" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)">XXL</div>
-          <div class="sku-opt" onclick="toggleSize(this)" data-size="Taglia unica" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)">均码</div>
+          <div class="sku-opt" onclick="toggleSize(this)" data-size="Taglia unica" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text2)">Taglia Unica</div>
         </div>
       </div>
     
@@ -405,7 +405,7 @@ input,select,textarea{font-family:inherit}
       <div class="form-group" style="margin-top:4px">
         <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorOptions">
-          <div class="color-opt" onclick="toggleColor(this)" data-color="" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">无 Nessun</div>
+          <div class="color-opt" onclick="toggleColor(this)" data-color="" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">Nessun/div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Nero" style="padding:6px 12px;border:1.5px solid var(--accent);border-radius:8px;font-size:12px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">⚫ Nero</div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Bianco" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">⚪ Bianco</div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Grigio" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">🔘 Grigio</div>
@@ -441,15 +441,15 @@ input,select,textarea{font-family:inherit}
       <h3>描述 Descrizione</h3>
       <div class="form-group"><label>商品描述</label><textarea id="npDesc" rows="3" placeholder="简短描述商品特点..."></textarea></div>
     </div>
-    <button class="save-btn" onclick="saveNewProduct()">✅ 上架保存 Pubblica</button>
-    <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">取消 Annulla</button>
+    <button class="save-btn" onclick="saveNewProduct()">✅ Pubblica</button>
+    <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">Annulla Annulla</button>
   </div>
 
 
   <!-- Import Page -->
   <div class="page" id="page-import">
     <div class="form-section">
-      <h3>📂 批量导入 Importa da File</h3>
+      <h3>📂 批量Importato Importa da File</h3>
       <p style="font-size:12px;color:var(--text2);margin-bottom:12px">支持 Excel / CSV / PDF / TXT / ODS，自动识别格式</p>
       <div class="upload-area" onclick="document.getElementById('importFile').click()">
         <div class="upload-icon"></div>
@@ -457,12 +457,12 @@ input,select,textarea{font-family:inherit}
       </div>
       <input type="file" id="importFile" accept=".csv,.xlsx,.xls,.tsv,.txt,.pdf,.ods" style="display:none" onchange="handleImport(event)">
       <div id="importPreview" style="margin-top:12px"></div>
-      <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ 确认导入</button>
+      <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ 确认Importato</button>
     </div>
 
     <!-- Quick Discount -->
     <div class="form-section" style="margin-top:12px">
-      <h3>⚡ 快速打折 Sconto Rapido</h3>
+      <h3>⚡ 快速Applica Sconto Sconto Rapido</h3>
       <div class="search-bar" style="margin-bottom:0">
         <input class="search-input" type="text" placeholder="🔍 搜索商品名称或条码..." id="discountSearch" oninput="searchForDiscount()">
       </div>
@@ -478,7 +478,7 @@ input,select,textarea{font-family:inherit}
       <button onclick="clearLogs()" style="padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;border:none;cursor:pointer">🗑️ 清空日志</button>
     </div>
     <div class="filter-tabs" style="margin-bottom:12px">
-      <div class="ftab active" onclick="filterLogs('all',this)">全部</div>
+      <div class="ftab active" onclick="filterLogs('all',this)">Tutti</div>
       <div class="ftab" onclick="filterLogs('product',this)">商品</div>
       <div class="ftab" onclick="filterLogs('order',this)">订单</div>
       <div class="ftab" onclick="filterLogs('login',this)">登录</div>
@@ -494,7 +494,7 @@ input,select,textarea{font-family:inherit}
   <!-- After Sales Page -->
   <div class="page" id="page-aftersales">
     <div class="filter-tabs">
-      <div class="ftab active" onclick="filterAfterSales('all',this)">全部</div>
+      <div class="ftab active" onclick="filterAfterSales('all',this)">Tutti</div>
       <div class="ftab" onclick="filterAfterSales('pending',this)">待处理</div>
       <div class="ftab" onclick="filterAfterSales('approved',this)">已同意</div>
       <div class="ftab" onclick="filterAfterSales('rejected',this)">已拒绝</div>
@@ -515,7 +515,7 @@ input,select,textarea{font-family:inherit}
   <!-- Reviews Page -->
   <div class="page" id="page-reviews">
     <div class="filter-tabs">
-      <div class="ftab active">全部</div>
+      <div class="ftab active">Tutti</div>
       <div class="ftab">待回复</div>
       <div class="ftab">已回复</div>
     </div>
@@ -536,7 +536,7 @@ input,select,textarea{font-family:inherit}
   <!-- Notifications Page -->
   <div class="page" id="page-notifications">
     <div class="filter-tabs">
-      <div class="ftab active">全部</div>
+      <div class="ftab active">Tutti</div>
       <div class="ftab">订单</div>
       <div class="ftab">库存</div>
       <div class="ftab">系统</div>
@@ -585,7 +585,7 @@ input,select,textarea{font-family:inherit}
 
   <!-- Bottom Nav -->
   <div class="bnav">
-    <div class="bnav-item active" onclick="showPage('dashboard',this)"><div class="bnav-icon">🏠</div><span>首页</span></div>
+    <div class="bnav-item active" onclick="showPage('dashboard',this)"><div class="bnav-icon">🏠</div><span>Home</span></div>
     <div class="bnav-item" onclick="showPage('products',this)"><div class="bnav-icon"></div><span>商品</span></div>
     <div class="bnav-item" onclick="showPage('orders',this)"><div class="bnav-icon">📋</div><span>订单</span><div class="bnav-badge" id="orderBadge" style="display:none">0</div></div>
     <div class="bnav-item" onclick="showPage('settings',this)"><div class="bnav-icon">⚙️</div><span>设置</span></div>
@@ -641,7 +641,7 @@ async function doLogin(){
       showToast('✅ 登录成功 / Accesso riuscito');
       logOperation('login','user',currentUser.username,null,{account:currentUser.username,role:currentUser.role});
     } else {
-      showToast('❌ ' + (data.error || '登录失败'));
+      showToast('❌ ' + (data.error || '登录fallito'));
     }
   } catch(e) {
     // Fallback to demo accounts if server is unreachable
@@ -656,7 +656,7 @@ async function doLogin(){
   }
 }
 function doLogout(){localStorage.removeItem('staff_session');currentUser=null;document.getElementById('app').classList.remove('show');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUser').value='';document.getElementById('loginPass').value=''}
-function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`你好，${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh();setTimeout(updateBannerLabels,500)}
+function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`Ciao, ${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh();setTimeout(updateBannerLabels,500)}
 function applyPermissions(){if(!currentUser)return;const p=currentUser.permissions||'all';const isStaff=p!=='all';document.getElementById('addProductFab').style.display=isStaff?'none':'block';document.getElementById('logMenuItem').style.display=isStaff?'none':'flex';document.getElementById('staffMenuItem').style.display=isStaff?'none':'flex'}
 
 
@@ -738,7 +738,7 @@ async function quickAddProduct(idx){
     newP.id=Math.floor(Math.random()*10000)+100;
     allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
   }
-  showToast('✅ '+t.name+' 已入库! €'+finalPrice+' × '+finalStock);
+  showToast('✅ '+t.name+' 已prodotto aggiunto! €'+finalPrice+' × '+finalStock);
   renderDashboard();renderProducts();renderQuickAdd();
 }
 
@@ -769,7 +769,7 @@ function logOperation(action, targetType, targetId, beforeVal, afterVal){
 // ===== Sync Failure Handler =====
 function handleSyncError(action, err){
   console.error('Sync failed:', action, err);
-  showToast('️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+  showToast('️ 同步fallito，请检查网络 / Sincronizzazione fallita, controlla la connessione');
 }
 
 // ===== Data Loading =====
@@ -937,7 +937,7 @@ async function quickRestock(id){
     catch(e){handleSyncError('restock',e);return}
   }else{handleSyncError('restock','no connection');return}
   p.stock=newStock;
-  showToast('✅ 已补货至 '+newStock+' 件');
+  showToast('✅ 已Rifornito a '+newStock+' 件');
   renderDashboard();renderProducts();renderLowStock()
 }
 
@@ -1128,7 +1128,7 @@ async function saveNewProduct(){
   document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));
   document.querySelector('#productFilterTabs .ftab').classList.add('active');
   currentProductFilter='all';
-  }catch(e){console.error('Save error:',e);showToast('❌ 保存失败: '+e.message)}
+  }catch(e){console.error('Save error:',e);showToast('❌ 保存fallito: '+e.message)}
 }
 
 // ===== Realtime Order Listener =====
@@ -1179,7 +1179,7 @@ function toggleBatchMode(){
   batchMode=!batchMode;
   batchSelected.clear();
   document.getElementById('batchBar').classList.toggle('show',batchMode);
-  document.getElementById('batchBtn').textContent=batchMode?'取消批量':'批量管理';
+  document.getElementById('batchBtn').textContent=batchMode?'Annulla批量':'批量管理';
   document.getElementById('batchBtn').style.background=batchMode?'var(--accent)':'var(--card)';
   document.getElementById('batchBtn').style.color=batchMode?'white':'var(--text2)';
   renderProducts()
@@ -1215,8 +1215,8 @@ function updateBatchCount(){
   if(cb)cb.checked=false
 }
 async function batchDelete(){
-  if(batchSelected.size===0){showToast('请先选择商品');return}
-  if(!confirm('确定删除选中的 '+batchSelected.size+' 件商品？'))return;
+  if(batchSelected.size===0){showToast('Seleziona prima商品');return}
+  if(!confirm('ConfermaElimina Selezionati的 '+batchSelected.size+' 件商品？'))return;
   const ids=[...batchSelected];
   if(sb){
     let failCount=0;
@@ -1230,7 +1230,7 @@ async function batchDelete(){
   document.getElementById('batchBtn').textContent='批量管理';
   document.getElementById('batchBtn').style.background='var(--card)';
   document.getElementById('batchBtn').style.color='var(--text2)';
-  logOperation('batch_delete','product',ids.join(','),{count:ids.length},null);showToast('🗑️ 已删除 '+ids.length+' 件商品');
+  logOperation('batch_delete','product',ids.join(','),{count:ids.length},null);showToast('🗑️ Eliminato '+ids.length+' 件商品');
   renderProducts();renderDashboard()
 }
 function cancelBatch(){
@@ -1434,12 +1434,12 @@ async function handleImport(e){
     document.getElementById('importBtn').style.display='block';
   }catch(err){
     console.error('Import error:',err);
-    showToast('文件解析失败: '+err.message);
+    showToast('文件解析fallito: '+err.message);
   }
 }
 
 async function confirmImport(){
-  if(!importData.length){showToast('没有数据');return}
+  if(!importData.length){showToast('Nessun dato');return}
   let ok=0,fail=0;
   for(const item of importData){
     try{
@@ -1448,7 +1448,7 @@ async function confirmImport(){
       ok++;
     }catch(e){fail++}
   }
-  showToast(`✅ 导入 ${ok} 件，失败 ${fail} 件`);
+  showToast(`✅ Importato ${ok} 件，fallito ${fail} 件`);
   importData=[];
   document.getElementById('importPreview').innerHTML='';
   document.getElementById('importBtn').style.display='none';
@@ -1476,19 +1476,19 @@ function searchForDiscount(){
       <div style="font-size:24px">${p.emoji||'📦'}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-        <div style="font-size:12px;color:var(--text2)">原价: €${p.price} ${p.old_price?'→ 打折价: €'+p.old_price:''}</div>
+        <div style="font-size:12px;color:var(--text2)">原价: €${p.price} ${p.old_price?'→ Applica Sconto价: €'+p.old_price:''}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
         <input type="number" step="0.01" value="${(p.price*0.7).toFixed(2)}" id="disc_${p.id}" style="width:70px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none" placeholder="折扣价">
-        <button onclick="applyDiscount(${p.id})" style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px;border:none;cursor:pointer">打折</button>
+        <button onclick="applyDiscount(${p.id})" style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px;border:none;cursor:pointer">Applica Sconto</button>
       </div>
     </div>
-  `).join('')||'<p style="text-align:center;color:var(--text2);font-size:13px">未找到商品</p>';
+  `).join('')||'<p style="text-align:center;color:var(--text2);font-size:13px">Non trovato商品</p>';
 }
 
 async function applyDiscount(id){
   const newPrice=parseFloat(document.getElementById('disc_'+id).value);
-  if(!newPrice||newPrice<=0){showToast('请输入有效价格');return}
+  if(!newPrice||newPrice<=0){showToast('Inserisci un prezzo valido');return}
   const p=allProducts.find(x=>x.id===id);
   if(!p)return;
   const oldPrice=p.price;
@@ -1526,7 +1526,7 @@ function saveBanner(idx){
     title:document.getElementById('bTitle').value.trim(),
     desc:document.getElementById('bDesc').value.trim()
   };
-  saveBanners();closeModal();showToast('✅ 轮播已更新')
+  saveBanners();closeModal();showToast('✅ 轮播Aggiornato ✅')
 }
 
 document.addEventListener('click',e=>{if(!e.target.closest('#npBarcode')&&!e.target.closest('#barcodeResults')){const c=document.getElementById('barcodeResults');if(c)c.style.display='none'}});
@@ -1542,7 +1542,7 @@ function renderLogs(filter='all'){
   const container=document.getElementById('logsList');
   const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
   if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>暂无日志记录<br>Nessun log</p></div>';return}
-  const actionLabels={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量导入',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
+  const actionLabels={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量Importato',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
   const actionIcons={create_product:'➕',edit_product:'️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'⚡',import_products:'📂',discount:'🏷️',update_stock:'📊',restock:'📦'};
   container.innerHTML=filtered.slice(0,50).map(l=>{
     const time=new Date(l.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -1599,7 +1599,7 @@ function saveAdminNote(orderId){
   if(sb&&o){sb.from('orders').update({admin_note:note}).eq('id',orderId).then(({error})=>{
     if(error)console.error('Admin note save error:',error);
   }).catch(e=>console.error(e))}
-  showToast('✅ 内部备注已保存 / Nota interna salvata');
+  showToast('✅ 内部备注Salvato / Nota interna salvata');
 }
 
 // ===== Navigation =====
@@ -1654,14 +1654,14 @@ function editProduct(id){
 
   openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
     <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
-    <div class="form-group"><label>条码 Barcode</label><input type="text" id="epBarcode" value="${(p.description||'').match(/Barcode:\\s*(\\S+)/)?.[1]||''}" placeholder="扫描或输入条码"></div>
+    <div class="form-group"><label>条码 Barcode</label><input type="text" id="epBarcode" value="${(p.description||'').match(/Barcode:\\s*(\\S+)/)?.[1]||''}" placeholder="Scansiona o inserisci codice a barre"></div>
     <div class="form-row">
       <div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
       <div class="form-group"><label>库存</label><input type="number" id="epStock" value="${p.stock||0}"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>分类</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
-      <div class="form-group"><label>上架/下架 Stato</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>在售</option><option value="0" ${!p.on_sale?'selected':''}>下架</option></select></div>
+      <div class="form-group"><label>上架/下架 Stato</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>In Vendita</option><option value="0" ${!p.on_sale?'selected':''}>Non in Vendita</option></select></div>
     </div>
     <div class="form-group">
       <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
@@ -1702,18 +1702,18 @@ async function saveEditProduct(id){
     }catch(e){handleSyncError('edit_product',e);return}
   }else{handleSyncError('edit_product','no connection');return}
   const p=allProducts.find(x=>x.id===id);if(p)Object.assign(p,updates);
-  const oldP=allProducts.find(x=>x.id===id);logOperation('edit_product','product',id,oldP,{...updates});closeModal();showToast('✅ 已保存');renderProducts();renderDashboard()
+  const oldP=allProducts.find(x=>x.id===id);logOperation('edit_product','product',id,oldP,{...updates});closeModal();showToast('✅ Salvato');renderProducts();renderDashboard()
 }
 async function deleteProduct(id){
   const p=allProducts.find(x=>x.id===id);
-  const keepMedia=p&&p.image_url?confirm('同时删除商品图片？\n取消=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
-  if(!confirm('确定删除这个商品？\nEliminare questo prodotto?'))return;
+  const keepMedia=p&&p.image_url?confirm('同时删除商品图片？\nAnnulla=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
+  if(!confirm('Confermi eliminazione这个商品？\nEliminare questo prodotto?'))return;
   if(sb){
     try{const{error}=await sb.from('products').delete().eq('id',id);if(error){handleSyncError('delete_product',error);return}}
     catch(e){handleSyncError('delete_product',e);return}
   }else{handleSyncError('delete_product','no connection');return}
   allProducts=allProducts.filter(x=>x.id!==id);
-  closeModal();showToast('🗑️ 已删除');renderProducts();renderDashboard()
+  closeModal();showToast('🗑️ Eliminato');renderProducts();renderDashboard()
 }
 
 // ===== Pull to Refresh =====
@@ -1740,9 +1740,9 @@ async function deleteProduct(id){
       icon.textContent='↓';
       if(diff>threshold){
         icon.textContent='↑';
-        text.textContent='释放刷新';
+        text.textContent='Rilascia per aggiornare';
       }else{
-        text.textContent='下拉刷新';
+        text.textContent='Trascina per aggiornare';
       }
     }
   },{passive:true});
@@ -1764,19 +1764,19 @@ async function deleteProduct(id){
     indicator.classList.add('show');
     icon.textContent='';
     icon.classList.add('rotating');
-    text.textContent='刷新中...';
+    text.textContent='Aggiornamento...';
     try{
       await loadData();
       renderDashboard();
       renderProducts();
       renderOrders();
       renderNotifications();
-      text.textContent='✅ 已更新';
+      text.textContent='✅ Aggiornato ✅';
       icon.classList.remove('rotating');
       icon.textContent='✓';
       setTimeout(()=>{indicator.classList.remove('show');refreshing=false},800);
     }catch(e){
-      text.textContent='刷新失败';
+      text.textContent='Aggiornamento fallito';
       icon.classList.remove('rotating');
       setTimeout(()=>{indicator.classList.remove('show');refreshing=false},1500);
     }

@@ -739,7 +739,7 @@ async function submitOrder() {
           const { data: prod } = await sbClient.from('products').select('stock').eq('id', item.id).single();
           if (prod && parseInt(prod.stock) < item.qty) {
             stockOk = false;
-            showToast('️ ' + item.name + ' 库存不足 (仅剩' + prod.stock + '件) / Scorta insufficiente (solo ' + prod.stock + ' pz)');
+            showToast('️ ' + item.name + ' Scorta insufficiente (solo' + prod.stock + ' pz)  ' + prod.stock + ' pz)');
             break;
           }
         } catch(e) {}
@@ -755,7 +755,7 @@ async function submitOrder() {
       const { error } = await sbClient.from('orders').insert(orderData);
       if (error) {
         console.error('SB order error:', error);
-        showToast('⚠️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+        showToast('⚠️ Sincronizzazione fallita, controlla la connessione');
         location.href = 'cart.html';
         return;
       }
@@ -775,7 +775,7 @@ async function submitOrder() {
       }
     } catch(e) {
       console.error('SB order exception:', e);
-      showToast('⚠️ 同步失败，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+      showToast('⚠️ Sincronizzazione fallita, controlla la connessione');
       location.href = 'cart.html';
       return;
     }
