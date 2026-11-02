@@ -263,10 +263,10 @@ input,select,textarea{font-family:inherit}
   <div class="login-logo"><img src="logo-icon.svg" alt="L&Q" style="width:64px;height:64px;border-radius:16px;"></div>
   <div class="login-title">L&Qmercatone</div>
   <div class="login-sub">Pannello di Gestione</div>
-  <input class="login-input" type="text" id="loginUser" placeholder="用户名 Nome utente" autocomplete="username">
-  <input class="login-input" type="password" id="loginPass" placeholder="密码 Password" autocomplete="current-password">
+  <input class="login-input" type="text" id="loginUser" placeholder="Nome utente" autocomplete="username">
+  <input class="login-input" type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
   <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:16px;width:100%">
-    <input type="checkbox" id="loginRemember" style="accent-color:var(--accent)"> 记住我 Ricordami
+    <input type="checkbox" id="loginRemember" style="accent-color:var(--accent)"> Ricordami
   </label>
   <button class="login-btn" onclick="doLogin()">Accedi</button>
   <div style="margin-top:24px;font-size:11px;color:var(--text2);text-align:center">
@@ -325,8 +325,8 @@ input,select,textarea{font-family:inherit}
     <div class="quick-actions">
       <div class="quick-btn" onclick="showPage('addproduct')"><div class="qicon">📷</div><div class="qlbl">Nuovo Rapido</div></div>
       <div class="quick-btn" onclick="showPage('orders');filterOrders('toship')"><div class="qicon">📋</div><div class="qlbl">Spedizione</div></div>
-      <div class="quick-btn" onclick="showPage('import')"><div class="qicon">📂</div><div class="qlbl">批量Importato</div></div>
-      <div class="quick-btn" onclick="showPage('import');setTimeout(()=>document.getElementById('discountSearch').focus(),300)"><div class="qicon">⚡</div><div class="qlbl">快速Applica Sconto</div></div>
+      <div class="quick-btn" onclick="showPage('import')"><div class="qicon">📂</div><div class="qlbl">Importazione</div></div>
+      <div class="quick-btn" onclick="showPage('import');setTimeout(()=>document.getElementById('discountSearch').focus(),300)"><div class="qicon">⚡</div><div class="qlbl">Sconto Rapido</div></div>
       <div class="quick-btn" onclick="showPage('lowstock')"><div class="qicon"></div><div class="qlbl">Scorte</div></div>
     </div>
   </div>
@@ -335,7 +335,7 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-products">
     <div class="search-bar">
       <input class="search-input" type="text" placeholder="🔍 Cerca prodotto..." id="productSearch" oninput="filterProducts()">
-      <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap">批量管理</button>
+      <button onclick="toggleBatchMode()" id="batchBtn" style="padding:8px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap">Gestione batch</button>
     </div>
     <div class="filter-tabs" id="productFilterTabs">
       <div class="ftab active" onclick="setProductFilter('all',this)">Tutti</div>
@@ -346,7 +346,7 @@ input,select,textarea{font-family:inherit}
     <div class="product-grid" id="productGrid"></div>
     <div class="batch-bar" id="batchBar">
       <input type="checkbox" id="batchSelectAll" onchange="toggleBatchAll(this.checked)" style="width:18px;height:18px;accent-color:var(--accent)">
-      <span style="font-size:13px;color:var(--text2)" id="batchCount">已选 0 件</span>
+      <span style="font-size:13px;color:var(--text2)" id="batchCount">0 selezionati</span>
       <button onclick="batchDelete()" style="margin-left:auto;padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;font-weight:600;border:none;cursor:pointer">🗑️ Elimina Selezionati</button>
       <button onclick="cancelBatch()" style="padding:6px 14px;background:var(--card2);color:var(--text);border-radius:16px;font-size:12px;border:none;cursor:pointer">Annulla</button>
     </div>
@@ -368,7 +368,7 @@ input,select,textarea{font-family:inherit}
 
   <!-- Quick Add Panel -->
   <div class="page" id="page-quickadd">
-    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">选择商品模板，点击快速入库<br>Seleziona un modello per aggiunta rapida</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">Seleziona un modello prodotto, clicca per aggiunta rapida<br>Seleziona un modello per aggiunta rapida</div>
     <div id="quickAddGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
   </div>
 
@@ -378,19 +378,19 @@ input,select,textarea{font-family:inherit}
     <div class="form-section">
       <h3>Informazioni Prodotto</h3>
       <div class="form-group"><label>Nome Prodotto *</label><input type="text" id="npName" placeholder="Esempio: Cappotto in Lana"></div>
-      <div class="form-group"><label>品牌 Brand</label><input type="text" id="npBrand" placeholder="Esempio: L&Q Collection"></div>
+      <div class="form-group"><label>Brand</label><input type="text" id="npBrand" placeholder="Esempio: L&Q Collection"></div>
       <div class="form-group" style="position:relative">
-        <label>条码 Barcode <span style="font-size:11px;color:var(--text2)">(输入条码自动填充)</span></label>
+        <label>Codice a barre <span style="font-size:11px;color:var(--text2)">(Inserisci il codice a barre)</span></label>
         <input type="text" id="npBarcode" placeholder="Scansiona o inserisci codice a barre" oninput="searchBarcode(this.value)" style="padding-right:80px">
         <div id="barcodeResults" style="position:absolute;top:100%;left:0;right:0;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:200px;overflow-y:auto;z-index:100;display:none"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>分类 Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">Abbigliamento</option><option value="Detersivi">Detersivi</option><option value="Casa">Casa</option></select></div>
-        <div class="form-group"><label>标签 Tag</label><select id="npTag"><option value="">Nessuno</option><option value="new">Nuovo</option><option value="hot">Popolare</option><option value="sale">In Offerta</option></select></div>
+        <div class="form-group"><label>Categoria *</label><select id="npCategory" onchange="toggleSizeSelector()"><option value="Abbigliamento">Abbigliamento</option><option value="Detersivi">Detersivi</option><option value="Casa">Casa</option></select></div>
+        <div class="form-group"><label>Tag</label><select id="npTag"><option value="">Nessuno</option><option value="new">Nuovo</option><option value="hot">Popolare</option><option value="sale">In Offerta</option></select></div>
       </div>
-      <!-- 尺码选择 - 仅衣服类显示 -->
+      <!-- Selezione taglie - solo abbigliamento -->
       <div id="sizeSelector" class="form-group" style="margin-top:4px">
-        <label>尺码 Taglie <span style="font-size:11px;color:var(--text2)">(点选可用尺码)</span></label>
+        <label>Taglie <span style="font-size:11px;color:var(--text2)">(Tocca per selezionare le taglie)</span></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <div class="sku-opt active" onclick="toggleSize(this)" data-size="S" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">S</div>
           <div class="sku-opt active" onclick="toggleSize(this)" data-size="M" style="padding:8px 16px;border:1.5px solid var(--accent);border-radius:8px;font-size:13px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">M</div>
@@ -401,9 +401,9 @@ input,select,textarea{font-family:inherit}
         </div>
       </div>
     
-      <!-- 颜色选择 - 所有商品都显示 -->
+      <!-- Selezione colori - mostrato per tutti -->
       <div class="form-group" style="margin-top:4px">
-        <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
+        <label>Colori <span style="font-size:11px;color:var(--text2)">(Tocca per selezionare i colori)</span></label>
         <div style="display:flex;gap:8px;flex-wrap:wrap" id="colorOptions">
           <div class="color-opt" onclick="toggleColor(this)" data-color="" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;color:var(--text2)">Nessun/div>
           <div class="color-opt" onclick="toggleColor(this)" data-color="Nero" style="padding:6px 12px;border:1.5px solid var(--accent);border-radius:8px;font-size:12px;cursor:pointer;background:var(--accent-bg);color:var(--accent)">⚫ Nero</div>
@@ -418,28 +418,28 @@ input,select,textarea{font-family:inherit}
       </div>
 </div>
     <div class="form-section">
-      <h3>价格与库存 Prezzo e Stock</h3>
+      <h3>Prezzo e Stock</h3>
       <div class="form-row">
-        <div class="form-group"><label>售价 Prezzo (€) *</label><input type="number" id="npPrice" step="0.01" placeholder="9.90"></div>
-        <div class="form-group"><label>原价 Vecchio prezzo (€)</label><input type="number" id="npOldPrice" step="0.01" placeholder="可选"></div>
+        <div class="form-group"><label>Prezzo (€) *</label><input type="number" id="npPrice" step="0.01" placeholder="9.90"></div>
+        <div class="form-group"><label>Vecchio prezzo (€)</label><input type="number" id="npOldPrice" step="0.01" placeholder="Opzionale"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>库存 Stock *</label><input type="number" id="npStock" value="99" min="0"></div>
-        <div class="form-group"><label>上架/下架 Stato</label><select id="npOnSale"><option value="1">在售 On Sale</option><option value="0">下架 Off</option></select></div>
+        <div class="form-group"><label>Stock *</label><input type="number" id="npStock" value="99" min="0"></div>
+        <div class="form-group"><label>Stato</label><select id="npOnSale"><option value="1">In vendita</option><option value="0">Non in vendita</option></select></div>
       </div>
     </div>
     <div class="form-section">
-      <h3>商品图片</h3>
+      <h3>Immagini prodotto</h3>
       <div class="upload-area" onclick="document.getElementById('npImages').click()" style="cursor:pointer;padding:32px">
         <div class="upload-icon"></div>
-        <p>拍照/相册上传 图片+视频（可多选）<br>Foto/Video da galleria (multiple)</p>
+        <p>Foto da galleria (selezione multipla)<br>Foto/Video da galleria (multiple)</p>
       </div>
       <input type="file" id="npImages" accept="image/*,video/*" multiple style="display:none" onchange="previewImages(this)">
       <div id="imgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
     </div>
     <div class="form-section">
-      <h3>描述 Descrizione</h3>
-      <div class="form-group"><label>商品描述</label><textarea id="npDesc" rows="3" placeholder="简短描述商品特点..."></textarea></div>
+      <h3>Descrizione</h3>
+      <div class="form-group"><label>Descrizione prodotto</label><textarea id="npDesc" rows="3" placeholder="Descrivi brevemente le caratteristiche..."></textarea></div>
     </div>
     <button class="save-btn" onclick="saveNewProduct()">✅ Pubblica</button>
     <button class="save-btn secondary" style="margin-top:8px" onclick="showPage('products')">Annulla Annulla</button>
@@ -449,22 +449,22 @@ input,select,textarea{font-family:inherit}
   <!-- Import Page -->
   <div class="page" id="page-import">
     <div class="form-section">
-      <h3>📂 批量Importato Importa da File</h3>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">支持 Excel / CSV / PDF / TXT / ODS，自动识别格式</p>
+      <h3>📂 Importa da File</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Supporta Excel / CSV / PDF / TXT / ODS, riconoscimento automatico</p>
       <div class="upload-area" onclick="document.getElementById('importFile').click()">
         <div class="upload-icon"></div>
-        <p>点击选择 Excel/CSV 文件<br>格式: .xlsx .xls .csv .tsv .txt .pdf .ods</p>
+        <p>Seleziona file Excel/CSV<br>Formati: .xlsx .xls .csv .tsv .txt .pdf .ods</p>
       </div>
       <input type="file" id="importFile" accept=".csv,.xlsx,.xls,.tsv,.txt,.pdf,.ods" style="display:none" onchange="handleImport(event)">
       <div id="importPreview" style="margin-top:12px"></div>
-      <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ 确认Importato</button>
+      <button class="save-btn" id="importBtn" style="display:none" onclick="confirmImport()">✅ Conferma importazione</button>
     </div>
 
     <!-- Quick Discount -->
     <div class="form-section" style="margin-top:12px">
-      <h3>⚡ 快速Applica Sconto Sconto Rapido</h3>
+      <h3>⚡ Sconto Rapido</h3>
       <div class="search-bar" style="margin-bottom:0">
-        <input class="search-input" type="text" placeholder="🔍 搜索商品名称或条码..." id="discountSearch" oninput="searchForDiscount()">
+        <input class="search-input" type="text" placeholder="🔍 Cerca nome prodotto o codice a barre..." id="discountSearch" oninput="searchForDiscount()">
       </div>
       <div id="discountResults" style="margin-top:12px"></div>
     </div>
@@ -474,14 +474,14 @@ input,select,textarea{font-family:inherit}
   <!-- Logs Page -->
   <div class="page" id="page-logs">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-size:14px;font-weight:600">操作日志 Log operazioni</span>
-      <button onclick="clearLogs()" style="padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;border:none;cursor:pointer">🗑️ 清空日志</button>
+      <span style="font-size:14px;font-weight:600">Log operazioni</span>
+      <button onclick="clearLogs()" style="padding:6px 14px;background:var(--danger);color:white;border-radius:16px;font-size:12px;border:none;cursor:pointer">🗑️ Cancella log</button>
     </div>
     <div class="filter-tabs" style="margin-bottom:12px">
       <div class="ftab active" onclick="filterLogs('all',this)">Tutti</div>
-      <div class="ftab" onclick="filterLogs('product',this)">商品</div>
-      <div class="ftab" onclick="filterLogs('order',this)">订单</div>
-      <div class="ftab" onclick="filterLogs('login',this)">登录</div>
+      <div class="ftab" onclick="filterLogs('product',this)">Prodotti</div>
+      <div class="ftab" onclick="filterLogs('order',this)">Ordini</div>
+      <div class="ftab" onclick="filterLogs('login',this)">Accesso</div>
     </div>
     <div id="logsList"></div>
   </div>
@@ -495,9 +495,9 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-aftersales">
     <div class="filter-tabs">
       <div class="ftab active" onclick="filterAfterSales('all',this)">Tutti</div>
-      <div class="ftab" onclick="filterAfterSales('pending',this)">待处理</div>
-      <div class="ftab" onclick="filterAfterSales('approved',this)">已同意</div>
-      <div class="ftab" onclick="filterAfterSales('rejected',this)">已拒绝</div>
+      <div class="ftab" onclick="filterAfterSales('pending',this)">In attesa</div>
+      <div class="ftab" onclick="filterAfterSales('approved',this)">Approvato</div>
+      <div class="ftab" onclick="filterAfterSales('rejected',this)">Rifiutato</div>
     </div>
     <div id="aftersalesList"></div>
   </div>
@@ -506,9 +506,9 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-marketing">
     <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">
       <div style="font-size:36px;margin-bottom:8px">📢</div>
-      <p>营销活动管理<br>Promozioni e campagne</p>
-      <p style="margin-top:12px;font-size:12px">可通过电脑后台 dashboard.html 创建复杂活动<br>或通过新增商品设置特价标签</p>
-      <button onclick="showPage('products');setProductFilter('sale',document.querySelectorAll('#productFilterTabs .ftab')[3])" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:white;border-radius:16px;font-size:13px;border:none">查看特价商品</button>
+      <p>Gestione promozioni<br>Promozioni e campagne</p>
+      <p style="margin-top:12px;font-size:12px">Dal pannello desktop dashboard.html puoi creare promozioni complesse<br>o impostare tag offerta nei nuovi prodotti</p>
+      <button onclick="showPage('products');setProductFilter('sale',document.querySelectorAll('#productFilterTabs .ftab')[3])" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:white;border-radius:16px;font-size:13px;border:none">Vedi prodotti in offerta</button>
     </div>
   </div>
 
@@ -516,19 +516,19 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-reviews">
     <div class="filter-tabs">
       <div class="ftab active">Tutti</div>
-      <div class="ftab">待回复</div>
-      <div class="ftab">已回复</div>
+      <div class="ftab">Da rispondere</div>
+      <div class="ftab">Risposte</div>
     </div>
     <div id="reviewsList">
       <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:12px">👩</div><div><div style="font-size:13px;font-weight:500">Maria R.</div><div style="font-size:11px;color:var(--text2)">2026-10-20</div></div><div style="margin-left:auto;color:var(--warning)">★★★★★</div></div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">质量非常好，羊绒很柔软，尺码合适！</div>
-        <div style="font-size:12px;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-xs)">商家回复：感谢您的好评！🙏</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Ottima qualità, cashmere morbidissimo, taglia perfetta!</div>
+        <div style="font-size:12px;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-xs)">Risposta del negozio: Grazie per la recensione positiva! 🙏</div>
       </div>
       <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:12px">👨</div><div><div style="font-size:13px;font-weight:500">Luigi B.</div><div style="font-size:11px;color:var(--text2)">2026-10-18</div></div><div style="margin-left:auto;color:var(--warning)">★★★★☆</div></div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Ottimo cappotto, molto caldo.</div>
-        <button onclick="openReplyModal('Luigi B.','Ottimo cappotto...')" style="padding:6px 14px;background:var(--accent);color:white;border-radius:16px;font-size:12px">回复 Rispondi</button>
+        <button onclick="openReplyModal('Luigi B.','Ottimo cappotto...')" style="padding:6px 14px;background:var(--accent);color:white;border-radius:16px;font-size:12px">Rispondi</button>
       </div>
     </div>
   </div>
@@ -537,9 +537,9 @@ input,select,textarea{font-family:inherit}
   <div class="page" id="page-notifications">
     <div class="filter-tabs">
       <div class="ftab active">Tutti</div>
-      <div class="ftab">订单</div>
-      <div class="ftab">库存</div>
-      <div class="ftab">系统</div>
+      <div class="ftab">Ordini</div>
+      <div class="ftab">Stock</div>
+      <div class="ftab">Sistema</div>
     </div>
     <div id="notifList"></div>
   </div>
@@ -547,48 +547,48 @@ input,select,textarea{font-family:inherit}
   <!-- Settings Page -->
   <div class="page" id="page-settings">
         <div class="settings-list" style="margin-top:12px">
-      <div style="padding:14px 16px;font-size:14px;font-weight:600">🔔 推送通知 Notifiche</div>
-      <div class="settings-item" onclick="toggleNotifType('order',this)"><div class="settings-left"><span class="sicon">📦</span><span class="slbl">新订单提醒 Nuovi ordini</span></div><span class="settings-right" id="notif_order">✅ ></span></div>
-      <div class="settings-item" onclick="toggleNotifType('aftersale',this)"><div class="settings-left"><span class="sicon">🔄</span><span class="slbl">售后申请 Richieste reso</span></div><span class="settings-right" id="notif_aftersale">✅ ></span></div>
-      <div class="settings-item" onclick="toggleNotifType('stock',this)"><div class="settings-left"><span class="sicon">️</span><span class="slbl">库存预警 Allerta scorta</span></div><span class="settings-right" id="notif_stock">✅ ></span></div>
-      <div class="settings-item" onclick="toggleNotifType('review',this)"><div class="settings-left"><span class="sicon">⭐</span><span class="slbl">客户评价 Recensioni</span></div><span class="settings-right" id="notif_review">✅ ></span></div>
+      <div style="padding:14px 16px;font-size:14px;font-weight:600">🔔 Notifiche push</div>
+      <div class="settings-item" onclick="toggleNotifType('order',this)"><div class="settings-left"><span class="sicon">📦</span><span class="slbl">Nuovi ordini</span></div><span class="settings-right" id="notif_order">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('aftersale',this)"><div class="settings-left"><span class="sicon">🔄</span><span class="slbl">Richieste reso</span></div><span class="settings-right" id="notif_aftersale">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('stock',this)"><div class="settings-left"><span class="sicon">️</span><span class="slbl">Allerta scorta</span></div><span class="settings-right" id="notif_stock">✅ ></span></div>
+      <div class="settings-item" onclick="toggleNotifType('review',this)"><div class="settings-left"><span class="sicon">⭐</span><span class="slbl">Recensioni clienti</span></div><span class="settings-right" id="notif_review">✅ ></span></div>
     </div>
     <div class="settings-list">
-      <div class="settings-item" onclick="openChangePassword()"><div class="settings-left"><span class="sicon">🔑</span><span class="slbl">修改密码</span></div><span class="settings-right">></span></div>
-      <div class="settings-item" onclick="toggleAppLang()"><div class="settings-left"><span class="sicon">🌐</span><span class="slbl">语言 Language</span></div><span class="settings-right" id="currentLang">中文 ></span></div>
-      <div class="settings-item" onclick="toggleNotif()"><div class="settings-left"><span class="sicon"></span><span class="slbl">通知设置</span></div><span class="settings-right">></span></div>
-      <div class="settings-item" onclick="showLog()" id="logMenuItem"><div class="settings-left"><span class="sicon">📋</span><span class="slbl">操作日志</span></div><span class="settings-right">></span></div>
-      <div class="settings-item" onclick="showToast('员工管理开发中')" id="staffMenuItem"><div class="settings-left"><span class="sicon">👥</span><span class="slbl">员工管理</span></div><span class="settings-right">></span></div>
-      <div class="settings-item" onclick="showToast('关于 L&Qmercatone v2.0')"><div class="settings-left"><span class="sicon">ℹ️</span><span class="slbl">关于</span></div><span class="settings-right">v2.0 ></span></div>
+      <div class="settings-item" onclick="openChangePassword()"><div class="settings-left"><span class="sicon">🔑</span><span class="slbl">Cambia password</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="toggleAppLang()"><div class="settings-left"><span class="sicon">🌐</span><span class="slbl">Lingua</span></div><span class="settings-right" id="currentLang">中文 ></span></div>
+      <div class="settings-item" onclick="toggleNotif()"><div class="settings-left"><span class="sicon"></span><span class="slbl">Impostazioni notifiche</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="showLog()" id="logMenuItem"><div class="settings-left"><span class="sicon">📋</span><span class="slbl">Log operazioni</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="showToast('Gestione staff in sviluppo')" id="staffMenuItem"><div class="settings-left"><span class="sicon">👥</span><span class="slbl">Gestione staff</span></div><span class="settings-right">></span></div>
+      <div class="settings-item" onclick="showToast('Info L&Qmercatone v2.0')"><div class="settings-left"><span class="sicon">ℹ️</span><span class="slbl">Info</span></div><span class="settings-right">v2.0 ></span></div>
     </div>
-    <!-- Banner 管理 -->
+    <!-- Gestione banner -->
     <div class="settings-list" style="margin-top:12px">
-      <div style="padding:14px 16px;font-size:14px;font-weight:600">🖼️ 轮播管理 Banner</div>
+      <div style="padding:14px 16px;font-size:14px;font-weight:600">🖼️ Gestione banner</div>
       <div class="settings-item" onclick="editBanner(0)">
         <div class="settings-left"><span class="sicon">1️⃣</span><span class="slbl" id="banner0Label">Offerte di Natale</span></div>
-        <span class="settings-right">编辑 ></span>
+        <span class="settings-right">Modifica ></span>
       </div>
       <div class="settings-item" onclick="editBanner(1)">
         <div class="settings-left"><span class="sicon">2️⃣</span><span class="slbl" id="banner1Label">Fiori Artificiali</span></div>
-        <span class="settings-right">编辑 ></span>
+        <span class="settings-right">Modifica ></span>
       </div>
       <div class="settings-item" onclick="editBanner(2)">
         <div class="settings-left"><span class="sicon">3️⃣</span><span class="slbl" id="banner2Label">Decorazioni Casa</span></div>
-        <span class="settings-right">编辑 ></span>
+        <span class="settings-right">Modifica ></span>
       </div>
     </div>
 
     <div style="padding:20px;text-align:center">
-      <button onclick="doLogout()" style="padding:12px 32px;background:var(--danger);color:white;border-radius:20px;font-size:14px;font-weight:600;border:none;cursor:pointer">退出登录</button>
+      <button onclick="doLogout()" style="padding:12px 32px;background:var(--danger);color:white;border-radius:20px;font-size:14px;font-weight:600;border:none;cursor:pointer">Esci</button>
     </div>
   </div>
 
   <!-- Bottom Nav -->
   <div class="bnav">
     <div class="bnav-item active" onclick="showPage('dashboard',this)"><div class="bnav-icon">🏠</div><span>Home</span></div>
-    <div class="bnav-item" onclick="showPage('products',this)"><div class="bnav-icon"></div><span>商品</span></div>
-    <div class="bnav-item" onclick="showPage('orders',this)"><div class="bnav-icon">📋</div><span>订单</span><div class="bnav-badge" id="orderBadge" style="display:none">0</div></div>
-    <div class="bnav-item" onclick="showPage('settings',this)"><div class="bnav-icon">⚙️</div><span>设置</span></div>
+    <div class="bnav-item" onclick="showPage('products',this)"><div class="bnav-icon"></div><span>Prodotti</span></div>
+    <div class="bnav-item" onclick="showPage('orders',this)"><div class="bnav-icon">📋</div><span>Ordini</span><div class="bnav-badge" id="orderBadge" style="display:none">0</div></div>
+    <div class="bnav-item" onclick="showPage('settings',this)"><div class="bnav-icon">⚙️</div><span>Impostazioni</span></div>
   </div>
 </div>
 
@@ -623,8 +623,8 @@ let sb=null,currentUser=null,allProducts=[],allOrders=[],currentProductFilter='a
 async function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value.trim();
-  if(!u||!p){showToast('请输入账号密码 / Inserisci username e password');return}
-  showToast('⏳ 登录中...');
+  if(!u||!p){showToast('Inserisci username e password');return}
+  showToast('⏳ Accesso in corso...');
   try {
     const res = await fetch('/api/admin/login', {
       method: 'POST',
@@ -638,45 +638,45 @@ async function doLogin(){
       localStorage.setItem('staff_session', JSON.stringify(currentUser));
       if(document.getElementById('loginRemember').checked) localStorage.setItem('staff_remember','1');
       showApp();
-      showToast('✅ 登录成功 / Accesso riuscito');
+      showToast('✅ Accesso riuscito');
       logOperation('login','user',currentUser.username,null,{account:currentUser.username,role:currentUser.role});
     } else {
-      showToast('❌ ' + (data.error || '登录fallito'));
+      showToast('❌ ' + (data.error || 'Accesso fallito'));
     }
   } catch(e) {
     // Fallback to demo accounts if server is unreachable
-    const accounts={admin:{role:'admin',name:'管理员',permissions:'all'},staff:{role:'staff',name:'仓库员',permissions:'view_products,edit_stock,view_orders,ship_orders'}};
+    const accounts={admin:{role:'admin',name:'Admin',permissions:'all'},staff:{role:'staff',name:'Magazziniere',permissions:'view_products,edit_stock,view_orders,ship_orders'}};
     if((accounts[u]&&p==='admin123')||(u==='staff'&&p==='staff123')){
       currentUser={username:u,...accounts[u]};
       localStorage.setItem('staff_session',JSON.stringify(currentUser));
-      showApp();showToast('✅ 登录成功 (离线模式)');
+      showApp();showToast('✅ Accesso riuscito (offline)');
     } else {
-      showToast('❌ 无法连接服务器 / Impossibile connettersi al server');
+      showToast('❌ Impossibile connettersi al server');
     }
   }
 }
 function doLogout(){localStorage.removeItem('staff_session');currentUser=null;document.getElementById('app').classList.remove('show');document.getElementById('loginPage').style.display='flex';document.getElementById('loginUser').value='';document.getElementById('loginPass').value=''}
-function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'管理员';document.getElementById('greetingText').textContent=`Ciao, ${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh();setTimeout(updateBannerLabels,500)}
+function showApp(){document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');const name=currentUser?currentUser.name:'Admin';document.getElementById('greetingText').textContent=`Ciao, ${name} 👋`;applyPermissions();loadData();setupRealtime();startAutoRefresh();setTimeout(updateBannerLabels,500)}
 function applyPermissions(){if(!currentUser)return;const p=currentUser.permissions||'all';const isStaff=p!=='all';document.getElementById('addProductFab').style.display=isStaff?'none':'block';document.getElementById('logMenuItem').style.display=isStaff?'none':'flex';document.getElementById('staffMenuItem').style.display=isStaff?'none':'flex'}
 
 
 // ===== Quick Add Templates =====
 const QUICK_TEMPLATES = [
-  // 衣服
+  // Abbigliamento
   {name:'Cappotto in Lana',brand:'L&Q Collection',category:'Abbigliamento',price:39.90,emoji:'🧥',tag:'new',sizes:['S','M','L','XL']},
   {name:'Jeans Slim',brand:'Denim Lab',category:'Abbigliamento',price:29.90,emoji:'👖',tag:'sale',sizes:['S','M','L','XL']},
   {name:'T-shirt Cotone',brand:'L&Q Collection',category:'Abbigliamento',price:19.90,emoji:'',tag:'new',sizes:['S','M','L','XL','XXL']},
   {name:'Giacca Leggera',brand:'Urban Style',category:'Abbigliamento',price:49.90,emoji:'',tag:'new',sizes:['S','M','L','XL']},
   {name:'Vestito Floreale',brand:'Maison Belle',category:'Abbigliamento',price:59.90,emoji:'👗',tag:'new',sizes:['S','M','L']},
   {name:'Felpa con Cappuccio',brand:'Active Life',category:'Abbigliamento',price:35.90,emoji:'',tag:'new',sizes:['S','M','L','XL']},
-  // 洗洁剂
+  // Detersivi
   {name:'Detersivo Lavatrice 3L',brand:'PulitoMax',category:'Detersivi',price:9.90,emoji:'🧴',tag:'sale',sizes:[]},
   {name:'Candeggina 1.5L',brand:'PulitoMax',category:'Detersivi',price:3.49,emoji:'🧴',tag:'',sizes:[]},
   {name:'Detersivo Piatti Limone',brand:'PulitoMax',category:'Detersivi',price:4.99,emoji:'🍋',tag:'',sizes:[]},
   {name:'Ammorbidente',brand:'CasaPulita',category:'Detersivi',price:7.99,emoji:'🌸',tag:'sale',sizes:[]},
   {name:'Sgrassatore Universale',brand:'CasaPulita',category:'Detersivi',price:5.99,emoji:'✨',tag:'new',sizes:[]},
   {name:'Detersivo Vetri Spray',brand:'PulitoMax',category:'Detersivi',price:4.49,emoji:'🪟',tag:'',sizes:[]},
-  // 家用品
+  // Casa
   {name:'Set Asciugamani 6pz',brand:'CasaComfort',category:'Casa',price:24.99,emoji:'',tag:'sale',sizes:[]},
   {name:'Set Pentole 5pz',brand:'CucinaPro',category:'Casa',price:69.99,emoji:'🍳',tag:'hot',sizes:[]},
   {name:'Aspirapolvere Portatile',brand:'CleanMax',category:'Casa',price:39.99,emoji:'🧹',tag:'sale',sizes:[]},
@@ -695,7 +695,7 @@ function renderQuickAdd(){
       <div style="font-size:28px;margin-bottom:6px">${t.emoji}</div>
       <div style="font-size:12px;font-weight:500;line-height:1.3;margin-bottom:4px">${t.name}</div>
       <div style="font-size:14px;font-weight:700;color:var(--danger)">€${t.price}</div>
-      <div style="font-size:10px;color:var(--text2);margin-top:2px">${t.category==='Abbigliamento'?'衣服':t.category==='Detersivi'?'洗洁剂':'家用品'}</div>
+      <div style="font-size:10px;color:var(--text2);margin-top:2px">${t.category==='Abbigliamento'?'Abbigliamento':t.category==='Detersivi'?'Detersivi':'Casa'}</div>
     </div>
   `).join('');
 }
@@ -703,9 +703,9 @@ function renderQuickAdd(){
 async function quickAddProduct(idx){
   const t=QUICK_TEMPLATES[idx];
   // Ask for price and stock
-  const price=prompt('价格 Prezzo (€) (默认 €'+t.price+'):',t.price);
+  const price=prompt('Prezzo (€) (predefinito €'+t.price+'):',t.price);
   if(price===null)return; // cancelled
-  const stock=prompt('库存 Stock (默认 50):','50');
+  const stock=prompt('Stock (predefinito 50):','50');
   if(stock===null)return;
   
   const finalPrice=parseFloat(price)||t.price;
@@ -738,7 +738,7 @@ async function quickAddProduct(idx){
     newP.id=Math.floor(Math.random()*10000)+100;
     allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
   }
-  showToast('✅ '+t.name+' 已prodotto aggiunto! €'+finalPrice+' × '+finalStock);
+  showToast('✅ '+t.name+'  prodotto aggiunto! €'+finalPrice+' × '+finalStock);
   renderDashboard();renderProducts();renderQuickAdd();
 }
 
@@ -769,7 +769,7 @@ function logOperation(action, targetType, targetId, beforeVal, afterVal){
 // ===== Sync Failure Handler =====
 function handleSyncError(action, err){
   console.error('Sync failed:', action, err);
-  showToast('️ 同步fallito，请检查网络 / Sincronizzazione fallita, controlla la connessione');
+  showToast('️ Sincronizzazione fallita, controlla la connessione');
 }
 
 // ===== Data Loading =====
@@ -802,10 +802,10 @@ function renderDashboard(){
   if(toShip.length>0){orderBadge.style.display='flex';orderBadge.textContent=toShip.length}else{orderBadge.style.display='none'}
   // Todos
   let todos='';
-  if(toShip.length)todos+=`<div class="todo-item" onclick="showPage('orders');filterOrders('toship')"><span class="todo-icon">🚚</span><span class="todo-text">${toShip.length} 个订单待发货</span><span class="todo-time">尽快处理</span></div>`;
-  if(oos.length)todos+=`<div class="todo-item" onclick="showPage('lowstock')"><span class="todo-icon">⚠️</span><span class="todo-text">${oos.length} 件商品缺货</span><span class="todo-time">需补货</span></div>`;
-  if(lowStock.length)todos+=`<div class="todo-item" onclick="showPage('lowstock')"><span class="todo-icon">📦</span><span class="todo-text">${lowStock.length} 件商品库存不足</span><span class="todo-time">建议补货</span></div>`;
-  if(!todos)todos='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px">✅ 没有待处理事项<br>Nessun articolo pending</div>';
+  if(toShip.length)todos+=`<div class="todo-item" onclick="showPage('orders');filterOrders('toship')"><span class="todo-icon">🚚</span><span class="todo-text">${toShip.length}  ordini in attesa di spedizione</span><span class="todo-time">Elabora al più presto</span></div>`;
+  if(oos.length)todos+=`<div class="todo-item" onclick="showPage('lowstock')"><span class="todo-icon">⚠️</span><span class="todo-text">${oos.length}  prodotti esauriti</span><span class="todo-time">Riassortimento necessario</span></div>`;
+  if(lowStock.length)todos+=`<div class="todo-item" onclick="showPage('lowstock')"><span class="todo-icon">📦</span><span class="todo-text">${lowStock.length}  prodotti con scorta bassa</span><span class="todo-time">Si consiglia riassortimento</span></div>`;
+  if(!todos)todos='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px">✅ Nessuna attività in sospeso<br>Nessun articolo pending</div>';
   document.getElementById('todoList').innerHTML=todos
 }
 
@@ -828,10 +828,10 @@ function renderProducts(){
     return true
   });
   const grid=document.getElementById('productGrid');
-  if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon"></div><p>暂无商品</p></div>';return}
+  if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon"></div><p>Nessun prodotto</p></div>';return}
   grid.innerHTML=list.map(p=>{
     const tag=p.stock===0?'oos':p.on_sale?'on':'off';
-    const tagText=p.stock===0?'缺货 Esaurito':p.on_sale?'在售':'下架';
+    const tagText=p.stock===0?'Esaurito':p.on_sale?'In vendita':'Non in vendita';
     const stockClass=p.stock<=5&&p.stock>0?'low':'';
     const sel=batchSelected.has(p.id)?'selected':'';
     const clickAction=batchMode?`onclick="toggleBatchSelect(${p.id})"`:`onclick="editProduct(${p.id})"`;
@@ -853,16 +853,16 @@ function renderOrders(){
   let list=allOrders;
   if(currentOrderFilter!=='all')list=list.filter(o=>o.status===currentOrderFilter);
   const container=document.getElementById('ordersList');
-  if(!list.length){container.innerHTML='<div class="empty"><div class="empty-icon"></div><p>暂无订单</p></div>';return}
+  if(!list.length){container.innerHTML='<div class="empty"><div class="empty-icon"></div><p>Nessun ordine</p></div>';return}
   container.innerHTML=list.map(o=>{
-    const statusMap={pending:['pending','待付款'],toship:['toship','待发货'],shipped:['shipped','已发货'],done:['done','已完成'],refund:['refund','售后中']};
+    const statusMap={pending:['pending','In attesa pagamento'],toship:['toship','Da spedire'],shipped:['shipped','Spedito'],done:['done','Completato'],refund:['refund','Reso in corso']};
     const[cls,label]=statusMap[o.status]||['pending',o.status];
     const time=o.created_at?new Date(o.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
     return`<div class="order-card" onclick="showOrderDetail(${o.id})">
       <div class="order-top"><span class="order-no">${o.order_no}</span><span class="order-status ${cls}">${label}</span></div>
       <div class="order-items">${(o.items||[]).slice(0,3).map(i=>`<div class="order-item-img">${i.emoji||'📦'}</div>`).join('')}</div>
       <div class="order-bottom"><span class="order-customer">${o.customer_name} · ${time}</span><span class="order-total">${parseFloat(o.total_amount).toFixed(2)}</span></div>
-      ${o.status==='toship'?`<button class="order-ship-btn" onclick="event.stopPropagation();openShipModal(${o.id})"> 发货 Spedizione</button>`:''}
+      ${o.status==='toship'?`<button class="order-ship-btn" onclick="event.stopPropagation();openShipModal(${o.id})"> Spedizione</button>`:''}
     </div>`
   }).join('')
 }
@@ -871,37 +871,37 @@ function filterOrders(f,el){currentOrderFilter=f;if(el){document.querySelectorAl
 // ===== Order Detail Modal =====
 function showOrderDetail(id){
   const o=allOrders.find(x=>x.id===id);if(!o)return;
-  const statusMap={pending:'待付款',toship:'待发货',shipped:'已发货',done:'已完成',refund:'售后中'};
-  openModal(`<div class="modal-header"><h3>订单详情 ${o.order_no}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+  const statusMap={pending:'In attesa pagamento',toship:'Da spedire',shipped:'Spedito',done:'Completato',refund:'Reso in corso'};
+  openModal(`<div class="modal-header"><h3>Detail ordine ${o.order_no}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div class="form-section" style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">收货信息</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Informazioni di spedizione</div>
       <div style="font-size:14px;font-weight:600">${o.customer_name} · ${o.customer_phone||''}</div>
-      <div style="font-size:13px;color:var(--text2);margin-top:4px">${o.customer_address||'地址未填写'}</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:4px">${o.customer_address||'Indirizzo non inserito'}</div>
     </div>
     <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">商品清单</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Lista prodotti</div>
       ${(o.items||[]).map(i=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:20px">${i.emoji||''}</span><span style="flex:1;font-size:13px">${i.name}</span><span style="font-size:13px">${i.qty}×€${i.price}</span></div>`).join('')}
     </div>
     <div style="background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:14px">合计 Totale</span><span style="font-size:20px;font-weight:700;color:var(--danger)">€${parseFloat(o.total_amount).toFixed(2)}</span>
+      <span style="font-size:14px">Totale</span><span style="font-size:20px;font-weight:700;color:var(--danger)">€${parseFloat(o.total_amount).toFixed(2)}</span>
     </div>
-    ${o.status==='toship'?`<button class="save-btn" onclick="closeModal();openShipModal(${o.id})"> 录入物流发货</button>`:''}
+    ${o.status==='toship'?`<button class="save-btn" onclick="closeModal();openShipModal(${o.id})"> Inserisci tracking</button>`:''}
   `)
 }
 
 // ===== Ship Modal =====
 function openShipModal(id){
   const o=allOrders.find(x=>x.id===id);if(!o)return;
-  openModal(`<div class="modal-header"><h3>发货 Spedizione - ${o.order_no}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>物流公司 Corriere</label><select id="shipCarrier"><option>Poste Italiane</option><option>DHL</option><option>UPS</option><option>FedEx</option><option>其他 Altro</option></select></div>
-    <div class="form-group"><label>物流单号 Numero di spedizione</label><input type="text" id="shipTracking" placeholder="输入或扫码输入单号"></div>
-    <div class="form-group"><label>备注 Note</label><textarea id="shipNote" rows="2" placeholder="选填"></textarea></div>
-    <button class="save-btn" onclick="confirmShip(${o.id})">✅ 确认发货 Conferma</button>
+  openModal(`<div class="modal-header"><h3>Spedizione - ${o.order_no}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Corriere</label><select id="shipCarrier"><option>Poste Italiane</option><option>DHL</option><option>UPS</option><option>FedEx</option><option>Altro</option></select></div>
+    <div class="form-group"><label>Numero di spedizione</label><input type="text" id="shipTracking" placeholder="Inserisci o scansiona il numero"></div>
+    <div class="form-group"><label>Note</label><textarea id="shipNote" rows="2" placeholder="Opzionale"></textarea></div>
+    <button class="save-btn" onclick="confirmShip(${o.id})">✅ Conferma spedizione</button>
   `)
 }
 async function confirmShip(id){
   const tracking=document.getElementById('shipTracking').value.trim();
-  if(!tracking){showToast('请输入物流单号');return}
+  if(!tracking){showToast('Inserisci il numero di tracking');return}
   if(sb){
     try{
       const{error}=await sb.from('orders').update({status:'shipped',tracking_number:tracking,shipped_at:new Date().toISOString()}).eq('id',id);
@@ -916,20 +916,20 @@ async function confirmShip(id){
 function renderLowStock(){
   const low=allProducts.filter(p=>p.stock<=5).sort((a,b)=>a.stock-b.stock);
   const container=document.getElementById('lowStockList');
-  if(!low.length){container.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>库存充足，无预警<br>Stock sufficiente</p></div>';return}
+  if(!low.length){container.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Stock sufficiente, nessun avviso<br>Stock sufficiente</p></div>';return}
   container.innerHTML=low.map(p=>{
     const cls=p.stock===0?'oos':'low';
-    const txt=p.stock===0?'缺货 Esaurito':'仅剩 '+p.stock+' 件';
+    const txt=p.stock===0?'Esaurito':'Solo '+p.stock+' pz';
     return`<div class="p-card" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:8px;cursor:default">
       <div style="font-size:28px">${p.emoji||'📦'}</div>
       <div style="flex:1"><div class="p-name">${p.name}</div><div class="p-stock ${cls}">${txt}</div><div class="p-price">€${p.price}</div></div>
-      <button style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px" onclick="quickRestock(${p.id})">补货</button>
+      <button style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px" onclick="quickRestock(${p.id})">Riassortisci</button>
     </div>`
   }).join('')
 }
 async function quickRestock(id){
   const p=allProducts.find(x=>x.id===id);if(!p)return;
-  const qty=prompt('补货数量？(当前: '+p.stock+')','50');
+  const qty=prompt('Quantità riassortimento?(Prima: '+p.stock+')','50');
   if(!qty||isNaN(qty))return;
   const newStock=(parseInt(p.stock)||0)+parseInt(qty);
   if(sb){
@@ -937,7 +937,7 @@ async function quickRestock(id){
     catch(e){handleSyncError('restock',e);return}
   }else{handleSyncError('restock','no connection');return}
   p.stock=newStock;
-  showToast('✅ 已Rifornito a '+newStock+' 件');
+  showToast('✅ Rifornito a '+newStock+' pz');
   renderDashboard();renderProducts();renderLowStock()
 }
 
@@ -1025,7 +1025,7 @@ function searchBarcode(q){
     <div onclick="fillFromBarcode(${p.id})" style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
       <span style="font-size:20px">${p.emoji||'📦'}</span>
       <div style="flex:1"><div style="font-size:13px;font-weight:500">${p.name}</div><div style="font-size:11px;color:var(--text2)">€${p.price} | ${p.category}</div></div>
-      <span style="font-size:11px;color:var(--accent)">点击填充</span>
+      <span style="font-size:11px;color:var(--accent)">Tocca per compilare</span>
     </div>
   `).join('');
 }
@@ -1046,7 +1046,7 @@ function fillFromBarcode(id){
   const bm=(p.description||'').match(/Barcode:\s*(\S+)/);
   if(bm)document.getElementById('npBarcode').value=bm[1];
   document.getElementById('barcodeResults').style.display='none';
-  showToast('✅ 已从条码 '+bm[1]+' 填充数据');
+  showToast('✅ Dati compilati dal codice a barre '+bm[1]+' - dati compilati');
   toggleSizeSelector();
 }
 
@@ -1056,7 +1056,7 @@ async function saveNewProduct(){
   const name=document.getElementById('npName').value.trim();
   const price=parseFloat(document.getElementById('npPrice').value);
   const category=document.getElementById('npCategory').value;
-  if(!name||isNaN(price)){showToast('⚠️ 请填写商品名称和价格');return}
+  if(!name||isNaN(price)){showToast('⚠️ Inserisci nome prodotto e prezzo');return}
   const desc = document.getElementById('npDesc').value.trim();
   const barcode = document.getElementById('npBarcode').value.trim();
   const barcodeInfo = barcode ? ' Barcode: ' + barcode : '';
@@ -1122,13 +1122,13 @@ async function saveNewProduct(){
     newP.id=Math.floor(Math.random()*10000)+100;
     allProducts.unshift({...newP,price:newP.price,on_sale:!!newP.on_sale});
   }
-  showToast('✅ 商品已发布! €'+price);logOperation('create_product','product',newP.id||'new',null,newP);
+  showToast('✅ Prodotto pubblicato! €'+price);logOperation('create_product','product',newP.id||'new',null,newP);
   renderDashboard();renderProducts();
   showPage('products');
   document.querySelectorAll('#productFilterTabs .ftab').forEach(t=>t.classList.remove('active'));
   document.querySelector('#productFilterTabs .ftab').classList.add('active');
   currentProductFilter='all';
-  }catch(e){console.error('Save error:',e);showToast('❌ 保存fallito: '+e.message)}
+  }catch(e){console.error('Save error:',e);showToast('❌ Salvataggio fallito: '+e.message)}
 }
 
 // ===== Realtime Order Listener =====
@@ -1144,7 +1144,7 @@ function setupRealtime(){
         renderDashboard();renderOrders();renderNotifications();
         // Play notification sound
         try{const audio=new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnkpBSl+zPDajzsKElyp5+q2XxwJPJLb88l3KQUuhM/z2YU2BxZnv+3mnEoODVGm4O+0XxYJ');audio.volume=0.5;audio.play()}catch(e){}
-        showToast('🔔 新订单! '+newOrder.customer_name+' €'+parseFloat(newOrder.total_amount).toFixed(2))
+        showToast('🔔 Nuovo ordine! '+newOrder.customer_name+' €'+parseFloat(newOrder.total_amount).toFixed(2))
       })
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders'},payload=>{
         console.log('[Realtime] Order updated:',payload.new);
@@ -1179,7 +1179,7 @@ function toggleBatchMode(){
   batchMode=!batchMode;
   batchSelected.clear();
   document.getElementById('batchBar').classList.toggle('show',batchMode);
-  document.getElementById('batchBtn').textContent=batchMode?'Annulla批量':'批量管理';
+  document.getElementById('batchBtn').textContent=batchMode?'Annulla batch':'Gestione batch';
   document.getElementById('batchBtn').style.background=batchMode?'var(--accent)':'var(--card)';
   document.getElementById('batchBtn').style.color=batchMode?'white':'var(--text2)';
   renderProducts()
@@ -1210,13 +1210,13 @@ function toggleBatchAll(checked){
   renderProducts()
 }
 function updateBatchCount(){
-  document.getElementById('batchCount').textContent='已选 '+batchSelected.size+' 件';
+  document.getElementById('batchCount').textContent=' selezionati '+batchSelected.size+' pz';
   const cb=document.getElementById('batchSelectAll');
   if(cb)cb.checked=false
 }
 async function batchDelete(){
-  if(batchSelected.size===0){showToast('Seleziona prima商品');return}
-  if(!confirm('ConfermaElimina Selezionati的 '+batchSelected.size+' 件商品？'))return;
+  if(batchSelected.size===0){showToast('Seleziona prima i prodotti');return}
+  if(!confirm('Conferma eliminazione di '+batchSelected.size+'  prodotti？'))return;
   const ids=[...batchSelected];
   if(sb){
     let failCount=0;
@@ -1227,16 +1227,16 @@ async function batchDelete(){
   batchSelected.clear();
   batchMode=false;
   document.getElementById('batchBar').classList.remove('show');
-  document.getElementById('batchBtn').textContent='批量管理';
+  document.getElementById('batchBtn').textContent='Gestione batch';
   document.getElementById('batchBtn').style.background='var(--card)';
   document.getElementById('batchBtn').style.color='var(--text2)';
-  logOperation('batch_delete','product',ids.join(','),{count:ids.length},null);showToast('🗑️ Eliminato '+ids.length+' 件商品');
+  logOperation('batch_delete','product',ids.join(','),{count:ids.length},null);showToast('🗑️ Eliminato '+ids.length+'  prodotti');
   renderProducts();renderDashboard()
 }
 function cancelBatch(){
   batchMode=false;batchSelected.clear();
   document.getElementById('batchBar').classList.remove('show');
-  document.getElementById('batchBtn').textContent='批量管理';
+  document.getElementById('batchBtn').textContent='Gestione batch';
   document.getElementById('batchBtn').style.background='var(--card)';
   document.getElementById('batchBtn').style.color='var(--text2)';
   renderProducts()
@@ -1250,7 +1250,7 @@ function toggleNotifType(type,el){
   localStorage.setItem('notif_prefs',JSON.stringify(prefs));
   const statusEl=document.getElementById('notif_'+type);
   if(statusEl)statusEl.textContent=prefs[type]?'✅ >':'🔕 >';
-  showToast(prefs[type]?'🔔 通知已开启':'🔕 通知已关闭');
+  showToast(prefs[type]?'🔔 Notifiche attivate':'🔕 Notifiche disattivate');
   // Update Realtime listener behavior
   updateRealtimeFilter();
 }
@@ -1265,65 +1265,65 @@ function updateRealtimeFilter(){
 // ===== Settings Functions =====
 let notifEnabled=true;
 function openChangePassword(){
-  openModal(`<div class="modal-header"><h3>修改密码 Cambia password</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>当前密码</label><input type="password" id="cpOld" placeholder="输入当前密码"></div>
-    <div class="form-group"><label>新密码</label><input type="password" id="cpNew" placeholder="输入新密码(至少6位)"></div>
-    <div class="form-group"><label>确认新密码</label><input type="password" id="cpConfirm" placeholder="再次输入新密码"></div>
-    <button class="save-btn" onclick="doChangePassword()">✅ 确认修改</button>
+  openModal(`<div class="modal-header"><h3>Cambia password</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Password attuale</label><input type="password" id="cpOld" placeholder="Inserisci password attuale"></div>
+    <div class="form-group"><label>Nuova password</label><input type="password" id="cpNew" placeholder="Minimo 6 caratteri"></div>
+    <div class="form-group"><label>Conferma nuova password</label><input type="password" id="cpConfirm" placeholder="Ripeti la nuova password"></div>
+    <button class="save-btn" onclick="doChangePassword()">✅ Conferma modifica</button>
   `)
 }
 function doChangePassword(){
   const old=document.getElementById('cpOld').value;
   const np=document.getElementById('cpNew').value;
   const cf=document.getElementById('cpConfirm').value;
-  if(!old||!np){showToast('请填写所有字段');return}
-  if(np.length<6){showToast('密码至少6位');return}
-  if(np!==cf){showToast('两次密码不一致');return}
+  if(!old||!np){showToast('Compila tutti i campi');return}
+  if(np.length<6){showToast('La password deve avere almeno 6 caratteri');return}
+  if(np!==cf){showToast('Le password non corrispondono');return}
   localStorage.setItem('staff_pass_'+currentUser.username,np);
-  closeModal();showToast('✅ 密码已修改');
+  closeModal();showToast('✅ Password modificata');
 }
 function toggleNotif(){
   notifEnabled=!notifEnabled;
-  showToast(notifEnabled?'🔔 通知已开启':'🔕 通知已关闭');
+  showToast(notifEnabled?'🔔 Notifiche attivate':'🔕 Notifiche disattivate');
 }
 function showLog(){
-  openModal(`<div class="modal-header"><h3>操作日志 Log operazioni</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+  openModal(`<div class="modal-header"><h3>Log operazioni</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div style="font-size:13px;color:var(--text2);line-height:2">
-      <div>📋 ${new Date().toLocaleString('zh-CN')} 登录系统</div>
-      <div>📦 ${new Date().toLocaleString('zh-CN')} 查看商品列表</div>
-      <div>📊 ${new Date().toLocaleString('zh-CN')} 查看仪表盘</div>
+      <div>📋 ${new Date().toLocaleString('zh-CN')} Accesso al sistema</div>
+      <div>📦 ${new Date().toLocaleString('zh-CN')} Visualizza prodotti</div>
+      <div>📊 ${new Date().toLocaleString('zh-CN')} Visualizza dashboard</div>
     </div>
   `)
 }
 function showStaff(){
   const accounts=[
-    {user:'admin',role:'管理员',perm:'全部权限'},
-    {user:'staff',role:'仓库员',perm:'查看/发货/改库存'}
+    {user:'admin',role:'Admin',perm:'Accesso completo'},
+    {user:'staff',role:'Magazziniere',perm:'Visualizza/Spedisci/Modifica stock'}
   ];
-  openModal(`<div class="modal-header"><h3>员工管理 Gestione staff</h3><button class="modal-close" onclick="closeModal()"></button></div>
+  openModal(`<div class="modal-header"><h3>Gestione staff</h3><button class="modal-close" onclick="closeModal()"></button></div>
     ${accounts.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px">
       <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:14px">${a.user==='admin'?'👑':''}</div>
       <div style="flex:1"><div style="font-size:14px;font-weight:500">${a.user}</div><div style="font-size:12px;color:var(--text2)">${a.role} · ${a.perm}</div></div>
     </div>`).join('')}
-    <button class="save-btn secondary" style="margin-top:12px" onclick="closeModal();showToast('添加员工功能需要电脑后台')">+ 添加员工</button>
+    <button class="save-btn secondary" style="margin-top:12px" onclick="closeModal();showToast('L'aggiunta di personale richiede il pannello desktop')">+ Aggiungi personale</button>
   `)
 }
 
 // ===== Reply Modal =====
 function openReplyModal(name,review){
-  openModal(`<div class="modal-header"><h3>回复评价 Rispondi</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+  openModal(`<div class="modal-header"><h3>Rispondi alla recensione</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
     <div style="background:var(--card);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px">
       <div style="font-size:13px;font-weight:500">${name}</div>
       <div style="font-size:12px;color:var(--text2);margin-top:4px">${review}</div>
     </div>
-    <div class="form-group"><label>回复内容</label><textarea id="replyText" rows="3" placeholder="输入回复..."></textarea></div>
-    <button class="save-btn" onclick="doReply('${name}')">✅ 发送回复</button>
+    <div class="form-group"><label>Risposta</label><textarea id="replyText" rows="3" placeholder="Scrivi la risposta..."></textarea></div>
+    <button class="save-btn" onclick="doReply('${name}')">✅ Invia risposta</button>
   `)
 }
 function doReply(name){
   const text=document.getElementById('replyText').value.trim();
-  if(!text){showToast('请输入回复内容');return}
-  closeModal();showToast('✅ 已回复 '+name);
+  if(!text){showToast('Inserisci la risposta');return}
+  closeModal();showToast('✅ Risposta inviata '+name);
 }
 
 // ===== Render After Sales =====
@@ -1332,20 +1332,20 @@ function renderAfterSales(){
   if(!container)return;
   const refunds=allOrders.filter(o=>o.status==='refund');
   if(!refunds.length){
-    container.innerHTML='<div class="empty"><div class="empty-icon"></div><p>暂无售后申请<br>Nessun reso pending</p></div>';
+    container.innerHTML='<div class="empty"><div class="empty-icon"></div><p>Nessuna richiesta di reso in attesa<br>Nessun reso pending</p></div>';
     return;
   }
   container.innerHTML=refunds.map(o=>`<div class="order-card" style="border-left:3px solid var(--danger)">
-    <div class="order-top"><span class="order-no">${o.order_no}</span><span class="order-status refund">售后</span></div>
+    <div class="order-top"><span class="order-no">${o.order_no}</span><span class="order-status refund">Reso</span></div>
     <div class="order-bottom"><span class="order-customer">${o.customer_name||'N/A'}</span><span class="order-total">${parseFloat(o.total_amount||0).toFixed(2)}</span></div>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button onclick="approveRefund(${o.id})" style="flex:1;padding:8px;background:var(--success);color:white;border-radius:12px;font-size:12px;border:none">同意</button>
-      <button onclick="rejectRefund(${o.id})" style="flex:1;padding:8px;background:var(--danger);color:white;border-radius:12px;font-size:12px;border:none">拒绝</button>
+      <button onclick="approveRefund(${o.id})" style="flex:1;padding:8px;background:var(--success);color:white;border-radius:12px;font-size:12px;border:none">Approva</button>
+      <button onclick="rejectRefund(${o.id})" style="flex:1;padding:8px;background:var(--danger);color:white;border-radius:12px;font-size:12px;border:none">Rifiuta</button>
     </div>
   </div>`).join('');
 }
-function approveRefund(id){showToast('✅ 已同意售后 #'+id)}
-function rejectRefund(id){showToast('❌ 已拒绝售后 #'+id)}
+function approveRefund(id){showToast('✅ Reso approvato #'+id)}
+function rejectRefund(id){showToast('❌ Reso rifiutato #'+id)}
 
 // ===== Render Notifications =====
 function renderNotifications(){
@@ -1355,10 +1355,10 @@ function renderNotifications(){
   const lowStock=allProducts.filter(p=>p.stock<=5&&p.stock>0);
   let html='';
   if(!toShip.length&&!lowStock.length){
-    html='<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px">暂无新通知<br>Nessuna notifica</div>';
+    html='<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px">Nessuna nuova notifica<br>Nessuna notifica</div>';
   }else{
-    toShip.forEach(o=>{html+=`<div class="todo-item" style="border-left:3px solid var(--warning)"><span class="todo-icon">📦</span><div style="flex:1"><div style="font-size:13px;font-weight:500">待发货: ${o.order_no}</div><div style="font-size:12px;color:var(--text2)">${o.customer_name||'N/A'} €${parseFloat(o.total_amount||0).toFixed(2)}</div></div></div>`});
-    lowStock.forEach(p=>{html+=`<div class="todo-item" style="border-left:3px solid var(--danger)"><span class="todo-icon">️</span><div style="flex:1"><div style="font-size:13px;font-weight:500">库存不足: ${p.name.substring(0,20)}</div><div style="font-size:12px;color:var(--text2)">仅剩 ${p.stock} 件</div></div></div>`});
+    toShip.forEach(o=>{html+=`<div class="todo-item" style="border-left:3px solid var(--warning)"><span class="todo-icon">📦</span><div style="flex:1"><div style="font-size:13px;font-weight:500">In spedizione: ${o.order_no}</div><div style="font-size:12px;color:var(--text2)">${o.customer_name||'N/A'} €${parseFloat(o.total_amount||0).toFixed(2)}</div></div></div>`});
+    lowStock.forEach(p=>{html+=`<div class="todo-item" style="border-left:3px solid var(--danger)"><span class="todo-icon">️</span><div style="flex:1"><div style="font-size:13px;font-weight:500">Scorta bassa: ${p.name.substring(0,20)}</div><div style="font-size:12px;color:var(--text2)">Solo ${p.stock} pz</div></div></div>`});
   }
   container.innerHTML=html;
 }
@@ -1401,15 +1401,15 @@ async function handleImport(e){
       const sep=lines[0].includes('\t')?'\t':(lines[0].includes(';')?';':',');
       rows=lines.map(l=>l.split(sep).map(c=>c.trim().replace(/^"|"$/g,'')));
     }else{
-      showToast('不支持的格式: .'+ext);
+      showToast('Formato non supportato: .'+ext);
       return;
     }
 
-    if(rows.length<2){showToast('文件内容太少');return}
+    if(rows.length<2){showToast('Contenuto file insufficiente');return}
 
     // Parse rows to products
     let html='<table style="width:100%;font-size:11px;border-collapse:collapse">';
-    html+='<tr style="background:var(--card2)"><th style="padding:6px;border:1px solid var(--border)">名称</th><th style="padding:6px;border:1px solid var(--border)">分类</th><th style="padding:6px;border:1px solid var(--border)">价格</th><th style="padding:6px;border:1px solid var(--border)">库存</th></tr>';
+    html+='<tr style="background:var(--card2)"><th style="padding:6px;border:1px solid var(--border)">Nome</th><th style="padding:6px;border:1px solid var(--border)">Categoria</th><th style="padding:6px;border:1px solid var(--border)">Prezzo</th><th style="padding:6px;border:1px solid var(--border)">Stock</th></tr>';
 
     for(let i=1;i<rows.length;i++){
       const r=rows[i];
@@ -1430,11 +1430,11 @@ async function handleImport(e){
       html+=`<tr><td style="padding:4px 6px;border:1px solid var(--border)">${item.name.substring(0,20)}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.category.substring(0,8)}</td><td style="padding:4px 6px;border:1px solid var(--border)">€${item.price}</td><td style="padding:4px 6px;border:1px solid var(--border)">${item.stock}</td></tr>`;
     }
     html+='</table>';
-    document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">共 ${importData.length}  prodotti da importare (格式: .${ext})</p>`;
+    document.getElementById('importPreview').innerHTML=html+`<p style="font-size:13px;color:var(--accent);margin-top:8px">Totale ${importData.length} prodotti da importare (formato: .${ext})</p>`;
     document.getElementById('importBtn').style.display='block';
   }catch(err){
     console.error('Import error:',err);
-    showToast('文件解析fallito: '+err.message);
+    showToast('Analisi file fallita: '+err.message);
   }
 }
 
@@ -1448,7 +1448,7 @@ async function confirmImport(){
       ok++;
     }catch(e){fail++}
   }
-  showToast(`✅ Importato ${ok} 件，fallito ${fail} 件`);
+  showToast(`✅ Importato ${ok} pz，fallito ${fail} pz`);
   importData=[];
   document.getElementById('importPreview').innerHTML='';
   document.getElementById('importBtn').style.display='none';
@@ -1476,14 +1476,14 @@ function searchForDiscount(){
       <div style="font-size:24px">${p.emoji||'📦'}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-        <div style="font-size:12px;color:var(--text2)">原价: €${p.price} ${p.old_price?'→ Applica Sconto价: €'+p.old_price:''}</div>
+        <div style="font-size:12px;color:var(--text2)">Prezzo: €${p.price} ${p.old_price?'→ Prezzo scontato: €'+p.old_price:''}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
-        <input type="number" step="0.01" value="${(p.price*0.7).toFixed(2)}" id="disc_${p.id}" style="width:70px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none" placeholder="折扣价">
+        <input type="number" step="0.01" value="${(p.price*0.7).toFixed(2)}" id="disc_${p.id}" style="width:70px;padding:6px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);outline:none" placeholder="Prezzo scontato">
         <button onclick="applyDiscount(${p.id})" style="padding:6px 12px;background:var(--accent);color:white;border-radius:12px;font-size:11px;border:none;cursor:pointer">Applica Sconto</button>
       </div>
     </div>
-  `).join('')||'<p style="text-align:center;color:var(--text2);font-size:13px">Non trovato商品</p>';
+  `).join('')||'<p style="text-align:center;color:var(--text2);font-size:13px">Prodotto non trovato</p>';
 }
 
 async function applyDiscount(id){
@@ -1513,11 +1513,11 @@ function saveBanners(){localStorage.setItem('staff_banners',JSON.stringify(banne
 function updateBannerLabels(){for(let i=0;i<3;i++){const el=document.getElementById('banner'+i+'Label');if(el)el.textContent=banners[i].title}}
 function editBanner(idx){
   const b=banners[idx];
-  openModal(`<div class="modal-header"><h3>编辑轮播 ${idx+1}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="form-group"><label>Emoji 图标</label><input type="text" id="bEmoji" value="${b.emoji}" maxlength="4"></div>
-    <div class="form-group"><label>标题 Titolo</label><input type="text" id="bTitle" value="${b.title}"></div>
-    <div class="form-group"><label>描述 Descrizione</label><input type="text" id="bDesc" value="${b.desc}"></div>
-    <button class="save-btn" onclick="saveBanner(${idx})">💾 保存</button>
+  openModal(`<div class="modal-header"><h3>Modifica banner ${idx+1}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-group"><label>Icona Emoji</label><input type="text" id="bEmoji" value="${b.emoji}" maxlength="4"></div>
+    <div class="form-group"><label>Titolo</label><input type="text" id="bTitle" value="${b.title}"></div>
+    <div class="form-group"><label>Descrizione</label><input type="text" id="bDesc" value="${b.desc}"></div>
+    <button class="save-btn" onclick="saveBanner(${idx})">💾 Salva</button>
   `)
 }
 function saveBanner(idx){
@@ -1526,7 +1526,7 @@ function saveBanner(idx){
     title:document.getElementById('bTitle').value.trim(),
     desc:document.getElementById('bDesc').value.trim()
   };
-  saveBanners();closeModal();showToast('✅ 轮播Aggiornato ✅')
+  saveBanners();closeModal();showToast('✅ Banner aggiornato ✅')
 }
 
 document.addEventListener('click',e=>{if(!e.target.closest('#npBarcode')&&!e.target.closest('#barcodeResults')){const c=document.getElementById('barcodeResults');if(c)c.style.display='none'}});
@@ -1541,8 +1541,8 @@ function renderLogs(filter='all'){
   }
   const container=document.getElementById('logsList');
   const filtered=filter==='all'?logs:logs.filter(l=>l.target_type===filter);
-  if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>暂无日志记录<br>Nessun log</p></div>';return}
-  const actionLabels={create_product:'新增商品',edit_product:'编辑商品',delete_product:'删除商品',batch_delete:'批量删除',ship_order:'发货',login:'登录',quick_add:'快速入库',import_products:'批量Importato',discount:'修改价格',update_stock:'修改库存',restock:'补货'};
+  if(!filtered.length){container.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Nessun log registrato</p></div>';return}
+  const actionLabels={create_product:'Nuovo prodotto',edit_product:'Modifica prodotto',delete_product:'Elimina prodotto',batch_delete:' Eliminazione batch',ship_order:'Spedizione',login:'Accesso',quick_add:'Aggiunta rapida',import_products:'Importazione',discount:'Modifica prezzo',update_stock:'Modifica stock',restock:'Riassortimento'};
   const actionIcons={create_product:'➕',edit_product:'️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'⚡',import_products:'📂',discount:'🏷️',update_stock:'📊',restock:'📦'};
   container.innerHTML=filtered.slice(0,50).map(l=>{
     const time=new Date(l.created_at).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -1553,22 +1553,22 @@ function renderLogs(filter='all'){
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:500">${label} ${l.target_id?'<span style="color:var(--text2);font-weight:400">#'+l.target_id+'</span>':''}</div>
         <div style="font-size:11px;color:var(--text2);margin-top:2px">${l.account}(${l.role}) · ${l.device_info.substring(0,30)}... · ${l.screen}</div>
-        ${l.before_value&&l.after_value?'<div style="font-size:10px;color:var(--text2);margin-top:4px;font-family:monospace;background:var(--bg);padding:4px 8px;border-radius:4px;max-height:40px;overflow:hidden">前: '+JSON.stringify(l.before_value).substring(0,100)+' → 后: '+JSON.stringify(l.after_value).substring(0,100)+'</div>':''}
+        ${l.before_value&&l.after_value?'<div style="font-size:10px;color:var(--text2);margin-top:4px;font-family:monospace;background:var(--bg);padding:4px 8px;border-radius:4px;max-height:40px;overflow:hidden">Prima: '+JSON.stringify(l.before_value).substring(0,100)+' → Dopo: '+JSON.stringify(l.after_value).substring(0,100)+'</div>':''}
       </div>
       <div style="font-size:10px;color:var(--text2);white-space:nowrap">${time}</div>
     </div>`;
   }).join('');
 }
 function filterLogs(type,el){document.querySelectorAll('#page-logs .ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderLogs(type)}
-function clearLogs(){showToast('日志只读，不可删除 / Log sola lettura, non eliminabile')}
+function clearLogs(){showToast('Log sola lettura, non eliminabile')}
 
 
 // ===== Export Logs as CSV =====
 function exportLogsCSV(){
   let logs=JSON.parse(localStorage.getItem('staff_logs')||'[]');
   if(currentUser&&currentUser.role==='staff'){logs=logs.filter(l=>l.account===currentUser.username)}
-  if(!logs.length){showToast('暂无日志可导出');return}
-  const headers=['时间','账号','角色','操作类型','目标类型','目标ID','修改前','修改后','设备信息','屏幕'];
+  if(!logs.length){showToast('Nessun log da esportare');return}
+  const headers=['Ora','Account','Ruolo','Azione','Target','ID Target','Prima','Dopo','Dispositivo','Schermo'];
   const rows=logs.map(l=>[
     new Date(l.created_at).toLocaleString('zh-CN'),
     l.account,l.role,l.action,l.target_type,l.target_id,
@@ -1583,7 +1583,7 @@ function exportLogsCSV(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download='operation_logs_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   URL.revokeObjectURL(url);
-  showToast('✅ 日志已导出 / Log esportati');
+  showToast('✅ Log esportati');
 }
 
 
@@ -1599,7 +1599,7 @@ function saveAdminNote(orderId){
   if(sb&&o){sb.from('orders').update({admin_note:note}).eq('id',orderId).then(({error})=>{
     if(error)console.error('Admin note save error:',error);
   }).catch(e=>console.error(e))}
-  showToast('✅ 内部备注Salvato / Nota interna salvata');
+  showToast('✅ Nota interna salvata');
 }
 
 // ===== Navigation =====
@@ -1610,12 +1610,12 @@ function showPage(page,navEl){
   if(el)el.classList.add('active');
   if(navEl)navEl.classList.add('active');
   else{const navs=document.querySelectorAll('.bnav-item');const map={dashboard:0,products:1,orders:2,settings:3};if(map[page]!==undefined)navs[map[page]].classList.add('active')}
-  const titles={dashboard:'首页 Dashboard',products:'商品管理 Prodotti',orders:'订单管理 Ordini',aftersales:'售后管理 Resi',marketing:'营销活动 Marketing',reviews:'评价管理 Recensioni',notifications:'通知 Notifiche',settings:'设置 Impostazioni',addproduct:'新增商品 Nuovo Prodotto',lowstock:'库存预警 Stock Alert'};
+  const titles={dashboard:'Dashboard',products:'Prodotti',orders:'Ordini',aftersales:'Resi',marketing:'Marketing',reviews:'Recensioni',notifications:'Notifiche',settings:'Impostazioni',addproduct:'Nuovo Prodotto',lowstock:'Avviso scorta'};
   document.getElementById('topbarTitle').textContent=titles[page]||page;
   document.getElementById('backBtn').style.display=['dashboard','products','orders','settings'].includes(page)?'none':'block';
   if(page==='products')renderProducts();if(page==='addproduct'){uploadedMedia=[];document.getElementById('imgPreview').innerHTML=''}
   if(page==='orders')renderOrders();
-  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs'){renderLogs();const af=document.getElementById('logsAccountFilter');if(af){const allLogs=JSON.parse(localStorage.getItem('staff_logs')||'[]');const visibleLogs=(currentUser&&currentUser.role==='staff')?allLogs.filter(l=>l.account===currentUser.username):allLogs;af.textContent='共'+visibleLogs.length+'条 | 账号:'+(currentUser?currentUser.username:'unknown')+(currentUser&&currentUser.role==='staff'?' (仅自己的日志)':'')}};if(page==='quickadd')renderQuickAdd();if(page==='import'){}
+  if(page==='lowstock')renderLowStock();if(page==='aftersales')renderAfterSales();if(page==='notifications')renderNotifications();if(page==='logs'){renderLogs();const af=document.getElementById('logsAccountFilter');if(af){const allLogs=JSON.parse(localStorage.getItem('staff_logs')||'[]');const visibleLogs=(currentUser&&currentUser.role==='staff')?allLogs.filter(l=>l.account===currentUser.username):allLogs;af.textContent=' totale | Account:'+(currentUser?currentUser.username:'unknown')+(currentUser&&currentUser.role==='staff'?' (Solo i propri log)':'')}};if(page==='quickadd')renderQuickAdd();if(page==='import'){}
 }
 function goBack(){showPage('dashboard');document.querySelectorAll('.bnav-item')[0].classList.add('active')}
 
@@ -1648,31 +1648,31 @@ function editProduct(id){
   const colorBtns=allColors.map(c=>{
     const isActive=existingColors.includes(c);
     const style=isActive?'border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent)':'border:1.5px solid var(--border);color:var(--text2)';
-    const iconMap={'':'无',Nero:'',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
+    const iconMap={'':'Nessuno',Nero:'',Bianco:'⚪',Grigio:'🔘',Blu:'🔵',Rosso:'🔴',Verde:'',Beige:'🟡',Marrone:'🟤'};
     return`<div class="color-opt${isActive?' active':''}" onclick="toggleColor(this)" data-color="${c}" style="padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;${style}">${iconMap[c]||''} ${c}</div>`;
   }).join('');
 
-  openModal(`<div class="modal-header"><h3>编辑商品 ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
-    <div class="form-group"><label>商品名称</label><input type="text" id="epName" value="${p.name}"></div>
-    <div class="form-group"><label>条码 Barcode</label><input type="text" id="epBarcode" value="${(p.description||'').match(/Barcode:\\s*(\\S+)/)?.[1]||''}" placeholder="Scansiona o inserisci codice a barre"></div>
+  openModal(`<div class="modal-header"><h3Modifica prodotto ${p.name.substring(0,20)}</h3><button class="modal-close" onclick="closeModal()"></button></div>
+    <div class="form-group"><label>Nome prodotto</label><input type="text" id="epName" value="${p.name}"></div>
+    <div class="form-group"><label>Codice a barre</label><input type="text" id="epBarcode" value="${(p.description||'').match(/Barcode:\\s*(\\S+)/)?.[1]||''}" placeholder="Scansiona o inserisci codice a barre"></div>
     <div class="form-row">
-      <div class="form-group"><label>售价 (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
-      <div class="form-group"><label>库存</label><input type="number" id="epStock" value="${p.stock||0}"></div>
+      <div class="form-group"><label>Prezzo (€)</label><input type="number" id="epPrice" step="0.01" value="${p.price}"></div>
+      <div class="form-group"><label>Stock</label><input type="number" id="epStock" value="${p.stock||0}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>分类</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>衣服</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>洗洁剂</option><option value="Casa" ${p.category==='Casa'?'selected':''}>家用品</option></select></div>
-      <div class="form-group"><label>上架/下架 Stato</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>In Vendita</option><option value="0" ${!p.on_sale?'selected':''}>Non in Vendita</option></select></div>
+      <div class="form-group"><label>Categoria</label><select id="epCat" onchange="toggleEditSize()"><option value="Abbigliamento" ${p.category==='Abbigliamento'?'selected':''}>Abbigliamento</option><option value="Detersivi" ${p.category==='Detersivi'?'selected':''}>Detersivi</option><option value="Casa" ${p.category==='Casa'?'selected':''}>Casa</option></select></div>
+      <div class="form-group"><label>Stato</label><select id="epSale"><option value="1" ${p.on_sale?'selected':''}>In Vendita</option><option value="0" ${!p.on_sale?'selected':''}>Non in Vendita</option></select></div>
     </div>
     <div class="form-group">
-      <label>颜色 Colori <span style="font-size:11px;color:var(--text2)">(点选可用颜色)</span></label>
+      <label>Colori <span style="font-size:11px;color:var(--text2)">(Tocca per selezionare i colori)</span></label>
       <div style="display:flex;gap:8px;flex-wrap:wrap" id="editColorOptions">${colorBtns}</div>
     </div>
     <div id="editSizeSelector" class="form-group" style="display:${showSizes}">
-      <label>尺码 Taglie <span style="font-size:11px;color:var(--text2)">(点选可用尺码)</span></label>
+      <label>Taglie <span style="font-size:11px;color:var(--text2)">(Tocca per selezionare le taglie)</span></label>
       <div style="display:flex;gap:8px;flex-wrap:wrap">${sizeBtns}</div>
     </div>
-    <button class="save-btn" onclick="saveEditProduct(${id})">💾 保存修改</button>
-    <button class="save-btn secondary" style="margin-top:8px;background:var(--danger);color:white" onclick="deleteProduct(${id})">🗑️ 删除商品</button>
+    <button class="save-btn" onclick="saveEditProduct(${id})">💾 Salva modifiche</button>
+    <button class="save-btn secondary" style="margin-top:8px;background:var(--danger);color:white" onclick="deleteProduct(${id})">🗑️ Elimina prodotto</button>
   `)
 }
 function toggleEditSize(){
@@ -1706,8 +1706,8 @@ async function saveEditProduct(id){
 }
 async function deleteProduct(id){
   const p=allProducts.find(x=>x.id===id);
-  const keepMedia=p&&p.image_url?confirm('同时删除商品图片？\nAnnulla=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
-  if(!confirm('Confermi eliminazione这个商品？\nEliminare questo prodotto?'))return;
+  const keepMedia=p&&p.image_url?confirm('Eliminare anche le immagini del prodotto?\nAnnulla=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
+  if(!confirm('Eliminare questo prodotto?\nEliminare questo prodotto?'))return;
   if(sb){
     try{const{error}=await sb.from('products').delete().eq('id',id);if(error){handleSyncError('delete_product',error);return}}
     catch(e){handleSyncError('delete_product',e);return}
