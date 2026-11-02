@@ -258,7 +258,7 @@ body {
 <div class="page" id="page-settings">
   <div style="padding:16px;">
     <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;">️ 网站设置</h2>
-    <p style="font-size:13px;color:var(--light);margin-bottom:16px;">修改后自动同步到网站，无需重新部署</p>
+    <p style="font-size:13px;color:var(--light);margin-bottom:16px;">修改后保存到本地，需要手动部署到网站</p>
   </div>
 
   <div class="card">
@@ -296,7 +296,7 @@ body {
 </div>
 
 <!-- Sync Page -->
-<div class="page" id="page-sync">
+<div class="page" id="page-sync" style="display:none;">
   <div class="card">
     <h3>☁️ 同步到 GitHub</h3>
     <div class="sync-status" id="syncStatus">
@@ -483,7 +483,7 @@ function addProduct() {
 
   // Clear form
   ['fName','fBrand','fEmoji','fPrice','fOldPrice'].forEach(id => document.getElementById(id).value = '');
-  showToast('✅ 商品已添加！自动同步中...');
+  showToast('✅ 商品已添加，记得手动部署');
   autoSyncToGitHub();
 
   // Go to products page
