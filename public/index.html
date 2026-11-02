@@ -599,7 +599,7 @@ function goToDetail(id) {
 function addToCart(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
-  if (p.stock === 0) { showToast('⚠️ 库存不足 / Scorta insufficiente'); return; }
+  if (p.stock === 0) { showToast('⚠️ Scorta insufficiente'); return; }
   const existing = cart.find(i => i.id === id);
   if (existing) existing.qty++;
   else cart.push({ ...p, qty: 1 });
