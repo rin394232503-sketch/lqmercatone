@@ -203,7 +203,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
       <div class="profile-id" id="profileId" data-i18n="login_hint">Accedi per vedere il profilo</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="settings-btn" onclick="toggleProfileLang()" style="background:rgba(255,255,255,0.2);color:white;border-radius:50%;width:32px;height:32px;font-size:11px;" id="profileLangBtn">中</button>
+      <button class="settings-btn" onclick="toggleProfileLang()" style="background:rgba(255,255,255,0.2);color:white;border-radius:50%;width:32px;height:32px;font-size:11px;" id="profileLangBtn">IT</button>
       <button class="settings-btn" onclick="showSettings()">⚙️</button>
     </div>
   </div>
@@ -649,33 +649,33 @@ function renderRecentOrders(){
 // ===== Order Filter =====
 function filterOrders(status){
   const names={pending:'In attesa',toship:'Spedire',shipped:'Spedito',done:'Completato',refund:'Reso'};
-  showToast('查看: '+names[status]);
+  showToast('Visualizza: '+names[status]);
 }
 
 // ===== Favorites Page =====
 function showFavorites(){
-  if(!favs.length){showToast('还没有收藏商品');return}
-  showToast('❤️ '+favs.length+' 件收藏商品');
+  if(!favs.length){showToast('Nessun prodotto preferito');return}
+  showToast('❤️ '+favs.length+' prodotti preferiti');
 }
 
 // ===== Footprint =====
 function showFootprint(){
-  showToast(' 浏览足迹功能即将上线');
+  showToast(' Cronologia visualizzazioni in arrivo');
 }
 
 // ===== Coupons =====
 function showCoupons(){
-  showToast('🎫 优惠券功能即将上线');
+  showToast('🎫 Funzione coupon in arrivo');
 }
 
 // ===== Messages =====
 function showMessages(){
-  showToast('💬 消息中心功能即将上线');
+  showToast('💬 Centro messaggi in arrivo');
 }
 
 // ===== Customer Service =====
 function showCS(){
-  showToast('🎧 客服热线: +39 02 1234 5678');
+  showToast('🎧 Servizio clienti: +39 02 1234 5678');
 }
 
 // ===== Address Management =====

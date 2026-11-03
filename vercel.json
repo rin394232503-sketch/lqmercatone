@@ -10,6 +10,8 @@
     { "src": "/sitemap.xml", "dest": "server.js" },
     { "src": "/robots.txt", "dest": "public/robots.txt" },
     { "src": "/admin.html", "dest": "public/admin.html" },
+    { "src": "/manage.html", "dest": "public/manage.html" },
+    { "src": "/manage-login.html", "dest": "public/manage-login.html" },
     { "src": "/(.*)", "dest": "public/$1" }
   ],
   "env": {

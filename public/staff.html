@@ -1627,7 +1627,7 @@ function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay')
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
 // ===== Language =====
-function toggleAppLang(){appLang=appLang==='zh'?'it':'zh';document.getElementById('currentLang').textContent=appLang==='zh'?'中文 >':'Italiano >';showToast(appLang==='zh'?'切换为中文':'Cambiato in Italiano')}
+function toggleAppLang(){appLang=appLang==='zh'?'it':'zh';document.getElementById('currentLang').textContent=appLang==='zh'?'Italiano >':'Italiano >';showToast(appLang==='zh'?'Cambiato in Chinese':'Cambiato in Italiano')}
 
 // ===== Edit Product =====
 function editProduct(id){
@@ -1706,7 +1706,7 @@ async function saveEditProduct(id){
 }
 async function deleteProduct(id){
   const p=allProducts.find(x=>x.id===id);
-  const keepMedia=p&&p.image_url?confirm('Eliminare anche le immagini del prodotto?\nAnnulla=保留图片(可复用)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
+  const keepMedia=p&&p.image_url?confirm('Eliminare anche le immagini del prodotto?\nAnnulla=Conserva immagini (riutilizzabili)\nEliminare anche le immagini?\nAnnulla=conserva immagini'):false;
   if(!confirm('Eliminare questo prodotto?\nEliminare questo prodotto?'))return;
   if(sb){
     try{const{error}=await sb.from('products').delete().eq('id',id);if(error){handleSyncError('delete_product',error);return}}

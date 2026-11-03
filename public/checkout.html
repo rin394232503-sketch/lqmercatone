@@ -427,7 +427,7 @@ async function updateShipping() {
     document.getElementById('submitTotal').textContent = '€' + total.toFixed(2);
     
   } catch (error) {
-    console.error('运费计算失败:', error);
+    console.error('Calcolo spedizione fallito:', error);
     shippingInfo.textContent = 'Calcolo fallito, uso spedizione predefinita';
   }
 }
@@ -472,11 +472,11 @@ async function initStripe() {
     const config = await res.json();
     console.log('Payment config:', config);
     if (config.mockMode) {
-      console.log('Stripe 模拟模式 - 使用模拟支付');
+      console.log('Modalità Stripe simulate - pagamento simulato');
       return;
     }
     if (!config.publishableKey) {
-      console.log('无 Stripe 公钥，使用模拟模式');
+      console.log('Nessuna chiave pubblica Stripe, uso modalità simulata');
       return;
     }
     stripe = Stripe(config.publishableKey);
@@ -492,9 +492,9 @@ async function initStripe() {
       const errEl = document.getElementById('cardErrors');
       if (errEl) errEl.textContent = event.error ? event.error.message : '';
     });
-    console.log('Stripe Elements 初始化成功');
+    console.log('Stripe Elements inizializzato');
   } catch(e) {
-    console.log('Stripe 初始化失败，使用模拟支付:', e.message);
+    console.log('Stripe inizializzazione fallita, uso pagamento simulato:', e.message);
   }
 }
 
@@ -688,14 +688,14 @@ async function submitOrder() {
         const configRes = await fetch('/api/payment/config');
         const config = await configRes.json();
         if (config.mockMode) {
-          console.log('模拟支付模式 - 跳过真实支付');
+          console.log('Modalità pagamento simulato - salto pagamento reale');
         } else {
           showToast('❌ Stripe non inizializzato, ricarica la pagina');
           return;
         }
       } catch(e) {
         // Server unreachable - allow order in offline mode
-        console.log('服务器不可达，继续下单');
+        console.log('Server non raggiungibile, procedo con l'ordine');
       }
     } else {
       // Real Stripe payment
@@ -794,7 +794,7 @@ async function submitOrder() {
       ${pickupCode ? `<div style="background:var(--success);color:white;padding:12px 20px;border-radius:12px;margin-bottom:16px;text-align:center">
         <div style="font-size:12px;opacity:0.8">自提码 Codice di ritiro</div>
         <div style="font-size:24px;font-weight:700;letter-spacing:4px">${pickupCode}</div>
-        <div style="font-size:11px;opacity:0.8;margin-top:4px">请出示此码取货 / Mostra questo codice per il ritiro</div>
+        <div style="font-size:11px;opacity:0.8;margin-top:4px">Mostra questo codice per il ritiro</div>
       </div>` : ''}
       <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">Totale Totale</p>
       <p style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:8px;">€${total.toFixed(2)}</p>
@@ -900,7 +900,7 @@ async function updateShipping() {
     document.getElementById('submitTotal').textContent = '€' + total.toFixed(2);
     
   } catch (error) {
-    console.error('运费计算失败:', error);
+    console.error('Calcolo spedizione fallito:', error);
     shippingInfo.textContent = 'Calcolo fallito, uso spedizione predefinita';
   }
 }
