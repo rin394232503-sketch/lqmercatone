@@ -751,7 +751,7 @@ function renderDashLogs(filter='all'){
   if(!filtered.length){c.innerHTML='<p style="text-align:center;padding:20px;color:var(--text-light)">Nessun log/p>';return}
   const al={create_product:'Nuovo prodotto',edit_product:'Modifica prodotto',delete_product:'Elimina prodotto',batch_delete:'Eliminazione batch',ship_order:'Spedisci',login:'Login',quick_add:'Aggiunta rapida',import_products:'Importazione batch',discount:'Modifica prezzo',update_stock:'Modifica magazzino',restock:'Rifornimento'};
   const ai={create_product:'➕',edit_product:'✏️',delete_product:'🗑️',batch_delete:'🗑️',ship_order:'📦',login:'🔑',quick_add:'',import_products:'📂',discount:'️',update_stock:'📊',restock:'📦'};
-  c.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:var(--bg)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Data</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Azione</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">目标</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">账号</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">设备</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">变更</th></tr>'+
+  c.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr style="background:var(--bg)"><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Data</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Azione</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Obiettivo</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Account</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Dispositivo</th><th style="padding:8px;border-bottom:1px solid var(--border);text-align:left">Modifica</th></tr>'+
     filtered.slice(0,100).map(l=>{const t=new Date(l.created_at).toLocaleString('it-IT',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});return'<tr><td style="padding:8px;border-bottom:1px solid var(--border)">'+t+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+(ai[l.action]||'📋')+' '+(al[l.action]||l.action)+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.target_type+' #'+l.target_id+'</td><td style="padding:8px;border-bottom:1px solid var(--border)">'+l.account+'('+l.role+')</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px">'+(l.device_info||'').substring(0,25)+'</td><td style="padding:8px;border-bottom:1px solid var(--border);font-size:10px;font-family:monospace">'+(l.before_value&&l.after_value?'Prima→Dopo':'—')+'</td></tr>'}).join('')+'</table>';
 }
 function filterDashLogs(type,el){document.querySelectorAll('#page-logs .ftab').forEach(t=>{t.style.background='var(--card)';t.style.color='var(--text2)'});el.style.background='var(--accent)';el.style.color='white';renderDashLogs(type)}
@@ -787,7 +787,7 @@ function downloadCSV(csv,filename){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=filename;a.click();
   URL.revokeObjectURL(url);
-  showToast('✅ 已导出 / Esportato');
+  showToast('✅ Esportato');
 }
 
 // 1. 订单报表
@@ -800,10 +800,10 @@ function exportOrdersCSV(){
     if(to&&d>to)return false;
     return true;
   });
-  if(!orders.length){showToast('无数据 / Nessun dato');return}
-  const statusMap={pending:'In attesa',toship:'Da spedire',shipped:'Spedito',done:'Completato',refund:'售后',cancelled:'已取消'};
+  if(!orders.length){showToast('Nessun dato');return}
+  const statusMap={pending:'In attesa',toship:'Da spedire',shipped:'Spedito',done:'Completato',refund:'Post-vendita',cancelled:'Annullato'};
   const payMap={sisal:'Sisal',card:'Carta',paypal:'PayPal',pickup:'Ritiro'};
-  let csv='订单号,时间,商品明细,SKU,金额,运费,支付方式,状态,客户姓名,客户电话,客户地址,客户备注,内部备注\n';
+  let csv='Numero ordine,Data,Prodotti,SKU,Importo,Spedizione,Pagamento,Stato,Cliente,Telefono,Indirizzo,Note,Note interne\n';
   orders.forEach(o=>{
     const items=(o.items||[]).map(i=>`${i.name}(x${i.qty})`).join('; ');
     const skus=(o.items||[]).map(i=>`${i.color||'-'}${i.size||'-'}`).join('; ');
@@ -813,7 +813,7 @@ function exportOrdersCSV(){
     const shipping=o.payment_method==='pickup'?0:(parseFloat(o.total_amount)>=99?0:4.99);
     csv+=`"${o.order_no}","${time}","${items}","${skus}",${o.total_amount},${shipping},"${payment}","${status}","${o.customer_name||'-'}","${o.customer_phone||'-'}","${o.customer_address||'-'}","${o.note||'-'}","${o.admin_note||'-'}"\n`;
   });
-  const fname=`订单报表_${from||'all'}_to_${to||'today'}.csv`;
+  const fname=`Report_ordini_${from||'all'}_to_${to||'today'}.csv`;
   downloadCSV(csv,fname);
   logOperation('export_orders','report','orders',{from,to},{count:orders.length});
 }
@@ -828,13 +828,13 @@ function exportAfterSalesCSV(){
     if(to&&d>to)return false;
     return true;
   });
-  if(!refunds.length){showToast('无售后数据 / Nessun dato reso');return}
-  let csv='订单号,时间,客户姓名,客户电话,金额,售后原因,状态,处理时间,内部备注\n';
+  if(!refunds.length){showToast('Nessun dato reso');return}
+  let csv='Numero ordine,Data,Cliente,Telefono,Importo,Motivo reso,Stato,Data elaborazione,Note interne\n';
   refunds.forEach(o=>{
     const time=new Date(o.created_at).toLocaleString('it-IT');
-    csv+=`"${o.order_no}","${time}","${o.customer_name||'-'}","${o.customer_phone||'-'}",${o.total_amount},"${o.note||'-'}","售后","${o.shipped_at||'-'}","${o.admin_note||'-'}"\n`;
+    csv+=`"${o.order_no}","${time}","${o.customer_name||'-'}","${o.customer_phone||'-'}",${o.total_amount},"${o.note||'-'}","Post-vendita","${o.shipped_at||'-'}","${o.admin_note||'-'}"\n`;
   });
-  const fname=`售后报表_${from||'all'}_to_${to||'today'}.csv`;
+  const fname=`Report_resi_${from||'all'}_to_${to||'today'}.csv`;
   downloadCSV(csv,fname);
   logOperation('export_aftersales','report','aftersales',{from,to},{count:refunds.length});
 }
@@ -861,7 +861,7 @@ function exportSalesCSV(){
     });
   });
   const products=Object.values(productSales).sort((a,b)=>b.qty-a.qty);
-  if(!products.length){showToast('无销量数据 / Nessun dato vendita');return}
+  if(!products.length){showToast('Nessun dato vendita');return}
   let csv='商品名,Emoji,分类,SKU明细,总销量,总收入\n';
   products.forEach(p=>{
     const skuDetail=Object.entries(p.skus).map(([k,v])=>`${k}:${v}件`).join('; ');
