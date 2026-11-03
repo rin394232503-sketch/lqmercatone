@@ -685,7 +685,7 @@ function showAddress(){
 
 // ===== Settings =====
 function showSettings(){
-  showToast('⚙️ 设置页面即将上线');
+  showToast('⚙️ Pagina impostazioni in arrivo');
 }
 
 // ===== Toast =====
@@ -824,10 +824,10 @@ async function executeDeleteAccount() {
 function showOrderHistory() {
   const orders = JSON.parse(localStorage.getItem("lq_orders") || "[]");
   if (orders.length === 0) {
-    showToast("Nessun ordine / 暂无订单");
+    showToast("Nessun ordine / Nessun ordine");
     return;
   }
-  showToast(orders.length + " ordini / 个订单");
+  showToast(orders.length + " ordini / ordini");
 }
 
 // ===== 客服中心 =====

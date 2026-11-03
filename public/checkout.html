@@ -792,7 +792,7 @@ async function submitOrder() {
       <p style="font-size:14px;color:var(--text-light);margin-bottom:4px;">Numero ordine Order No.</p>
       <p style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:8px;">${orderNo}</p>
       ${pickupCode ? `<div style="background:var(--success);color:white;padding:12px 20px;border-radius:12px;margin-bottom:16px;text-align:center">
-        <div style="font-size:12px;opacity:0.8">自提码 Codice di ritiro</div>
+        <div style="font-size:12px;opacity:0.8">Codice di ritiro</div>
         <div style="font-size:24px;font-weight:700;letter-spacing:4px">${pickupCode}</div>
         <div style="font-size:11px;opacity:0.8;margin-top:4px">Mostra questo codice per il ritiro</div>
       </div>` : ''}
@@ -824,9 +824,9 @@ function showUserInfo() {
 }
 
 function logout() {
-  if (confirm('确定退出登录？/ Esci dall\'accesso?')) {
+  if (confirm('Confermi il logout?\'accesso?')) {
     localStorage.removeItem('buyer_user');
-    showToast('已退出 / Uscito');
+    showToast('Disconnesso');
     setTimeout(() => window.location.reload(), 500);
   }
 }
